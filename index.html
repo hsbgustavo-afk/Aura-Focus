@@ -586,9 +586,9 @@
             let btnMain = document.getElementById('btn-pomo-main');
             if (pomoInterval) {
                 clearInterval(pomoInterval); pomoInterval = null;
-                btnMain.innerHTML = '<i class="fas fa-play"></i>';
+                btnMain.innerHTML = '<i class="fas fa-volume-down"></i>';
             } else {
-                btnMain.innerHTML = '<i class="fas fa-pause"></i>';
+                btnMain.innerHTML = '<i class="fas fa-volume-down"></i>';
                 pomoInterval = setInterval(() => {
                     timeLeft--; updatePomodoroUI();
                     
