@@ -205,7 +205,7 @@
                         <div class="time-display" id="pomo-time">25:00</div>
                     </div>
                     <div class="controls">
-                        <button class="btn btn-primary" id="btn-pomo-main" onclick="togglePomodoro()"><i class="fas fa-play"></i> Iniciar</button>
+                        <button class="btn btn-primary" id="btn-pomo-main" onclick="togglePomodoro()"><i class="fas fa-play"></i></button>
                         <button class="btn btn-danger" id="btn-pomo-end" onclick="endSession()" style="display: none;"><i class="fas fa-stop"></i></button>
                         <button class="btn btn-secondary" id="btn-pomo-skip" onclick="skipPomodoroCycle()" title="Pular fase"><i class="fas fa-forward"></i></button>
                         <button class="btn btn-secondary" onclick="togglePiP()" title="Abre um mini-player que flutua na tela inteira do PC"><i class="fas fa-clone"></i></button>
@@ -725,14 +725,14 @@
             isMuted = false; initAmbientAudio(appData.audio.type);
             document.getElementById('btn-noise').classList.add('active');
             document.getElementById('btn-mute').classList.remove('active');
-            document.getElementById('btn-noise').innerHTML = '<i class="fas fa-pause"></i>';
+            document.getElementById('btn-noise').innerHTML = '<i class="fa-solid fa-volume"></i>';
         });
 
         document.getElementById('btn-mute').addEventListener('click', () => {
             isMuted = true; if(gainNode) gainNode.gain.value = 0;
             document.getElementById('btn-mute').classList.add('active');
             document.getElementById('btn-noise').classList.remove('active');
-            document.getElementById('btn-noise').innerHTML = '<i class="fas fa-play"></i>';
+            document.getElementById('btn-noise').innerHTML = '<i class="fa-solid fa-volume"></i>';
         });
 
         document.getElementById('volume-slider').addEventListener('input', (e) => {
