@@ -586,9 +586,9 @@
             let btnMain = document.getElementById('btn-pomo-main');
             if (pomoInterval) {
                 clearInterval(pomoInterval); pomoInterval = null;
-                btnMain.innerHTML = '<i class="fas fa-volume-down"></i>';
+                btnMain.innerHTML = '<i class="fas fa-play"></i>';
             } else {
-                btnMain.innerHTML = '<i class="fas fa-volume-down"></i>';
+                btnMain.innerHTML = '<i class="fas fa-pause"></i>';
                 pomoInterval = setInterval(() => {
                     timeLeft--; updatePomodoroUI();
                     
@@ -725,14 +725,14 @@
             isMuted = false; initAmbientAudio(appData.audio.type);
             document.getElementById('btn-noise').classList.add('active');
             document.getElementById('btn-mute').classList.remove('active');
-            document.getElementById('btn-noise').innerHTML = '<i class="fa-solid fa-volume"></i>';
+            document.getElementById('btn-noise').innerHTML = '<i class="fas fa-volume-down"></i>';
         });
 
         document.getElementById('btn-mute').addEventListener('click', () => {
             isMuted = true; if(gainNode) gainNode.gain.value = 0;
             document.getElementById('btn-mute').classList.add('active');
             document.getElementById('btn-noise').classList.remove('active');
-            document.getElementById('btn-noise').innerHTML = '<i class="fa-solid fa-volume"></i>';
+            document.getElementById('btn-noise').innerHTML = '<i class="fas fa-volume-down"></i>';
         });
 
         document.getElementById('volume-slider').addEventListener('input', (e) => {
