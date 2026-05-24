@@ -316,13 +316,13 @@
                 <div class="settings-grid">
                     <div class="settings-card">
                         <h3 style="margin-bottom: 20px; color: var(--primary); display: flex; align-items: center; gap: 10px;">
-                            <i class="fas fa-stopwatch"></i> Tempos (minutos)
+                            <i class="fas fa-stopwatch"></i> Configuração do Pomodoro
                         </h3>
                         <div class="input-group"><label>Tempo de Foco</label><input type="number" id="set-focus" min="1"></div>
                         <div class="input-group"><label>Pausa Curta</label><input type="number" id="set-short" min="1"></div>
                         <div class="input-group"><label>Pausa Longa</label><input type="number" id="set-long" min="1"></div>
                         <div class="input-group"><label>Ciclos até Pausa Longa</label><input type="number" id="set-cycles" min="1"></div>
-                        <button class="btn btn-primary" onclick="saveSettings()" style="width: 100%; justify-content:center;">Salvar Tempos</button>
+                        <button class="btn btn-primary" onclick="saveSettings()" style="width: 100%; justify-content:center;">Salvar Sessão</button>
                     </div>
                     <div class="settings-card">
                         <h3 style="margin-bottom: 20px; color: var(--primary); display: flex; align-items: center; gap: 10px;">
@@ -339,30 +339,30 @@
                             <button class="btn btn-secondary" onclick="clearAvatar()" style="margin-top: 10px; width: 100%; font-size: 0.85rem; padding: 10px;">Remover Foto</button>
                         </div>
 
-                        <div class="input-group"><label>Nome do Usuário</label><input type="text" id="set-name"></div>
+                        <div class="input-group"><label>Nome de Usuário</label><input type="text" id="set-name"></div>
                         
                         <div class="input-group">
-                            <label>Imagem de Fundo (Arquivo ou URL)</label>
+                            <label>Imagem de Fundo</label>
                             <div class="custom-file-upload" style="margin-bottom: 8px;">
                                 <input type="file" id="set-bg-file" accept="image/*" hidden>
                                 <label for="set-bg-file" class="btn btn-secondary file-label"><i class="fas fa-upload"></i> Upload</label>
-                                <span class="file-name" id="bg-file-name">Nenhum arquivo...</span>
+                                <span class="file-name" id="bg-file-name">...</span>
                             </div>
-                            <input type="text" id="set-bg" placeholder="Ou cole uma URL aqui...">
+                            <input type="text" id="set-bg" placeholder="URL">
                         </div>
 
                         <div class="input-group" style="display: flex; align-items: center; gap: 10px;">
                             <input type="checkbox" id="set-bg-blur" style="width: 22px; height: 22px; cursor: pointer;">
-                            <label style="margin: 0; cursor: pointer;" for="set-bg-blur">Ativar Embaçamento (Blur) no Fundo</label>
+                            <label style="margin: 0; cursor: pointer;" for="set-bg-blur">Ativar Blur</label>
                         </div>
 
                         <div class="input-group"><label>Cor Principal</label><input type="color" id="set-color" style="height: 50px; cursor: pointer; padding: 5px;"></div>
                         
-                        <button class="btn btn-primary" onclick="saveVisuals()" style="width: 100%; justify-content:center; margin-bottom: 20px;">Aplicar Visual</button>
+                        <button class="btn btn-primary" onclick="saveVisuals()" style="width: 100%; justify-content:center; margin-bottom: 20px;">Aplicar</button>
                         
                         <div class="danger-zone">
                             <button class="btn btn-secondary" onclick="logoutUser()" style="width: 100%; justify-content:center; margin-bottom: 10px;"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                            <button class="btn btn-danger" onclick="clearHistory()" style="width: 100%; justify-content:center;"><i class="fas fa-trash"></i> Zerar registros</button>
+                            <button class="btn btn-danger" onclick="clearHistory()" style="width: 100%; justify-content:center;"><i class="fas fa-trash"></i>Apagar Analytics</button>
                         </div>
                     </div>
                 </div>
@@ -513,7 +513,7 @@
                 appData.stats = { totalMinutes: 0, totalSessions: 0, history: {} };
                 appData.user.xp = 0; appData.user.level = 1; appData.user.streak = 0;
                 saveData(); updateChart();
-                showToast('Histórico zerado com sucesso.', 'success');
+                showToast('Dados do Analytics Apagados.', 'success');
             }
         }
 
@@ -816,7 +816,7 @@
         function saveSettings() {
             appData.settings.focus = parseInt(document.getElementById('set-focus').value); appData.settings.shortBreak = parseInt(document.getElementById('set-short').value);
             appData.settings.longBreak = parseInt(document.getElementById('set-long').value); appData.settings.cyclesGoal = parseInt(document.getElementById('set-cycles').value);
-            saveData(); if(!sessionActive) { timeLeft = appData.settings.focus * 60; updatePomodoroUI(); } showToast('Tempos do Pomodoro atualizados e salvos!', 'success');
+            saveData(); if(!sessionActive) { timeLeft = appData.settings.focus * 60; updatePomodoroUI(); } showToast('Pomodoro atualizado e salvo!', 'success');
         }
 
         function saveVisuals() {
