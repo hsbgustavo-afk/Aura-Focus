@@ -87,8 +87,17 @@
         .btn-login:hover { box-shadow: 0 5px 15px var(--primary-glow); transform: translateY(-2px); }
         .btn-register { background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--glass-border); }
         .btn-register:hover { background: rgba(255,255,255,0.2); }
-        .forgot-link { display: inline-block; margin-top: 15px; font-size: 0.85rem; color: var(--primary); text-decoration: none; cursor: pointer; transition: 0.2s; }
+        
+        .btn-google { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid var(--glass-border); margin-top: 10px; width: 100%; font-weight: 500;}
+        .btn-google:hover { background: rgba(255, 255, 255, 0.2); box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
+        
+        .forgot-link { display: inline-block; margin-top: 20px; font-size: 0.85rem; color: var(--primary); text-decoration: none; cursor: pointer; transition: 0.2s; }
         .forgot-link:hover { text-shadow: 0 0 8px var(--primary-glow); }
+        
+        .divider { display: flex; align-items: center; text-align: center; margin: 15px 0; color: var(--text-muted); font-size: 0.85rem;}
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--glass-border); }
+        .divider:not(:empty)::before { margin-right: .5em; }
+        .divider:not(:empty)::after { margin-left: .5em; }
 
         /* Toasts */
         #toast-container { position: fixed; top: 20px; right: 20px; left: 20px; z-index: 10005; display: flex; flex-direction: column; gap: 10px; pointer-events: none; align-items: flex-end; }
@@ -246,6 +255,11 @@
                 <button type="submit" class="btn-style btn-login"><i class="fa-sharp-duotone fa-solid fa-arrow-left-to-bracket"></i> Entrar</button>
                 <button type="button" class="btn-style btn-register" onclick="registerUser()">Criar Conta</button>
             </div>
+            
+            <div class="divider">ou</div>
+            
+            <button type="button" class="btn-style btn-google" onclick="loginWithGoogle()"><i class="fa-brands fa-google"></i> Continuar com o Google</button>
+            
             <a class="forgot-link" onclick="openForgotModal()">Esqueci minha senha</a>
             <p id="auth-error" style="color: var(--danger); margin-top: 15px; font-size: 0.85rem; display: none;"></p>
         </form>
@@ -463,6 +477,7 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
 
         const defaultState = {
             user: { name: 'Estudante', xp: 0, level: 1, streak: 0, lastLogin: null, avatar: '' },
@@ -483,7 +498,7 @@
             }
         }
 
-        // === 2. Sistema de Autenticação e Recuperação de Senha ===
+        // === 2. Sistema de Autenticação, Google Login e Recuperação de Senha ===
         const authModal = document.getElementById('auth-modal');
         const authError = document.getElementById('auth-error');
 
@@ -534,6 +549,12 @@
             auth.createUserWithEmailAndPassword(email, pass).catch(err => showError(err.message));
         }
 
+        function loginWithGoogle() {
+            auth.signInWithPopup(googleProvider).catch(err => {
+                showError("Erro com o Google: " + err.message);
+            });
+        }
+
         function logoutUser() {
             if(confirm("Tem certeza que deseja sair?")) { auth.signOut(); }
         }
@@ -553,6 +574,9 @@
                         if (!appData.stats.history) appData.stats.history = {};
                         if (appData.visuals.blur === undefined) appData.visuals.blur = true;
                     } else {
+                        // Se for a primeira vez, tenta puxar os dados do Google
+                        if (user.displayName) appData.user.name = user.displayName;
+                        if (user.photoURL) appData.user.avatar = user.photoURL;
                         saveData();
                         showToast('Conta configurada pela primeira vez.', 'success');
                     }
@@ -564,6 +588,7 @@
                 authModal.style.display = 'flex';
                 setTimeout(() => authModal.style.opacity = '1', 10);
                 document.getElementById('auth-password').value = '';
+                authError.style.display = 'none';
             }
         });
 
