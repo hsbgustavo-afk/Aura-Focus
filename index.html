@@ -7,7 +7,11 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
@@ -44,7 +48,33 @@
         /* Overlay do fundo dinâmico */
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15,15,19,0.9) 0%, rgba(15,15,19,0.6) 100%); z-index: 1; backdrop-filter: blur(8px); pointer-events: none; transition: 0.5s ease;}
 
-        /* Auth Modal */
+        /* Modals Genéricas Glassmorphism */
+        .glass-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(20px);
+            z-index: 10000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: 0.3s ease; padding: 20px; overflow-y: auto;
+        }
+        .glass-modal-overlay.active { opacity: 1; visibility: visible; }
+        .glass-modal {
+            background: var(--glass-bg); padding: 40px; border-radius: 20px;
+            border: 1px solid var(--glass-border); width: 100%; max-width: 420px;
+            text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transform: translateY(20px) scale(0.95); transition: 0.3s ease;
+        }
+        .glass-modal-overlay.active .glass-modal { transform: translateY(0) scale(1); }
+        .glass-modal h2 { margin-bottom: 10px; color: var(--text-main); }
+        .glass-modal p { margin-bottom: 25px; color: var(--text-muted); font-size: 0.9rem; }
+        .glass-modal input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); color: white; padding: 15px; border-radius: 12px; font-size: 1rem; margin-bottom: 15px; outline: none; transition: 0.3s; }
+        .glass-modal input:focus { border-color: var(--primary); box-shadow: 0 0 10px var(--primary-glow); }
+        .modal-btns { display: flex; gap: 10px; margin-top: 10px; width: 100%; }
+        
+        /* Cropper Específico Circular */
+        .cropper-view-box, .cropper-face { border-radius: 50%; }
+        .crop-container { width: 100%; max-height: 400px; margin-bottom: 20px; overflow: hidden; background: #000; border-radius: 15px; }
+        .crop-container img { max-width: 100%; }
+
+        /* Auth Modal Original adaptado */
         .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: 0.3s; padding: 20px; overflow-y: auto; }
         .auth-box { margin: auto; background: var(--glass-bg); padding: 40px; border-radius: 20px; border: 1px solid var(--glass-border); width: 100%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .auth-box h2 { margin-bottom: 10px; color: var(--text-main); }
@@ -52,32 +82,43 @@
         .auth-box input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); color: white; padding: 15px; border-radius: 12px; font-size: 1rem; margin-bottom: 15px; outline: none; transition: 0.3s; }
         .auth-box input:focus { border-color: var(--primary); box-shadow: 0 0 10px var(--primary-glow); }
         .auth-btns { display: flex; gap: 10px; margin-top: 10px; }
-        .auth-btns button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-style { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;}
         .btn-login { background: var(--primary); color: white; }
         .btn-login:hover { box-shadow: 0 5px 15px var(--primary-glow); transform: translateY(-2px); }
         .btn-register { background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--glass-border); }
         .btn-register:hover { background: rgba(255,255,255,0.2); }
+        .forgot-link { display: inline-block; margin-top: 15px; font-size: 0.85rem; color: var(--primary); text-decoration: none; cursor: pointer; transition: 0.2s; }
+        .forgot-link:hover { text-shadow: 0 0 8px var(--primary-glow); }
 
-        #toast-container { position: fixed; top: 20px; right: 20px; left: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; align-items: flex-end; }
-        .toast { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-left: 4px solid var(--primary); padding: 15px 20px; border-radius: 8px; color: #fff; animation: slideIn 0.3s ease-out forwards; box-shadow: 0 10px 30px rgba(0,0,0,0.3); pointer-events: auto; font-size: 0.95rem; max-width: 100%; }
+        /* Toasts */
+        #toast-container { position: fixed; top: 20px; right: 20px; left: 20px; z-index: 10005; display: flex; flex-direction: column; gap: 10px; pointer-events: none; align-items: flex-end; }
+        .toast { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-left: 4px solid var(--primary); padding: 15px 20px; border-radius: 8px; color: #fff; animation: slideIn 0.3s ease-out forwards; box-shadow: 0 10px 30px rgba(0,0,0,0.3); pointer-events: auto; font-size: 0.95rem; max-width: 100%; display: flex; align-items: center; gap: 10px; }
         @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
+        /* Layout Principal */
         .app-container { position: relative; z-index: 2; width: 100%; height: 100%; display: grid; grid-template-columns: 260px 1fr; grid-template-rows: 80px 1fr; }
-
         header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); backdrop-filter: blur(10px); }
         .header-left { display: flex; align-items: center; gap: 15px; }
         .mobile-menu-btn { display: none; background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 5px; }
-        .profile-area { display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.2s; }
-        .profile-area:hover { transform: scale(1.02); }
+        .profile-area { display: flex; align-items: center; gap: 15px; transition: 0.2s; }
         
-        .avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; box-shadow: 0 0 15px var(--primary-glow); flex-shrink: 0; overflow: hidden; }
-        
+        .avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; box-shadow: 0 0 15px var(--primary-glow); flex-shrink: 0; overflow: hidden; cursor: pointer; transition: 0.3s; position: relative;}
+        .avatar:hover { transform: scale(1.1); }
+        .avatar::after { content: '\f00e'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; font-size: 1rem; opacity: 0; transition: 0.3s; }
+        .avatar:hover::after { opacity: 1; }
+
         .user-info h2 { font-size: 1.1rem; font-weight: 600; white-space: nowrap; }
+        .user-info .name-edit { cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; }
+        .user-info .name-edit:hover { color: var(--primary); }
         .user-info p { font-size: 0.85rem; color: var(--text-muted); }
         .level-badge { background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px;}
         .xp-bar-container { width: 150px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 5px; overflow: hidden; }
         .xp-bar { height: 100%; background: var(--primary); width: 0%; transition: width 0.5s ease; }
 
+        /* Visor de Avatar Expandido */
+        .large-avatar-preview { width: 180px; height: 180px; border-radius: 50%; margin: 0 auto 20px; background: var(--primary); box-shadow: 0 10px 40px var(--primary-glow); display: flex; align-items: center; justify-content: center; font-size: 4rem; font-weight: bold; overflow: hidden; border: 4px solid rgba(255,255,255,0.1); }
+
+        /* Sidebar */
         .sidebar-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 998; opacity: 0; visibility: hidden; transition: 0.3s ease; backdrop-filter: blur(5px); }
         aside.sidebar { border-right: 1px solid var(--glass-border); padding: 30px 20px; display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.15); overflow-y: auto; }
         .nav-btn { background: transparent; border: none; color: var(--text-muted); padding: 15px 20px; border-radius: 12px; text-align: left; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 15px; font-weight: 500; width: 100%; }
@@ -94,21 +135,21 @@
         .noise-select { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: white; padding: 8px; border-radius: 8px; font-size: 0.85rem; outline: none; cursor: pointer;}
         .noise-select option { background: #222; }
 
+        /* Main Content */
         main { padding: 40px; overflow-y: auto; overflow-x: hidden; position: relative; width: 100%; display: flex; justify-content: center; }
-        
         .tab-content { display: none; width: 100%; max-width: 1000px; animation: fadeIn 0.4s ease; margin: 0 auto; }
         .tab-content.active { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-bottom: 40px; }
-        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Pomodoro */
         .pomodoro-container { margin: auto; background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 50px; text-align: center; width: 100%; max-width: 550px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .status-text { font-size: 1.2rem; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; transition: color 0.5s; }
-        
         .timer-circle { position: relative; width: 300px; height: 300px; margin: 0 auto 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: conic-gradient(var(--primary) 360deg, rgba(255,255,255,0.05) 0deg); box-shadow: 0 0 40px rgba(0,0,0,0.3), inset 0 0 20px rgba(0,0,0,0.3); transition: background 1s linear; }
         .timer-circle::before { content: ''; position: absolute; width: 280px; height: 280px; background: var(--bg-color); border-radius: 50%; z-index: 1; transition: background 0.5s; }
         .time-display { position: relative; z-index: 2; font-size: 5.5rem; font-weight: 700; text-shadow: 0 5px 15px rgba(0,0,0,0.5); font-variant-numeric: tabular-nums; }
         .sw-time-display { font-size: 4rem; margin-bottom: 30px; }
 
+        /* Botoes Padrão */
         .controls { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
         .btn { padding: 15px 25px; border: none; border-radius: 15px; font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-primary { background: var(--primary); box-shadow: 0 5px 20px var(--primary-glow); }
@@ -120,37 +161,34 @@
 
         .session-stats { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--glass-border); color: var(--text-muted); font-size: 0.9rem; }
 
+        /* Configurações & Analytics */
         .analytics-container { width: 100%; margin: auto;}
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
         .stat-card { background: var(--glass-bg); padding: 25px; border-radius: 20px; border: 1px solid var(--glass-border); text-align: center; }
         .stat-card h3 { font-size: 2rem; color: var(--primary); margin-bottom: 5px; }
         .chart-container { background: var(--glass-bg); padding: 30px; border-radius: 20px; border: 1px solid var(--glass-border); width: 100%; overflow: hidden;}
-
         .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; margin: auto;}
         .settings-card { background: var(--glass-bg); padding: 30px; border-radius: 20px; border: 1px solid var(--glass-border); }
         .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; margin-bottom: 8px; color: var(--text-muted); }
+        .input-group label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 0.9rem;}
         .input-group input[type="text"], .input-group input[type="number"] { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: white; padding: 12px; border-radius: 10px; font-size: 1rem; outline: none;}
         .input-group input:focus { border-color: var(--primary); }
         
-        /* Estilos do Upload Customizado */
         .custom-file-upload { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 12px; border: 1px solid var(--glass-border); width: 100%; }
         .file-label { padding: 8px 15px; font-size: 0.9rem; margin: 0; white-space: nowrap; border-radius: 8px; display: inline-flex; cursor: pointer; }
         .file-name { color: var(--text-muted); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
 
         .huge-clock { font-size: 8rem; font-weight: 700; text-shadow: 0 10px 30px rgba(0,0,0,0.5); font-variant-numeric: tabular-nums; text-align: center; margin: auto;}
         .date-display { font-size: 1.5rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; text-align: center; margin-top: 10px;}
-        
         .danger-zone { margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255, 23, 68, 0.3); }
         #pip-canvas, #pip-video { display: none; }
 
-        /* RESPONSIVIDADE (MOBILE & TABLET) */
+        /* Responsividade */
         @media (max-width: 900px) {
             .app-container { grid-template-columns: 220px 1fr; }
             .huge-clock { font-size: 6rem; }
             .settings-grid { grid-template-columns: 1fr; }
         }
-
         @media (max-width: 768px) {
             .app-container { grid-template-columns: 1fr; grid-template-rows: 70px 1fr; }
             header { padding: 0 15px; }
@@ -181,7 +219,6 @@
             #toast-container { right: 10px; left: 10px; align-items: center; }
             .toast { width: 100%; max-width: 400px; }
         }
-
         @media (max-width: 400px) {
             .timer-circle { width: 200px; height: 200px; }
             .timer-circle::before { width: 185px; height: 185px; }
@@ -191,6 +228,7 @@
             .btn { padding: 12px 15px; font-size: 0.9rem; }
             .auth-box { padding: 30px 20px; }
             .custom-file-upload { flex-direction: column; align-items: flex-start; }
+            .modal-btns { flex-direction: column; }
         }
     </style>
 </head>
@@ -205,27 +243,66 @@
             <input type="email" id="auth-email" placeholder="Seu E-mail" autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" required>
             <input type="password" id="auth-password" placeholder="Sua Senha" required>
             <div class="auth-btns">
-                <button type="submit" class="btn-login"><i class="fa-sharp-duotone fa-solid fa-arrow-left-to-bracket"></i> Entrar</button>
-                <button type="button" class="btn-register" onclick="registerUser()">Criar Conta</button>
+                <button type="submit" class="btn-style btn-login"><i class="fa-sharp-duotone fa-solid fa-arrow-left-to-bracket"></i> Entrar</button>
+                <button type="button" class="btn-style btn-register" onclick="registerUser()">Criar Conta</button>
             </div>
+            <a class="forgot-link" onclick="openForgotModal()">Esqueci minha senha</a>
             <p id="auth-error" style="color: var(--danger); margin-top: 15px; font-size: 0.85rem; display: none;"></p>
         </form>
+    </div>
+
+    <div class="glass-modal-overlay" id="forgot-modal">
+        <div class="glass-modal">
+            <h2>Recuperar Senha</h2>
+            <p>Enviaremos um link para você redefinir sua senha.</p>
+            <input type="email" id="forgot-email" placeholder="Digite seu e-mail cadastrado" required>
+            <div class="modal-btns">
+                <button class="btn-style btn-secondary" onclick="closeForgotModal()">Cancelar</button>
+                <button class="btn-style btn-primary" id="btn-send-reset" onclick="sendPasswordReset()"><i class="fas fa-paper-plane"></i> Enviar Link</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-modal-overlay" id="avatar-view-modal">
+        <div class="glass-modal">
+            <div class="large-avatar-preview" id="large-avatar-display">U</div>
+            <h2 id="large-avatar-name" style="margin-bottom: 20px;">Usuário</h2>
+            <div class="modal-btns" style="flex-direction: column;">
+                <input type="file" id="modal-avatar-file" accept="image/*" hidden>
+                <button class="btn-style btn-primary" onclick="document.getElementById('modal-avatar-file').click()"><i class="fas fa-camera"></i> Alterar Foto</button>
+                <button class="btn-style btn-secondary" onclick="clearAvatar()"><i class="fas fa-trash"></i> Remover Foto</button>
+                <button class="btn-style btn-secondary" style="margin-top: 10px;" onclick="closeAvatarModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-modal-overlay" id="crop-modal">
+        <div class="glass-modal" style="max-width: 500px;">
+            <h2>Ajustar Foto</h2>
+            <p>Mova e dê zoom para alinhar seu avatar.</p>
+            <div class="crop-container">
+                <img id="crop-image" src="" alt="Sua foto para corte">
+            </div>
+            <div class="modal-btns">
+                <button class="btn-style btn-secondary" onclick="cancelCrop()">Cancelar</button>
+                <button class="btn-style btn-primary" onclick="saveCroppedAvatar()"><i class="fas fa-check"></i> Cortar e Salvar</button>
+            </div>
+        </div>
     </div>
 
     <canvas id="pip-canvas" width="400" height="400"></canvas>
     <video id="pip-video" muted playsinline></video>
 
     <div class="app-container">
-        
         <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMobileMenu()"></div>
 
         <header>
             <div class="header-left">
                 <button class="mobile-menu-btn" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
-                <div class="profile-area" onclick="changeName()" title="Clique para mudar seu nome">
-                    <div class="avatar" id="avatar-initial">U</div>
+                <div class="profile-area">
+                    <div class="avatar" id="avatar-initial" onclick="openAvatarModal()" title="Ver/Alterar Foto">U</div>
                     <div class="user-info">
-                        <h2>Bem-vindo(a), <span id="username-display">Usuário</span> <i class="fa-sharp-duotone fa-solid fa-pencil-line"></i></h2>
+                        <h2>Bem-vindo(a), <span class="name-edit" onclick="changeName()" title="Mudar nome"><span id="username-display">Usuário</span> <i class="fa-sharp-duotone fa-solid fa-pencil-line"></i></span></h2>
                         <p>Nível <span id="level-display">1</span> <span class="level-badge" id="title-display">Iniciante</span></p>
                         <div class="xp-bar-container"><div class="xp-bar" id="xp-bar"></div></div>
                     </div>
@@ -276,7 +353,7 @@
                         <button class="btn btn-primary" id="btn-pomo-main" onclick="togglePomodoro()"><i class="fas fa-play"></i></button>
                         <button class="btn btn-danger" id="btn-pomo-end" onclick="endSession()" style="display: none;"><i class="fas fa-stop"></i></button>
                         <button class="btn btn-secondary" id="btn-pomo-skip" onclick="skipPomodoroCycle()" title="Pular fase"><i class="fas fa-forward"></i></button>
-                        <button class="btn btn-secondary" onclick="togglePiP()" title="Abre um mini-player que flutua na tela inteira do PC"><i class="fas fa-clone"></i></button>
+                        <button class="btn btn-secondary" onclick="togglePiP()" title="Abre um mini-player flutuante"><i class="fas fa-clone"></i></button>
                     </div>
                     <div class="session-stats">
                         <span>Ciclos: <b id="pomo-cycles">0/4</b></span>
@@ -318,11 +395,11 @@
                         <h3 style="margin-bottom: 20px; color: var(--primary); display: flex; align-items: center; gap: 10px;">
                             <i class="fas fa-stopwatch"></i> Configurar Pomodoro
                         </h3>
-                        <div class="input-group"><label>Tempo de Foco</label><input type="number" id="set-focus" min="1"></div>
-                        <div class="input-group"><label>Pausa Curta</label><input type="number" id="set-short" min="1"></div>
-                        <div class="input-group"><label>Pausa Longa</label><input type="number" id="set-long" min="1"></div>
+                        <div class="input-group"><label>Tempo de Foco (min)</label><input type="number" id="set-focus" min="1"></div>
+                        <div class="input-group"><label>Pausa Curta (min)</label><input type="number" id="set-short" min="1"></div>
+                        <div class="input-group"><label>Pausa Longa (min)</label><input type="number" id="set-long" min="1"></div>
                         <div class="input-group"><label>Ciclos até Pausa Longa</label><input type="number" id="set-cycles" min="1"></div>
-                        <button class="btn btn-primary" onclick="saveSettings()" style="width: 100%; justify-content:center;">Salvar</button>
+                        <button class="btn btn-primary" onclick="saveSettings()" style="width: 100%; justify-content:center;">Salvar Temporizadores</button>
                     </div>
                     <div class="settings-card">
                         <h3 style="margin-bottom: 20px; color: var(--primary); display: flex; align-items: center; gap: 10px;">
@@ -333,38 +410,31 @@
                         
                         <div class="input-group">
                             <label>Foto de Perfil</label>
-                            <div class="custom-file-upload">
-                                <input type="file" id="set-avatar-file" accept="image/*" hidden>
-                                <label for="set-avatar-file" class="btn btn-secondary file-label"><i class="fas fa-upload"></i> Upload</label>
-                                <span class="file-name" id="avatar-file-name">...</span>
-                            </div>
-                            <button class="btn btn-secondary" onclick="clearAvatar()" style="margin-top: 10px; width: 100%; font-size: 0.85rem; padding: 10px;">Remover Foto</button>
+                            <button class="btn btn-secondary" onclick="openAvatarModal()" style="width: 100%; font-size: 0.9rem;"><i class="fas fa-user-circle"></i> Gerenciar Foto de Perfil</button>
                         </div>
-
-                        
                         
                         <div class="input-group">
-                            <label>Imagem de Fundo</label>
+                            <label>Imagem de Fundo (Wallpaper)</label>
                             <div class="custom-file-upload" style="margin-bottom: 8px;">
                                 <input type="file" id="set-bg-file" accept="image/*" hidden>
-                                <label for="set-bg-file" class="btn btn-secondary file-label"><i class="fas fa-upload"></i> Upload</label>
-                                <span class="file-name" id="bg-file-name">...</span>
+                                <label for="set-bg-file" class="btn btn-secondary file-label"><i class="fas fa-upload"></i> Arquivo</label>
+                                <span class="file-name" id="bg-file-name">Nenhum selecionado...</span>
                             </div>
-                            <input type="text" id="set-bg" placeholder="URL">
+                            <input type="text" id="set-bg" placeholder="Ou insira um link (URL)">
                         </div>
 
                         <div class="input-group" style="display: flex; align-items: center; gap: 10px;">
                             <input type="checkbox" id="set-bg-blur" style="width: 22px; height: 22px; cursor: pointer;">
-                            <label style="margin: 0; cursor: pointer;" for="set-bg-blur">Ativar Blur</label>
+                            <label style="margin: 0; cursor: pointer;" for="set-bg-blur">Ativar Fundo Vidro (Blur)</label>
                         </div>
 
-                        <div class="input-group"><label>Cor Principal</label><input type="color" id="set-color" style="height: 50px; cursor: pointer; padding: 5px;"></div>
+                        <div class="input-group"><label>Cor Principal do Tema</label><input type="color" id="set-color" style="height: 50px; cursor: pointer; padding: 5px; border-radius: 8px;"></div>
                         
-                        <button class="btn btn-primary" onclick="saveVisuals()" style="width: 100%; justify-content:center; margin-bottom: 20px;">Aplicar</button>
+                        <button class="btn btn-primary" onclick="saveVisuals()" style="width: 100%; justify-content:center; margin-bottom: 20px;">Aplicar Visual</button>
                         
                         <div class="danger-zone">
-                            <button class="btn btn-secondary" onclick="logoutUser()" style="width: 100%; justify-content:center; margin-bottom: 10px;"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                            <button class="btn btn-danger" onclick="clearHistory()" style="width: 100%; justify-content:center;"><i class="fas fa-trash"></i>Apagar Analytics</button>
+                            <button class="btn btn-secondary" onclick="logoutUser()" style="width: 100%; justify-content:center; margin-bottom: 10px;"><i class="fas fa-sign-out-alt"></i> Sair da Conta</button>
+                            <button class="btn btn-danger" onclick="clearHistory()" style="width: 100%; justify-content:center;"><i class="fas fa-trash"></i> Apagar Histórico</button>
                         </div>
                     </div>
                 </div>
@@ -373,6 +443,7 @@
     </div>
 
     <script>
+        // === 1. Configuração Inicial e Menu ===
         function toggleMobileMenu() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
@@ -412,6 +483,7 @@
             }
         }
 
+        // === 2. Sistema de Autenticação e Recuperação de Senha ===
         const authModal = document.getElementById('auth-modal');
         const authError = document.getElementById('auth-error');
 
@@ -420,37 +492,50 @@
             authError.innerText = msg;
         }
 
+        function showToast(message, type='info', icon='') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            let color = 'var(--primary)';
+            let iconHTML = icon ? `<i class="${icon}"></i>` : '';
+            if(type === 'success') { color = 'var(--success)'; if(!icon) iconHTML = '<i class="fas fa-check-circle"></i>'; }
+            if(type === 'warning') { color = 'var(--warning)'; if(!icon) iconHTML = '<i class="fas fa-exclamation-triangle"></i>'; }
+            if(type === 'danger') { color = 'var(--danger)'; if(!icon) iconHTML = '<i class="fas fa-times-circle"></i>'; }
+            if(type === 'info' && !icon) iconHTML = '<i class="fas fa-info-circle"></i>';
+            
+            toast.style.borderLeftColor = color;
+            toast.innerHTML = `${iconHTML} <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease-in reverse forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
         function loginUser() {
             const email = document.getElementById('auth-email').value.trim().toLowerCase();
             const pass = document.getElementById('auth-password').value;
-            
             if(!email || !pass) return showError("Preencha e-mail e senha.");
             
             auth.signInWithEmailAndPassword(email, pass).catch(err => {
                 if(err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
                     showError("E-mail ou senha incorretos.");
-                } else {
-                    showError("Erro: " + err.message);
-                }
+                } else { showError("Erro: " + err.message); }
             });
         }
 
         function registerUser() {
             const email = document.getElementById('auth-email').value.trim().toLowerCase();
             const pass = document.getElementById('auth-password').value;
-            
             if(!email || !pass) return showError("Preencha e-mail e senha.");
             if(pass.length < 6) return showError("A senha deve ter pelo menos 6 caracteres.");
             
-            auth.createUserWithEmailAndPassword(email, pass).catch(err => {
-                showError(err.message);
-            });
+            auth.createUserWithEmailAndPassword(email, pass).catch(err => showError(err.message));
         }
 
         function logoutUser() {
-            if(confirm("Tem certeza que deseja sair?")) {
-                auth.signOut();
-            }
+            if(confirm("Tem certeza que deseja sair?")) { auth.signOut(); }
         }
 
         auth.onAuthStateChanged(async (user) => {
@@ -458,7 +543,7 @@
                 isUserLoggedIn = true;
                 authModal.style.opacity = '0';
                 setTimeout(() => authModal.style.display = 'none', 300);
-                showToast('Autenticado com sucesso! Sincronizando...', 'info');
+                showToast('Autenticado com sucesso!', 'success');
 
                 try {
                     const docInfo = await db.collection('users').doc(user.uid).get();
@@ -467,22 +552,12 @@
                         if (!appData.audio) appData.audio = { type: 'brown' };
                         if (!appData.stats.history) appData.stats.history = {};
                         if (appData.visuals.blur === undefined) appData.visuals.blur = true;
-                        
-                        showToast('Dados da nuvem carregados perfeitamente!', 'success');
                     } else {
                         saveData();
                         showToast('Conta configurada pela primeira vez.', 'success');
                     }
-                    
-                    updateProfileUI(); 
-                    loadSettingsUI(); 
-                    updatePomodoroUI(); 
-                    updateChart();
-                } catch (error) {
-                    console.error("Erro ao puxar dados", error);
-                    showToast('Erro ao puxar dados da nuvem.', 'danger');
-                }
-
+                    updateProfileUI(); loadSettingsUI(); updatePomodoroUI(); updateChart();
+                } catch (error) { showToast('Erro ao puxar dados da nuvem.', 'danger'); }
             } else {
                 isUserLoggedIn = false;
                 appData = JSON.parse(JSON.stringify(defaultState)); 
@@ -492,34 +567,149 @@
             }
         });
 
-        function showToast(message, type='info') {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            let color = 'var(--primary)';
-            if(type === 'success') color = 'var(--success)';
-            if(type === 'warning') color = 'var(--warning)';
-            if(type === 'danger') color = 'var(--danger)';
-            toast.style.borderLeftColor = color;
-            toast.innerHTML = message;
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.animation = 'slideIn 0.3s ease-in reverse forwards';
-                setTimeout(() => toast.remove(), 300);
-            }, 4000);
+        // Modais de Recuperação de Senha
+        function openForgotModal() { document.getElementById('forgot-modal').classList.add('active'); }
+        function closeForgotModal() { document.getElementById('forgot-modal').classList.remove('active'); document.getElementById('forgot-email').value = ''; }
+        
+        function sendPasswordReset() {
+            const email = document.getElementById('forgot-email').value.trim();
+            if(!email) return showToast('Digite um e-mail válido.', 'warning');
+            
+            const btn = document.getElementById('btn-send-reset');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            btn.disabled = true;
+
+            auth.sendPasswordResetEmail(email).then(() => {
+                showToast('Link de recuperação enviado para seu e-mail!', 'success');
+                closeForgotModal();
+            }).catch((error) => {
+                let msg = 'Erro ao enviar e-mail.';
+                if(error.code === 'auth/user-not-found') msg = 'Usuário não encontrado.';
+                if(error.code === 'auth/invalid-email') msg = 'E-mail inválido.';
+                showToast(msg, 'danger');
+            }).finally(() => {
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Link';
+                btn.disabled = false;
+            });
         }
 
-        function clearHistory() {
-            if(confirm("Tem certeza que deseja apagar todo o seu histórico da NUVEM? Essa ação é irreversível.")) {
-                appData.stats = { totalMinutes: 0, totalSessions: 0, history: {} };
-                appData.user.xp = 0; appData.user.level = 1; appData.user.streak = 0;
-                saveData(); updateChart();
-                showToast('Dados do Analytics Apagados.', 'success');
+        // === 3. Sistema Profissional de Imagem e Crop (Avatar) ===
+        let cropperInstance = null;
+        
+        function openAvatarModal() { 
+            const largeDisplay = document.getElementById('large-avatar-display');
+            if(appData.user.avatar) {
+                largeDisplay.innerHTML = `<img src="${appData.user.avatar}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                largeDisplay.style.background = 'transparent';
+            } else {
+                largeDisplay.innerHTML = appData.user.name.charAt(0).toUpperCase();
+                largeDisplay.style.background = 'var(--primary)';
+            }
+            document.getElementById('large-avatar-name').innerText = appData.user.name;
+            document.getElementById('avatar-view-modal').classList.add('active'); 
+        }
+        
+        function closeAvatarModal() { document.getElementById('avatar-view-modal').classList.remove('active'); }
+
+        // Handler para arquivos selecionados para o Avatar (abre o crop)
+        document.getElementById('modal-avatar-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    closeAvatarModal();
+                    openCropModal(event.target.result);
+                }
+                reader.readAsDataURL(file);
+            }
+            this.value = ''; // Reseta input para permitir mesmo arquivo
+        });
+
+        function openCropModal(imageSrc) {
+            const cropImage = document.getElementById('crop-image');
+            cropImage.src = imageSrc;
+            document.getElementById('crop-modal').classList.add('active');
+            
+            if(cropperInstance) cropperInstance.destroy();
+            
+            // Inicializa Cropper configurado para Avatar Circular
+            setTimeout(() => {
+                cropperInstance = new Cropper(cropImage, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: 'move',
+                    autoCropArea: 0.9,
+                    restore: false,
+                    guides: false,
+                    center: false,
+                    highlight: false,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    toggleDragModeOnDblclick: false,
+                });
+            }, 100);
+        }
+
+        function cancelCrop() {
+            document.getElementById('crop-modal').classList.remove('active');
+            if(cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+            setTimeout(openAvatarModal, 300); // Volta para a visualização do avatar
+        }
+
+        function saveCroppedAvatar() {
+            if(!cropperInstance) return;
+            
+            // Obtém o canvas cortado e redimensionado para otimização
+            const canvas = cropperInstance.getCroppedCanvas({
+                width: 256,
+                height: 256,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+            });
+            
+            const base64Avatar = canvas.toDataURL('image/jpeg', 0.85);
+            appData.user.avatar = base64Avatar;
+            
+            saveData();
+            showToast('Foto de perfil atualizada!', 'success');
+            
+            document.getElementById('crop-modal').classList.remove('active');
+            if(cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+            
+            setTimeout(openAvatarModal, 300); // Retorna e mostra a nova foto em tamanho grande
+        }
+
+        function clearAvatar() {
+            if(appData.user.avatar && confirm("Deseja remover sua foto de perfil?")) {
+                appData.user.avatar = '';
+                saveData();
+                showToast('Foto removida.', 'info');
+                openAvatarModal(); // Atualiza modal grande
             }
         }
 
+        // Antigo Processador de Imagem mantido apenas para Fundos (Backgrounds não são circulares)
+        function processImage(file, maxWidth, callback) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width, height = img.height;
+                    if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    callback(canvas.toDataURL('image/jpeg', 0.7));
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // === 4. Interface de Perfil e Level ===
         const titles = ["Iniciante", "Focado", "Produtivo", "Mestre do Tempo", "Lenda do Foco"];
+        
         function addXP(minutes) {
             appData.user.xp += (minutes * 10);
             let xpNeeded = appData.user.level * 100;
@@ -530,48 +720,12 @@
             saveData();
         }
 
-        function processImage(file, maxWidth, callback) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-                    
-                    if (width > maxWidth) {
-                        height *= maxWidth / width;
-                        width = maxWidth;
-                    }
-                    
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    callback(canvas.toDataURL('image/jpeg', 0.6));
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function clearAvatar() {
-            if(confirm("Deseja remover sua foto de perfil?")) {
-                appData.user.avatar = '';
-                document.getElementById('set-avatar-file').value = '';
-                document.getElementById('avatar-file-name').innerText = 'Nenhum arquivo...';
-                saveData();
-                showToast('Foto removida.', 'info');
-            }
-        }
-
         function updateProfileUI() {
             document.getElementById('username-display').innerText = appData.user.name;
             
             const avatarDiv = document.getElementById('avatar-initial');
             if (appData.user.avatar) {
-                avatarDiv.innerHTML = `<img src="${appData.user.avatar}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                avatarDiv.innerHTML = `<img src="${appData.user.avatar}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; pointer-events: none;">`;
                 avatarDiv.style.background = 'transparent';
             } else {
                 avatarDiv.innerHTML = appData.user.name.charAt(0).toUpperCase();
@@ -586,6 +740,94 @@
             document.getElementById('stat-sessions').innerText = appData.stats.totalSessions;
         }
 
+        async function changeName() { 
+            const newName = prompt("Como você gostaria de ser chamado?", appData.user.name); 
+            if (newName && newName.trim() !== '') { 
+                appData.user.name = newName.trim(); 
+                saveData(); 
+                showToast('Nome atualizado com sucesso!', 'success');
+            } 
+        }
+
+        function clearHistory() {
+            if(confirm("Tem certeza que deseja apagar todo o seu histórico da NUVEM? Essa ação é irreversível.")) {
+                appData.stats = { totalMinutes: 0, totalSessions: 0, history: {} };
+                appData.user.xp = 0; appData.user.level = 1; appData.user.streak = 0;
+                saveData(); updateChart();
+                showToast('Dados do Analytics Apagados.', 'success');
+            }
+        }
+
+        // === 5. Sistema de Configurações (Settings) ===
+        document.getElementById('set-bg-file').addEventListener('change', function() {
+            document.getElementById('bg-file-name').innerText = this.files[0] ? this.files[0].name : 'Nenhum selecionado...';
+        });
+
+        function loadSettingsUI() {
+            document.getElementById('set-focus').value = appData.settings.focus; 
+            document.getElementById('set-short').value = appData.settings.shortBreak;
+            document.getElementById('set-long').value = appData.settings.longBreak; 
+            document.getElementById('set-cycles').value = appData.settings.cyclesGoal;
+            document.getElementById('set-name').value = appData.user.name; 
+            
+            if (appData.visuals.bgUrl && !appData.visuals.bgUrl.startsWith('data:image')) {
+                document.getElementById('set-bg').value = appData.visuals.bgUrl;
+            } else { document.getElementById('set-bg').value = ''; }
+
+            document.getElementById('set-color').value = appData.visuals.color; 
+            document.getElementById('set-bg-blur').checked = appData.visuals.blur;
+            applyVisuals();
+        }
+
+        function saveSettings() {
+            appData.settings.focus = parseInt(document.getElementById('set-focus').value); 
+            appData.settings.shortBreak = parseInt(document.getElementById('set-short').value);
+            appData.settings.longBreak = parseInt(document.getElementById('set-long').value); 
+            appData.settings.cyclesGoal = parseInt(document.getElementById('set-cycles').value);
+            saveData(); 
+            if(!sessionActive) { timeLeft = appData.settings.focus * 60; updatePomodoroUI(); } 
+            showToast('Temporizadores atualizados!', 'success');
+        }
+
+        function saveVisuals() {
+            appData.user.name = document.getElementById('set-name').value || 'Usuário'; 
+            appData.visuals.color = document.getElementById('set-color').value;
+            appData.visuals.blur = document.getElementById('set-bg-blur').checked;
+            
+            const bgUrlInput = document.getElementById('set-bg').value;
+            const bgFile = document.getElementById('set-bg-file').files[0];
+
+            if (bgFile) {
+                processImage(bgFile, 1920, (base64) => {
+                    appData.visuals.bgUrl = base64;
+                    document.getElementById('set-bg').value = ''; 
+                    finalizeVisualsSave();
+                });
+            } else {
+                if (bgUrlInput !== "") { appData.visuals.bgUrl = bgUrlInput; } 
+                else if (bgUrlInput === "" && appData.visuals.bgUrl && !appData.visuals.bgUrl.startsWith('data:image')) { appData.visuals.bgUrl = ''; }
+                finalizeVisualsSave();
+            }
+        }
+
+        function finalizeVisualsSave() {
+            saveData(); applyVisuals();
+            showToast('Aparência atualizada!', 'success');
+            document.getElementById('set-bg-file').value = '';
+            document.getElementById('bg-file-name').innerText = 'Nenhum selecionado...';
+        }
+
+        function applyVisuals() {
+            document.documentElement.style.setProperty('--primary', appData.visuals.color); 
+            let hex = appData.visuals.color.replace('#', '');
+            let r = parseInt(hex.substring(0,2),16), g = parseInt(hex.substring(2,4),16), b = parseInt(hex.substring(4,6),16);
+            document.documentElement.style.setProperty('--primary-glow', `rgba(${r}, ${g}, ${b}, 0.5)`); 
+            
+            document.body.style.backgroundImage = appData.visuals.bgUrl ? `url('${appData.visuals.bgUrl}')` : `none`;
+            document.getElementById('main-overlay').style.backdropFilter = appData.visuals.blur ? 'blur(8px)' : 'none';
+        }
+
+        // === 6. Áudio & Chimes (Sons) ===
         let globalAudioCtx;
         function playChime(type) {
             try {
@@ -606,13 +848,73 @@
             } catch (e) { console.log("Áudio bloqueado."); }
         }
 
+        let audioContext, gainNode, currentNoiseNode, extraAudioNodes = []; let isMuted = true;
+        function stopNoise() {
+            if(currentNoiseNode) { currentNoiseNode.stop(); currentNoiseNode.disconnect(); }
+            extraAudioNodes.forEach(n => n.disconnect()); extraAudioNodes = [];
+        }
+
+        function initAmbientAudio(type) {
+            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)(); stopNoise();
+            if (!gainNode) { gainNode = audioContext.createGain(); gainNode.connect(audioContext.destination); }
+            gainNode.gain.value = isMuted ? 0 : document.getElementById('volume-slider').value;
+
+            if (type === 'purr') {
+                let osc = audioContext.createOscillator(); osc.type = 'sawtooth'; osc.frequency.value = 40;
+                let filter = audioContext.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 150;
+                let lfo = audioContext.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 25;
+                let lfoGain = audioContext.createGain(); lfoGain.gain.value = 0.8; let master = audioContext.createGain(); master.gain.value = 0.6;
+                lfo.connect(lfoGain); lfoGain.connect(master.gain); osc.connect(filter); filter.connect(master); master.connect(gainNode);
+                osc.start(); lfo.start(); currentNoiseNode = osc; extraAudioNodes.push(filter, lfo, lfoGain, master); return;
+            }
+
+            const bufferSize = audioContext.sampleRate * 2; const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate); const output = buffer.getChannelData(0);
+            let lastOut = 0, b0=0, b1=0, b2=0, b3=0, b4=0, b5=0, b6=0;
+            for (let i = 0; i < bufferSize; i++) {
+                let white = Math.random() * 2 - 1;
+                if (type === 'white') output[i] = white * 0.15;
+                else if (type === 'pink' || type === 'ocean' || type === 'grey') {
+                    b0 = 0.99886 * b0 + white * 0.0555179; b1 = 0.99332 * b1 + white * 0.0750759; b2 = 0.96900 * b2 + white * 0.1538520; 
+                    b3 = 0.86650 * b3 + white * 0.3104856; b4 = 0.55000 * b4 + white * 0.5329522; b5 = -0.7616 * b5 - white * 0.0168980;
+                    output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.05; b6 = white * 0.115926;
+                }
+                else if (type === 'brown' || type === 'wind' || type === 'rain') { output[i] = (lastOut + (0.02 * white)) / 1.02; lastOut = output[i]; output[i] *= 1.5; }
+                else if (type === 'blue') { output[i] = (white - lastOut) * 0.2; lastOut = white; }
+                else if (type === 'violet') { output[i] = (white - lastOut) * 0.4; lastOut = white; }
+            }
+
+            let source = audioContext.createBufferSource(); source.buffer = buffer; source.loop = true; currentNoiseNode = source;
+            if (type === 'ocean') {
+                let filter = audioContext.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 600;
+                let lfo = audioContext.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.1;
+                let lfoGain = audioContext.createGain(); lfoGain.gain.value = 0.5; let master = audioContext.createGain(); master.gain.value = 0.5;
+                lfo.connect(lfoGain); lfoGain.connect(master.gain); source.connect(filter); filter.connect(master); master.connect(gainNode);
+                lfo.start(); extraAudioNodes.push(filter, lfo, lfoGain, master);
+            } else if (type === 'wind') {
+                let filter = audioContext.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 300;
+                let lfo = audioContext.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.2;
+                let lfoGain = audioContext.createGain(); lfoGain.gain.value = 200; lfo.connect(lfoGain); lfoGain.connect(filter.frequency);
+                source.connect(filter); filter.connect(gainNode); lfo.start(); extraAudioNodes.push(filter, lfo, lfoGain);
+            } else if (type === 'rain') {
+                let filter = audioContext.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 1000;
+                source.connect(filter); filter.connect(gainNode); extraAudioNodes.push(filter);
+            } else { source.connect(gainNode); }
+            source.start();
+        }
+
+        document.getElementById('noise-type').addEventListener('change', (e) => { appData.audio.type = e.target.value; saveData(); if(!isMuted) initAmbientAudio(appData.audio.type); });
+        document.getElementById('btn-noise').addEventListener('click', () => { isMuted = false; initAmbientAudio(appData.audio.type); document.getElementById('btn-noise').classList.add('active'); document.getElementById('btn-mute').classList.remove('active'); document.getElementById('btn-noise').innerHTML = '<i class="fas fa-volume-down"></i>'; });
+        document.getElementById('btn-mute').addEventListener('click', () => { isMuted = true; if(gainNode) gainNode.gain.value = 0; document.getElementById('btn-mute').classList.add('active'); document.getElementById('btn-noise').classList.remove('active'); document.getElementById('btn-noise').innerHTML = '<i class="fas fa-volume-down"></i>'; });
+        document.getElementById('volume-slider').addEventListener('input', (e) => { if(gainNode && !isMuted) gainNode.gain.value = e.target.value; });
+
+        // === 7. Pomodoro & Picture in Picture ===
         const pipCanvas = document.getElementById('pip-canvas');
         const pipCtx = pipCanvas.getContext('2d');
         const pipVideo = document.getElementById('pip-video');
         let pipActive = false;
 
         pipVideo.srcObject = pipCanvas.captureStream(10);
-        pipVideo.play().catch(e => console.log("Video PiP pronto para uso"));
+        pipVideo.play().catch(e => console.log("Video PiP pronto"));
 
         function drawPiPFrame() {
             pipCtx.fillStyle = '#0f0f13'; pipCtx.fillRect(0, 0, 400, 400);
@@ -637,7 +939,7 @@
             try {
                 if (document.pictureInPictureElement) { await document.exitPictureInPicture(); pipActive = false; } 
                 else { pipVideo.play(); await pipVideo.requestPictureInPicture(); pipActive = true; showToast('Janela Flutuante ativada!', 'success'); }
-            } catch (error) { showToast('Seu navegador não suporta a janela flutuante nativa.', 'warning'); }
+            } catch (error) { showToast('Navegador não suporta janela flutuante.', 'warning'); }
         }
         pipVideo.addEventListener('leavepictureinpicture', () => { pipActive = false; });
 
@@ -703,7 +1005,7 @@
         function endSession() {
             if(!confirm("Finalizar sessão atual?")) return;
             clearInterval(pomoInterval); pomoInterval = null; sessionActive = false; appData.stats.totalSessions++; saveData();
-            showToast(`Sessão finalizada! Tempo focado: ${sessionNetMinutes} minutos.`, 'success');
+            showToast(`Sessão finalizada! Foco: ${sessionNetMinutes} minutos.`, 'success');
             pomoState = 'idle'; cyclesCompleted = 0; sessionNetMinutes = 0; initialTime = timeLeft = appData.settings.focus * 60;
             document.getElementById('btn-pomo-main').innerHTML = '<i class="fas fa-play"></i>'; document.getElementById('btn-pomo-end').style.display = 'none';
             document.documentElement.style.setProperty('--primary', appData.visuals.color);
@@ -711,66 +1013,7 @@
             if(pipActive) document.exitPictureInPicture();
         }
 
-        let audioContext, gainNode, currentNoiseNode, extraAudioNodes = []; let isMuted = true;
-        function stopNoise() {
-            if(currentNoiseNode) { currentNoiseNode.stop(); currentNoiseNode.disconnect(); }
-            extraAudioNodes.forEach(n => n.disconnect()); extraAudioNodes = [];
-        }
-
-        function initAmbientAudio(type) {
-            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)(); stopNoise();
-            if (!gainNode) { gainNode = audioContext.createGain(); gainNode.connect(audioContext.destination); }
-            gainNode.gain.value = isMuted ? 0 : document.getElementById('volume-slider').value;
-
-            if (type === 'purr') {
-                let osc = audioContext.createOscillator(); osc.type = 'sawtooth'; osc.frequency.value = 40;
-                let filter = audioContext.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 150;
-                let lfo = audioContext.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 25;
-                let lfoGain = audioContext.createGain(); lfoGain.gain.value = 0.8; let master = audioContext.createGain(); master.gain.value = 0.6;
-                lfo.connect(lfoGain); lfoGain.connect(master.gain); osc.connect(filter); filter.connect(master); master.connect(gainNode);
-                osc.start(); lfo.start(); currentNoiseNode = osc; extraAudioNodes.push(filter, lfo, lfoGain, master); return;
-            }
-
-            const bufferSize = audioContext.sampleRate * 2; const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate); const output = buffer.getChannelData(0);
-            let lastOut = 0, b0=0, b1=0, b2=0, b3=0, b4=0, b5=0, b6=0;
-            for (let i = 0; i < bufferSize; i++) {
-                let white = Math.random() * 2 - 1;
-                if (type === 'white') output[i] = white * 0.15;
-                else if (type === 'pink' || type === 'ocean' || type === 'grey') {
-                    b0 = 0.99886 * b0 + white * 0.0555179; b1 = 0.99332 * b1 + white * 0.0750759; b2 = 0.96900 * b2 + white * 0.1538520; 
-                    b3 = 0.86650 * b3 + white * 0.3104856; b4 = 0.55000 * b4 + white * 0.5329522; b5 = -0.7616 * b5 - white * 0.0168980;
-                    output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.05; b6 = white * 0.115926;
-                }
-                else if (type === 'brown' || type === 'wind' || type === 'rain') { output[i] = (lastOut + (0.02 * white)) / 1.02; lastOut = output[i]; output[i] *= 1.5; }
-                else if (type === 'blue') { output[i] = (white - lastOut) * 0.2; lastOut = white; }
-                else if (type === 'violet') { output[i] = (white - lastOut) * 0.4; lastOut = white; }
-            }
-
-            let source = audioContext.createBufferSource(); source.buffer = buffer; source.loop = true; currentNoiseNode = source;
-            if (type === 'ocean') {
-                let filter = audioContext.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 600;
-                let lfo = audioContext.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.1;
-                let lfoGain = audioContext.createGain(); lfoGain.gain.value = 0.5; let master = audioContext.createGain(); master.gain.value = 0.5;
-                lfo.connect(lfoGain); lfoGain.connect(master.gain); source.connect(filter); filter.connect(master); master.connect(gainNode);
-                lfo.start(); extraAudioNodes.push(filter, lfo, lfoGain, master);
-            } else if (type === 'wind') {
-                let filter = audioContext.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 300;
-                let lfo = audioContext.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.2;
-                let lfoGain = audioContext.createGain(); lfoGain.gain.value = 200; lfo.connect(lfoGain); lfoGain.connect(filter.frequency);
-                source.connect(filter); filter.connect(gainNode); lfo.start(); extraAudioNodes.push(filter, lfo, lfoGain);
-            } else if (type === 'rain') {
-                let filter = audioContext.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 1000;
-                source.connect(filter); filter.connect(gainNode); extraAudioNodes.push(filter);
-            } else { source.connect(gainNode); }
-            source.start();
-        }
-
-        document.getElementById('noise-type').value = appData.audio.type;
-        document.getElementById('noise-type').addEventListener('change', (e) => { appData.audio.type = e.target.value; saveData(); if(!isMuted) initAmbientAudio(appData.audio.type); });
-        document.getElementById('btn-noise').addEventListener('click', () => { isMuted = false; initAmbientAudio(appData.audio.type); document.getElementById('btn-noise').classList.add('active'); document.getElementById('btn-mute').classList.remove('active'); document.getElementById('btn-noise').innerHTML = '<i class="fas fa-volume-down"></i>'; });
-        document.getElementById('btn-mute').addEventListener('click', () => { isMuted = true; if(gainNode) gainNode.gain.value = 0; document.getElementById('btn-mute').classList.add('active'); document.getElementById('btn-noise').classList.remove('active'); document.getElementById('btn-noise').innerHTML = '<i class="fas fa-volume-down"></i>'; });
-        document.getElementById('volume-slider').addEventListener('input', (e) => { if(gainNode && !isMuted) gainNode.gain.value = e.target.value; });
-
+        // === 8. Analytics & Gráficos ===
         let focusChartInstance = null;
         function updateChart() {
             const ctx = document.getElementById('focusChart').getContext('2d'); let labels = [], data = [];
@@ -780,6 +1023,7 @@
             focusChartInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Minutos Focados', data: data, backgroundColor: 'rgba(138, 43, 226, 0.7)', borderRadius: 5 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } } });
         }
 
+        // === 9. Navegação, Relógio e Cronômetro ===
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -787,106 +1031,6 @@
                 if (window.innerWidth <= 768) { toggleMobileMenu(); }
             });
         });
-
-        // Event Listeners para atualizar os nomes dos arquivos ao fazer upload
-        document.getElementById('set-avatar-file').addEventListener('change', function() {
-            document.getElementById('avatar-file-name').innerText = this.files[0] ? this.files[0].name : 'Nenhum arquivo...';
-        });
-
-        document.getElementById('set-bg-file').addEventListener('change', function() {
-            document.getElementById('bg-file-name').innerText = this.files[0] ? this.files[0].name : 'Nenhum arquivo...';
-        });
-
-        function loadSettingsUI() {
-            document.getElementById('set-focus').value = appData.settings.focus; 
-            document.getElementById('set-short').value = appData.settings.shortBreak;
-            document.getElementById('set-long').value = appData.settings.longBreak; 
-            document.getElementById('set-cycles').value = appData.settings.cyclesGoal;
-            document.getElementById('set-name').value = appData.user.name; 
-            
-            if (appData.visuals.bgUrl && !appData.visuals.bgUrl.startsWith('data:image')) {
-                document.getElementById('set-bg').value = appData.visuals.bgUrl;
-            } else {
-                document.getElementById('set-bg').value = '';
-            }
-
-            document.getElementById('set-color').value = appData.visuals.color; 
-            document.getElementById('set-bg-blur').checked = appData.visuals.blur;
-            applyVisuals();
-        }
-
-        function saveSettings() {
-            appData.settings.focus = parseInt(document.getElementById('set-focus').value); appData.settings.shortBreak = parseInt(document.getElementById('set-short').value);
-            appData.settings.longBreak = parseInt(document.getElementById('set-long').value); appData.settings.cyclesGoal = parseInt(document.getElementById('set-cycles').value);
-            saveData(); if(!sessionActive) { timeLeft = appData.settings.focus * 60; updatePomodoroUI(); } showToast('Pomodoro atualizado e salvo!', 'success');
-        }
-
-        function saveVisuals() {
-            appData.user.name = document.getElementById('set-name').value || 'Usuário'; 
-            appData.visuals.color = document.getElementById('set-color').value;
-            appData.visuals.blur = document.getElementById('set-bg-blur').checked;
-            
-            const bgUrlInput = document.getElementById('set-bg').value;
-            const bgFile = document.getElementById('set-bg-file').files[0];
-            const avatarFile = document.getElementById('set-avatar-file').files[0];
-
-            let pendingSaves = 0;
-            const checkDone = () => {
-                if(pendingSaves === 0) {
-                    saveData(); applyVisuals();
-                    showToast('Visual aplicado e salvo!', 'success');
-                    
-                    document.getElementById('set-bg-file').value = '';
-                    document.getElementById('set-avatar-file').value = '';
-                    document.getElementById('avatar-file-name').innerText = 'Nenhum arquivo...';
-                    document.getElementById('bg-file-name').innerText = 'Nenhum arquivo...';
-                }
-            };
-
-            if (avatarFile) {
-                pendingSaves++;
-                processImage(avatarFile, 200, (base64) => {
-                    appData.user.avatar = base64;
-                    pendingSaves--; checkDone();
-                });
-            }
-
-            if (bgFile) {
-                pendingSaves++;
-                processImage(bgFile, 1280, (base64) => {
-                    appData.visuals.bgUrl = base64;
-                    document.getElementById('set-bg').value = ''; 
-                    pendingSaves--; checkDone();
-                });
-            } else if (bgUrlInput !== "") {
-                appData.visuals.bgUrl = bgUrlInput; 
-            } else if (bgUrlInput === "" && appData.visuals.bgUrl && !appData.visuals.bgUrl.startsWith('data:image')) {
-                appData.visuals.bgUrl = '';
-            }
-
-            if(pendingSaves === 0) checkDone();
-        }
-
-        function applyVisuals() {
-            document.documentElement.style.setProperty('--primary', appData.visuals.color); let hex = appData.visuals.color.replace('#', '');
-            let r = parseInt(hex.substring(0,2),16), g = parseInt(hex.substring(2,4),16), b = parseInt(hex.substring(4,6),16);
-            document.documentElement.style.setProperty('--primary-glow', `rgba(${r}, ${g}, ${b}, 0.5)`); 
-            
-            if (appData.visuals.bgUrl) {
-                document.body.style.backgroundImage = `url('${appData.visuals.bgUrl}')`;
-            } else {
-                document.body.style.backgroundImage = `none`;
-            }
-
-            const overlay = document.getElementById('main-overlay');
-            if (appData.visuals.blur) {
-                overlay.style.backdropFilter = 'blur(8px)';
-            } else {
-                overlay.style.backdropFilter = 'none';
-            }
-        }
-
-        async function changeName() { const newName = prompt("Como você gostaria de ser chamado?", appData.user.name); if (newName && newName.trim() !== '') { appData.user.name = newName.trim(); saveData(); } }
 
         function updateClock() {
             const now = new Date(); document.getElementById('clock-display').innerText = now.toLocaleTimeString('pt-BR');
