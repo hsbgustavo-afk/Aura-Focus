@@ -41,7 +41,7 @@
             transition: background-image 1s ease-in-out;
         }
 
-        /* Overlay do fundo agora é dinâmico (com/sem blur) */
+        /* Overlay do fundo dinâmico */
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15,15,19,0.9) 0%, rgba(15,15,19,0.6) 100%); z-index: 1; backdrop-filter: blur(8px); pointer-events: none; transition: 0.5s ease;}
 
         /* Auth Modal */
@@ -70,7 +70,6 @@
         .profile-area { display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.2s; }
         .profile-area:hover { transform: scale(1.02); }
         
-        /* Ajuste do Avatar para comportar imagem de perfil */
         .avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; box-shadow: 0 0 15px var(--primary-glow); flex-shrink: 0; overflow: hidden; }
         
         .user-info h2 { font-size: 1.1rem; font-weight: 600; white-space: nowrap; }
@@ -97,7 +96,6 @@
 
         main { padding: 40px; overflow-y: auto; overflow-x: hidden; position: relative; width: 100%; display: flex; justify-content: center; }
         
-        /* CORREÇÃO DO SCROLL: Alterado justify-content para flex-start */
         .tab-content { display: none; width: 100%; max-width: 1000px; animation: fadeIn 0.4s ease; margin: 0 auto; }
         .tab-content.active { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-bottom: 40px; }
         
@@ -134,7 +132,11 @@
         .input-group label { display: block; margin-bottom: 8px; color: var(--text-muted); }
         .input-group input[type="text"], .input-group input[type="number"] { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: white; padding: 12px; border-radius: 10px; font-size: 1rem; outline: none;}
         .input-group input:focus { border-color: var(--primary); }
-        .file-input { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; width: 100%; color: var(--text-muted); font-size: 0.9rem; border: 1px dashed var(--glass-border); cursor: pointer; }
+        
+        /* Estilos do Upload Customizado */
+        .custom-file-upload { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 12px; border: 1px solid var(--glass-border); width: 100%; }
+        .file-label { padding: 8px 15px; font-size: 0.9rem; margin: 0; white-space: nowrap; border-radius: 8px; display: inline-flex; cursor: pointer; }
+        .file-name { color: var(--text-muted); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
 
         .huge-clock { font-size: 8rem; font-weight: 700; text-shadow: 0 10px 30px rgba(0,0,0,0.5); font-variant-numeric: tabular-nums; text-align: center; margin: auto;}
         .date-display { font-size: 1.5rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; text-align: center; margin-top: 10px;}
@@ -160,10 +162,7 @@
             aside.sidebar { position: fixed; top: 0; left: -280px; width: 260px; height: 100dvh; z-index: 999; background: rgba(15, 15, 19, 0.95); backdrop-filter: blur(25px); transition: left 0.3s ease; }
             aside.sidebar.open { left: 0; }
             .sidebar-overlay.show { opacity: 1; visibility: visible; }
-            
-            /* Aumentado o padding inferior para celular, desbugando o scroll */
             main { padding: 20px 15px 80px 15px; }
-            
             .pomodoro-container { padding: 30px 20px; }
             .timer-circle { width: 240px; height: 240px; margin-bottom: 25px; }
             .timer-circle::before { width: 220px; height: 220px; }
@@ -191,6 +190,7 @@
             .sw-time-display { font-size: 2.8rem; }
             .btn { padding: 12px 15px; font-size: 0.9rem; }
             .auth-box { padding: 30px 20px; }
+            .custom-file-upload { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
@@ -315,7 +315,9 @@
             <section id="settings" class="tab-content">
                 <div class="settings-grid">
                     <div class="settings-card">
-                        <h3 style="margin-bottom: 20px; color: var(--primary);">⏱️ Tempos (minutos)</h3>
+                        <h3 style="margin-bottom: 20px; color: var(--primary); display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-stopwatch"></i> Tempos (minutos)
+                        </h3>
                         <div class="input-group"><label>Tempo de Foco</label><input type="number" id="set-focus" min="1"></div>
                         <div class="input-group"><label>Pausa Curta</label><input type="number" id="set-short" min="1"></div>
                         <div class="input-group"><label>Pausa Longa</label><input type="number" id="set-long" min="1"></div>
@@ -323,11 +325,17 @@
                         <button class="btn btn-primary" onclick="saveSettings()" style="width: 100%; justify-content:center;">Salvar Tempos</button>
                     </div>
                     <div class="settings-card">
-                        <h3 style="margin-bottom: 20px; color: var(--primary);">🎨 Personalização</h3>
+                        <h3 style="margin-bottom: 20px; color: var(--primary); display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-palette"></i> Personalização
+                        </h3>
                         
                         <div class="input-group">
                             <label>Foto de Perfil</label>
-                            <input type="file" id="set-avatar-file" accept="image/*" class="file-input">
+                            <div class="custom-file-upload">
+                                <input type="file" id="set-avatar-file" accept="image/*" hidden>
+                                <label for="set-avatar-file" class="btn btn-secondary file-label"><i class="fas fa-upload"></i> Upload</label>
+                                <span class="file-name" id="avatar-file-name">Nenhum arquivo...</span>
+                            </div>
                             <button class="btn btn-secondary" onclick="clearAvatar()" style="margin-top: 10px; width: 100%; font-size: 0.85rem; padding: 10px;">Remover Foto</button>
                         </div>
 
@@ -335,7 +343,11 @@
                         
                         <div class="input-group">
                             <label>Imagem de Fundo (Arquivo ou URL)</label>
-                            <input type="file" id="set-bg-file" accept="image/*" class="file-input" style="margin-bottom: 8px;">
+                            <div class="custom-file-upload" style="margin-bottom: 8px;">
+                                <input type="file" id="set-bg-file" accept="image/*" hidden>
+                                <label for="set-bg-file" class="btn btn-secondary file-label"><i class="fas fa-upload"></i> Upload</label>
+                                <span class="file-name" id="bg-file-name">Nenhum arquivo...</span>
+                            </div>
                             <input type="text" id="set-bg" placeholder="Ou cole uma URL aqui...">
                         </div>
 
@@ -380,7 +392,6 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Adicionado: user.avatar e visuals.blur no estado padrão
         const defaultState = {
             user: { name: 'Estudante', xp: 0, level: 1, streak: 0, lastLogin: null, avatar: '' },
             settings: { focus: 25, shortBreak: 5, longBreak: 15, cyclesGoal: 4 },
@@ -452,8 +463,6 @@
                     const docInfo = await db.collection('users').doc(user.uid).get();
                     if (docInfo.exists) {
                         appData = docInfo.data();
-                        
-                        // Garante que variáveis novas existam para usuários antigos
                         if (!appData.audio) appData.audio = { type: 'brown' };
                         if (!appData.stats.history) appData.stats.history = {};
                         if (appData.visuals.blur === undefined) appData.visuals.blur = true;
@@ -520,8 +529,6 @@
             saveData();
         }
 
-        // --- SISTEMA DE COMPRESSÃO DE IMAGENS ---
-        // Comprime a foto no navegador antes de salvar, assim o Firestore não bloqueia por limite de tamanho (1MB)
         function processImage(file, maxWidth, callback) {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -541,7 +548,6 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
                     
-                    // Comprime para JPEG (60% de qualidade)
                     callback(canvas.toDataURL('image/jpeg', 0.6));
                 };
                 img.src = e.target.result;
@@ -553,6 +559,7 @@
             if(confirm("Deseja remover sua foto de perfil?")) {
                 appData.user.avatar = '';
                 document.getElementById('set-avatar-file').value = '';
+                document.getElementById('avatar-file-name').innerText = 'Nenhum arquivo...';
                 saveData();
                 showToast('Foto removida.', 'info');
             }
@@ -780,6 +787,15 @@
             });
         });
 
+        // Event Listeners para atualizar os nomes dos arquivos ao fazer upload
+        document.getElementById('set-avatar-file').addEventListener('change', function() {
+            document.getElementById('avatar-file-name').innerText = this.files[0] ? this.files[0].name : 'Nenhum arquivo...';
+        });
+
+        document.getElementById('set-bg-file').addEventListener('change', function() {
+            document.getElementById('bg-file-name').innerText = this.files[0] ? this.files[0].name : 'Nenhum arquivo...';
+        });
+
         function loadSettingsUI() {
             document.getElementById('set-focus').value = appData.settings.focus; 
             document.getElementById('set-short').value = appData.settings.shortBreak;
@@ -787,7 +803,6 @@
             document.getElementById('set-cycles').value = appData.settings.cyclesGoal;
             document.getElementById('set-name').value = appData.user.name; 
             
-            // Se for uma URL normal, mostra no input. Se for um arquivo em Base64, deixa em branco (pra não travar o celular com um texto gigante)
             if (appData.visuals.bgUrl && !appData.visuals.bgUrl.startsWith('data:image')) {
                 document.getElementById('set-bg').value = appData.visuals.bgUrl;
             } else {
@@ -819,13 +834,14 @@
                 if(pendingSaves === 0) {
                     saveData(); applyVisuals();
                     showToast('Visual aplicado e salvo!', 'success');
-                    // Limpa os inputs de arquivo
+                    
                     document.getElementById('set-bg-file').value = '';
                     document.getElementById('set-avatar-file').value = '';
+                    document.getElementById('avatar-file-name').innerText = 'Nenhum arquivo...';
+                    document.getElementById('bg-file-name').innerText = 'Nenhum arquivo...';
                 }
             };
 
-            // Trata Foto de Perfil
             if (avatarFile) {
                 pendingSaves++;
                 processImage(avatarFile, 200, (base64) => {
@@ -834,18 +850,16 @@
                 });
             }
 
-            // Trata Foto de Fundo
             if (bgFile) {
                 pendingSaves++;
                 processImage(bgFile, 1280, (base64) => {
                     appData.visuals.bgUrl = base64;
-                    document.getElementById('set-bg').value = ''; // Limpa o input de URL já que o usuário usou arquivo
+                    document.getElementById('set-bg').value = ''; 
                     pendingSaves--; checkDone();
                 });
             } else if (bgUrlInput !== "") {
-                appData.visuals.bgUrl = bgUrlInput; // Se ele não escolheu arquivo mas colou uma URL
+                appData.visuals.bgUrl = bgUrlInput; 
             } else if (bgUrlInput === "" && appData.visuals.bgUrl && !appData.visuals.bgUrl.startsWith('data:image')) {
-                // Se o campo for deixado vazio e antes era uma URL, nós limpamos o fundo
                 appData.visuals.bgUrl = '';
             }
 
@@ -853,19 +867,16 @@
         }
 
         function applyVisuals() {
-            // Aplica a cor
             document.documentElement.style.setProperty('--primary', appData.visuals.color); let hex = appData.visuals.color.replace('#', '');
             let r = parseInt(hex.substring(0,2),16), g = parseInt(hex.substring(2,4),16), b = parseInt(hex.substring(4,6),16);
             document.documentElement.style.setProperty('--primary-glow', `rgba(${r}, ${g}, ${b}, 0.5)`); 
             
-            // Aplica Imagem de Fundo
             if (appData.visuals.bgUrl) {
                 document.body.style.backgroundImage = `url('${appData.visuals.bgUrl}')`;
             } else {
                 document.body.style.backgroundImage = `none`;
             }
 
-            // Aplica Blur
             const overlay = document.getElementById('main-overlay');
             if (appData.visuals.blur) {
                 overlay.style.backdropFilter = 'blur(8px)';
