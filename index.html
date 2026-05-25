@@ -339,6 +339,7 @@
                 <div class="audio-btn-group">
                     <button class="icon-btn" id="btn-noise" title="Tocar"><i class="fas fa-volume-down"></i></button>
                     <button class="icon-btn active" id="btn-mute" title="Silenciar"><i class="fas fa-volume-mute"></i></button>
+                    <button class="icon-btn" id="btn-lofi" title="Tocar Lo-Fi nas Pausas" onclick="toggleLofi()"><i class="fas fa-music"></i></button>
                 </div>
                 <input type="range" id="volume-slider" min="0" max="8" step="0.05" value="0.5">
                 <select id="noise-type" class="noise-select">
@@ -859,18 +860,54 @@
                 if (!globalAudioCtx) globalAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (globalAudioCtx.state === 'suspended') globalAudioCtx.resume();
                 const ctx = globalAudioCtx;
-                const playNote = (freq, timeOffset) => {
+                
+                const playNote = (freq, timeOffset, duration = 1.5, typeOsc = 'sine') => {
                     const osc = ctx.createOscillator(); const gain = ctx.createGain();
-                    osc.type = 'sine'; osc.frequency.value = freq;
+                    osc.type = typeOsc; osc.frequency.value = freq;
                     gain.gain.setValueAtTime(0, ctx.currentTime + timeOffset);
                     gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + timeOffset + 0.05);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + timeOffset + 1.5);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + timeOffset + duration);
                     osc.connect(gain); gain.connect(ctx.destination);
-                    osc.start(ctx.currentTime + timeOffset); osc.stop(ctx.currentTime + timeOffset + 1.5);
+                    osc.start(ctx.currentTime + timeOffset); osc.stop(ctx.currentTime + timeOffset + duration);
                 };
-                if (type === 'study') { playNote(523.25, 0); playNote(659.25, 0.15); playNote(783.99, 0.3); } 
-                else { playNote(783.99, 0); playNote(659.25, 0.15); playNote(523.25, 0.3); }
+
+                if (type === 'study') { 
+                    playNote(523.25, 0); playNote(659.25, 0.15); playNote(783.99, 0.3); 
+                } 
+                else if (type === 'longBreak') {
+                    // Toque especial para Pausa Longa: Acorde expansivo estilo "Sino Zen Tibetano"
+                    playNote(261.63, 0.0, 4.0, 'triangle'); // Dó (Frequência grave)
+                    playNote(329.63, 0.1, 4.0, 'triangle'); // Mi
+                    playNote(392.00, 0.2, 4.0, 'triangle'); // Sol
+                    playNote(523.25, 0.3, 5.0, 'sine');     // Dó agudo com eco longo
+                } 
+                else { 
+                    // Pausa Curta
+                    playNote(783.99, 0); playNote(659.25, 0.15); playNote(523.25, 0.3); 
+                }
             } catch (e) { console.log("Áudio bloqueado."); }
+        }
+
+        // --- SISTEMA DE LO-FI NAS PAUSAS ---
+        let lofiEnabled = false;
+        function toggleLofi() {
+            lofiEnabled = !lofiEnabled;
+            const btn = document.getElementById('btn-lofi');
+            const player = document.getElementById('lofi-player');
+            
+            if (lofiEnabled) {
+                btn.classList.add('active');
+                showToast('Lo-Fi automático nas pausas ativado!', 'success', 'fas fa-music');
+                // Se já estiver em uma pausa, começa a tocar imediatamente
+                if (pomoState === 'shortBreak' || pomoState === 'longBreak') {
+                    player.volume = document.getElementById('volume-slider').value; // Usa o volume do slider
+                    player.play().catch(e => console.log('Erro ao tocar lo-fi', e));
+                }
+            } else {
+                btn.classList.remove('active');
+                showToast('Lo-Fi desativado.', 'info');
+                player.pause();
+            }
         }
 
         let audioContext, gainNode, currentNoiseNode, extraAudioNodes = []; let isMuted = true;
@@ -930,7 +967,11 @@
         document.getElementById('noise-type').addEventListener('change', (e) => { appData.audio.type = e.target.value; saveData(); if(!isMuted) initAmbientAudio(appData.audio.type); });
         document.getElementById('btn-noise').addEventListener('click', () => { isMuted = false; initAmbientAudio(appData.audio.type); document.getElementById('btn-noise').classList.add('active'); document.getElementById('btn-mute').classList.remove('active'); document.getElementById('btn-noise').innerHTML = '<i class="fas fa-volume-down"></i>'; });
         document.getElementById('btn-mute').addEventListener('click', () => { isMuted = true; if(gainNode) gainNode.gain.value = 0; document.getElementById('btn-mute').classList.add('active'); document.getElementById('btn-noise').classList.remove('active'); document.getElementById('btn-noise').innerHTML = '<i class="fas fa-volume-down"></i>'; });
-        document.getElementById('volume-slider').addEventListener('input', (e) => { if(gainNode && !isMuted) gainNode.gain.value = e.target.value; });
+        
+        document.getElementById('volume-slider').addEventListener('input', (e) => { 
+            if(gainNode && !isMuted) gainNode.gain.value = e.target.value; 
+            document.getElementById('lofi-player').volume = e.target.value; // Atualiza o volume do lofi junto com o ambiente
+        });
 
         // === 7. Pomodoro & Picture in Picture ===
         const pipCanvas = document.getElementById('pip-canvas');
@@ -1020,10 +1061,30 @@
             clearInterval(pomoInterval); pomoInterval = null;
             if (pomoState === 'study') {
                 cyclesCompleted++;
-                if (cyclesCompleted % appData.settings.cyclesGoal === 0) { setPhase('longBreak'); showToast('Pausa longa. Relaxe!', 'success'); } 
-                else { setPhase('shortBreak'); showToast('Pausa curta.', 'info'); }
-                playChime('break');
-            } else { setPhase('study'); showToast('De volta ao foco!', 'warning'); playChime('study'); }
+                if (cyclesCompleted % appData.settings.cyclesGoal === 0) { 
+                    setPhase('longBreak'); 
+                    showToast('Pausa longa. Relaxe!', 'success'); 
+                    playChime('longBreak'); // Aciona o novo alarme relaxante
+                } 
+                else { 
+                    setPhase('shortBreak'); 
+                    showToast('Pausa curta.', 'info'); 
+                    playChime('break'); 
+                }
+                
+                // Liga o Lo-Fi se o usuário habilitou o botão
+                if (lofiEnabled) {
+                    document.getElementById('lofi-player').play().catch(e => console.log(e));
+                }
+                
+            } else { 
+                setPhase('study'); 
+                showToast('De volta ao foco!', 'warning'); 
+                playChime('study'); 
+                
+                // Desliga o Lo-Fi ao voltar aos estudos
+                document.getElementById('lofi-player').pause(); 
+            }
             togglePomodoro(); 
         }
 
@@ -1034,6 +1095,10 @@
             pomoState = 'idle'; cyclesCompleted = 0; sessionNetMinutes = 0; initialTime = timeLeft = appData.settings.focus * 60;
             document.getElementById('btn-pomo-main').innerHTML = '<i class="fas fa-play"></i>'; document.getElementById('btn-pomo-end').style.display = 'none';
             document.documentElement.style.setProperty('--primary', appData.visuals.color);
+            
+            // Pausar o lo-fi caso o usuário aborte a sessão durante uma pausa
+            document.getElementById('lofi-player').pause();
+            
             updatePomodoroUI(); updateChart();
             if(pipActive) document.exitPictureInPicture();
         }
@@ -1076,5 +1141,9 @@
         }
 
     </script>
+    
+    <audio id="lofi-player" loop preload="none">
+        <source src="https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg">
+    </audio>
 </body>
 </html>
