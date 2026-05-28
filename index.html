@@ -461,22 +461,22 @@
             <p>Ele irá acompanhar e evoluir com os seus estudos!</p>
             <div class="lumari-choice-container">
                 <div class="lumari-card" onclick="selectLumariCinematic('fire')">
-                    <img src="1.png" alt="Lumari de Fogo">
+                    <img src="1.png" alt="Lumari Pyro">
                     <h3 style="color: #ff3d00;">Fogo</h3>
                     <p style="font-size: 0.75rem; margin:0;">Focados e ardentes</p>
                 </div>
                 <div class="lumari-card" onclick="selectLumariCinematic('water')">
-                    <img src="a1.png" alt="Lumari de Água">
+                    <img src="a1.png" alt="Lumari Aqua">
                     <h3 style="color: #00b0ff;">Água</h3>
                     <p style="font-size: 0.75rem; margin:0;">Mentes fluidas e calmas</p>
                 </div>
                 <div class="lumari-card" onclick="selectLumariCinematic('plant')">
-                    <img src="p1.png" alt="Lumari de Planta">
+                    <img src="p1.png" alt="Lumari Flora">
                     <h3 style="color: #00ff00;">Planta</h3>
                     <p style="font-size: 0.75rem; margin:0;">Crescimento constante</p>
                 </div>
                 <div class="lumari-card" onclick="selectLumariCinematic('lightning')">
-                    <img src="r1.png" alt="Lumari de Raio">
+                    <img src="r1.png" alt="Lumari Volt">
                     <h3 style="color: #ffea00;">Raio</h3>
                     <p style="font-size: 0.75rem; margin:0;">Energia e velocidade</p>
                 </div>
@@ -687,7 +687,7 @@
 
             <section id="store" class="tab-content">
                 <div style="width: 100%; max-width: 800px;">
-                    <h2 style="color: #ffd700; margin-bottom: 5px;"><i class="fas fa-shopping-cart"></i> Loja Luma</h2>
+                    <h2 style="color: #ffd700; margin-bottom: 5px;"><i class="fas fa-shopping-cart"></i> Luma Store</h2>
                     <p style="color: var(--text-muted); margin-bottom: 30px;">Compre itens premium com os Luma Coins que você ganha estudando!</p>
                     <div class="store-grid" id="store-grid"></div>
                 </div>
@@ -700,27 +700,27 @@
             <section id="settings" class="tab-content">
                 <div class="settings-grid">
                     <div class="settings-card">
-                        <h3 style="margin-bottom: 20px; color: var(--text-main);"><i class="fas fa-stopwatch" style="color: var(--primary);"></i> Tempos</h3>
+                        <h3 style="margin-bottom: 20px; color: var(--text-main);"><i class="fas fa-stopwatch" style="color: var(--primary);"></i> Configurar Pomodoro</h3>
                         <div class="input-group"><label>Foco (min)</label><input type="number" id="set-focus" min="1"></div>
                         <div class="input-group"><label>Pausa Curta (min)</label><input type="number" id="set-short" min="1"></div>
                         <div class="input-group"><label>Pausa Longa (min)</label><input type="number" id="set-long" min="1"></div>
                         <div class="input-group"><label>Ciclos p/ Pausa Longa</label><input type="number" id="set-cycles" min="1"></div>
-                        <button class="btn-save" onclick="saveSettings()">Salvar Tempos</button>
+                        <button class="btn-save" onclick="saveSettings()">Salvar</button>
                     </div>
                     <div class="settings-card">
-                        <h3 style="margin-bottom: 20px; color: var(--text-main);"><i class="fas fa-image" style="color: var(--primary);"></i> Wallpaper do Fundo</h3>
+                        <h3 style="margin-bottom: 20px; color: var(--text-main);"><i class="fas fa-image" style="color: var(--primary);"></i> Wallpaper</h3>
                         <div class="input-group">
-                            <label>Foto do seu Computador/Celular</label>
+                            <label>Foto Local</label>
                             <div class="custom-file-upload" style="margin-bottom: 8px;">
                                 <input type="file" id="set-bg-file" accept="image/*" hidden>
                                 <label for="set-bg-file" class="file-label"><i class="fas fa-upload"></i> Escolher Arquivo</label>
                                 <span class="file-name" id="bg-file-name">Nenhum...</span>
                             </div>
-                            <label style="margin-top: 15px;">Ou URL da Imagem da Web</label>
+                            <label style="margin-top: 15px;">URL da Imagem</label>
                             <input type="text" id="set-bg" placeholder="Cole o link da imagem">
                         </div>
                         <div class="input-group" style="display: flex; align-items: center; gap: 10px;"><input type="checkbox" id="set-bg-blur" style="width: 20px; height: 20px; cursor: pointer;"><label for="set-bg-blur" style="margin:0; cursor:pointer;">Ativar Fundo Vidro (Blur)</label></div>
-                        <button class="btn-save" onclick="saveVisuals()" style="margin-bottom: 30px;">Aplicar Fundo</button>
+                        <button class="btn-save" onclick="saveVisuals()" style="margin-bottom: 30px;">Aplicar</button>
                         
                         <div style="border-top: 1px solid var(--glass-border); padding-top: 20px;">
                             <button class="btn-buy" onclick="logoutUser()" style="margin-bottom: 10px; background: rgba(255,255,255,0.05);"><i class="fas fa-sign-out-alt"></i> Sair da Conta</button>
@@ -1254,11 +1254,11 @@
 
         /* === 6. LOJA VIRTUAL === */
         const storeItems = [
-            // Novos Lumaris
-            { id: 'lumari_fire', name: 'Espírito de Fogo', cost: 1000, icon: '1.png', type: 'lumari', val: 'fire' },
-            { id: 'lumari_water', name: 'Espírito de Água', cost: 1000, icon: 'a1.png', type: 'lumari', val: 'water' },
-            { id: 'lumari_plant', name: 'Espírito de Planta', cost: 1000, icon: 'p1.png', type: 'lumari', val: 'plant' },
-            { id: 'lumari_lightning', name: 'Espírito de Raio', cost: 1000, icon: 'r1.png', type: 'lumari', val: 'lightning' },
+            // Lumaris
+            { id: 'lumari_fire', name: 'Lumari Pyro', cost: 1000, icon: '1.png', type: 'lumari', val: 'fire' },
+            { id: 'lumari_water', name: 'Lumari Aqua', cost: 1000, icon: 'a1.png', type: 'lumari', val: 'water' },
+            { id: 'lumari_plant', name: 'Lumari Flora', cost: 1000, icon: 'p1.png', type: 'lumari', val: 'plant' },
+            { id: 'lumari_lightning', name: 'Lumari Volt', cost: 1000, icon: 'r1.png', type: 'lumari', val: 'lightning' },
             
             // Consumíveis (XP)
             { id: 'xp_small', name: 'Cristal de XP (+50)', cost: 100, icon: '💎', type: 'consumable', action: 'xp', val: 50 },
@@ -1490,7 +1490,7 @@
             appData.settings.longBreak = parseInt(document.getElementById('set-long').value); 
             appData.settings.cyclesGoal = parseInt(document.getElementById('set-cycles').value);
             saveDataToCloud(); if(!sessionActive) { timeLeft = appData.settings.focus * 60; updatePomodoroUI(); } 
-            showToast('Tempos salvos!', 'success');
+            showToast('Salvo!', 'success');
         }
 
         /* === 8. ÁUDIO UNIFICADO E LO-FI === */
