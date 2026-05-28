@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Luma Focus | Premium Productivity</title>
     
+    <link rel="icon" type="image/jpeg" href="iconluma.jpg?v=2">
+    <link rel="shortcut icon" type="image/jpeg" href="iconluma.jpg?v=2">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
@@ -31,7 +34,7 @@
             --font: 'Inter', sans-serif;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font); cursor: none !important; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font); cursor: none !important; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.15) rgba(0,0,0,0.3); }
 
         body {
             background-color: var(--bg-color);
@@ -43,6 +46,12 @@
             display: flex; 
             transition: background-color 0.5s, background-image 1s ease-in-out;
         }
+
+        /* === SCROLLBAR CUSTOMIZADO (NEON) === */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); box-shadow: 0 0 10px var(--primary-glow); }
 
         /* CUSTOM CURSOR & CYBERPUNK STYLES */
         #custom-cursor {
@@ -76,7 +85,6 @@
         #custom-cursor.cursor-hacker { border-radius: 0; width: 12px; height: 20px; background: #00ff00; border: none; box-shadow: 0 0 10px #00ff00; animation: hacker-blink 1s infinite step-end; transform: translate(0, -50%); }
         @keyframes hacker-blink { 50% { opacity: 0; } }
         #custom-cursor.cursor-hacker.hovering { width: 20px; height: 25px; background: transparent; border: 2px solid #00ff00; animation: none; }
-
 
         /* === PREVIEWS REAIS DA LOJA === */
         .store-preview-box { height: 70px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
@@ -147,7 +155,7 @@
         @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
         /* Layout Principal */
-        .app-container { position: relative; z-index: 2; width: 100%; height: 100%; display: grid; grid-template-columns: 280px 1fr; grid-template-rows: 80px 1fr; }
+        .app-container { position: relative; z-index: 2; width: 100%; height: 100%; display: grid; grid-template-columns: 320px 1fr; grid-template-rows: 80px 1fr; }
         header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); backdrop-filter: blur(10px); }
         .header-left { display: flex; align-items: center; gap: 15px; }
         .mobile-menu-btn { display: none; background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 5px; }
@@ -167,25 +175,30 @@
         .header-right { display: flex; align-items: center; gap: 20px; }
         .coin-balance { font-weight: bold; color: #ffd700; background: rgba(255, 215, 0, 0.1); padding: 8px 15px; border-radius: 20px; border: 1px solid rgba(255, 215, 0, 0.3); display: flex; align-items: center; gap: 8px;}
 
-        /* Sidebar & Menu */
+        /* Sidebar & Menu (Ajustado para evitar scrolls) */
         .sidebar-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 998; opacity: 0; visibility: hidden; transition: 0.3s ease; backdrop-filter: blur(5px); }
-        aside.sidebar { border-right: 1px solid var(--glass-border); padding: 30px 20px; display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.2); overflow-y: auto; }
-        .nav-btn { background: transparent; border: none; color: var(--text-muted); padding: 15px 20px; border-radius: 12px; text-align: left; font-size: 0.95rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 15px; font-weight: 500; width: 100%; }
+        aside.sidebar { border-right: 1px solid var(--glass-border); padding: 25px 20px; display: flex; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.2); overflow-x: hidden; overflow-y: auto; }
+        .nav-btn { background: transparent; border: none; color: var(--text-muted); padding: 12px 18px; border-radius: 12px; text-align: left; font-size: 0.95rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 15px; font-weight: 500; width: 100%; }
         .nav-btn:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
         .nav-btn.active { background: rgba(255,255,255,0.05); color: var(--primary); font-weight: 600; border-left: 3px solid var(--primary); border-radius: 0 12px 12px 0; }
         
         /* Áudio Unificado Sidebar */
-        .audio-section { margin-top: auto; padding: 20px; background: rgba(0,0,0,0.4); border-radius: 16px; border: 1px solid var(--glass-border); }
-        .audio-header { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; font-weight: 600; }
-        .audio-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; gap: 10px;}
+        .audio-section { margin-top: auto; padding: 15px 18px; background: rgba(0,0,0,0.4); border-radius: 16px; border: 1px solid var(--glass-border); }
+        .audio-header { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; font-weight: 600; }
+        .audio-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 10px;}
         .icon-btn { background: rgba(255,255,255,0.05); border: 1px solid transparent; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; flex-shrink: 0;}
         .icon-btn:hover { background: rgba(255,255,255,0.1); }
         .icon-btn.active { background: rgba(var(--primary-rgb), 0.2); color: var(--primary); border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
-        .btn-text-icon { flex: 1; background: rgba(255,255,255,0.05); border: none; color: white; padding: 10px; border-radius: 10px; cursor: pointer; transition: 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;}
+        .btn-text-icon { flex: 1; background: rgba(255,255,255,0.05); border: none; color: white; padding: 10px; border-radius: 10px; cursor: pointer; transition: 0.3s; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;}
         .btn-text-icon:hover { background: rgba(255,255,255,0.1); }
         .btn-text-icon.active { background: var(--primary); color: #000; font-weight: 600;}
-        .noise-select { flex:1; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); color: white; padding: 10px; border-radius: 10px; font-size: 0.85rem; outline: none; cursor: pointer;}
-        input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; -webkit-appearance: none;}
+        
+        /* Select de Áudio Customizado (Anti-Scroll Horizonantal) */
+        .noise-select { flex:1; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); color: white; padding: 10px; border-radius: 10px; font-size: 0.85rem; outline: none; cursor: pointer; min-width: 0; text-overflow: ellipsis; white-space: nowrap; }
+        .noise-select optgroup { background: #1a1a1f; color: var(--primary); font-weight: bold; }
+        .noise-select option { background: #0a0a0c; color: white; }
+        
+        input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; -webkit-appearance: none; margin-top: 5px;}
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 15px; height: 15px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 10px var(--primary-glow);}
 
         /* Main Content */
@@ -198,16 +211,17 @@
         .pomodoro-layout { display: flex; align-items: center; justify-content: center; gap: 80px; width: 100%; flex-wrap: wrap; margin-top: 20px;}
         .pomodoro-container { position: relative; display: flex; flex-direction: column; align-items: center; margin: 0 auto;}
         
-        /* === MASCOTE GLOBAL (FLUTUANTE SUPERIOR ESQUERDA) === */
+        /* === MASCOTE GLOBAL (POSIÇÃO EXATA SOLICITADA) === */
         .mascot-area-global {
             position: fixed;
             top: 270px;
-            right: 100px; /* offset sidebar */
+            right: 100px;
+            left: auto; /* Remove o left antigo para priorizar o right */
             z-index: 990;
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s ease;
+            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s ease;
         }
         .mascot-float-wrap { animation: floatEvo 4s ease-in-out infinite; pointer-events: auto; }
         .mascot-blink-wrap { animation: blink-squash 5s infinite; display: flex; align-items: center; justify-content: center; position: relative; }
@@ -309,6 +323,7 @@
         .store-item .price { color: #ffd700; font-weight: bold; margin-bottom: 15px; font-size: 1.1rem;}
         .btn-buy { background: rgba(255,255,255,0.1); border: none; color: white; padding: 10px 20px; border-radius: 10px; font-weight: 600; width: 100%; transition: 0.2s;}
         .btn-buy:hover { background: var(--primary); color: #000; }
+        .btn-buy:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .settings-grid, .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 800px; margin: auto; }
         .settings-card, .stat-card { background: rgba(0,0,0,0.4); padding: 30px; border-radius: 20px; border: 1px solid var(--glass-border); }
@@ -339,12 +354,12 @@
             .app-container { grid-template-columns: 1fr; grid-template-rows: 70px 1fr; }
             header { padding: 0 15px; }
             .mobile-menu-btn { display: block; }
-            aside.sidebar { position: fixed; left: -300px; width: 280px; height: 100dvh; z-index: 999; backdrop-filter: blur(25px); transition: left 0.3s ease; }
+            aside.sidebar { position: fixed; left: -340px; width: 320px; height: 100dvh; z-index: 999; backdrop-filter: blur(25px); transition: left 0.3s ease; }
             aside.sidebar.open { left: 0; }
             .sidebar-overlay.show { opacity: 1; visibility: visible; }
             
             main { padding: 20px 10px; }
-            .tab-content { width: 100%; padding-bottom: 150px; }
+            .tab-content { width: 100%; padding-bottom: 150px; /* espaco extra pro mascote */ }
             
             .settings-grid, .stats-grid { grid-template-columns: 1fr; gap: 15px; }
             .settings-card, .stat-card { padding: 20px; }
@@ -354,7 +369,7 @@
             
             .pomodoro-layout { gap: 30px; flex-direction: column; width: 100%; align-items: center; }
             
-            .mascot-area-global { left: 20px; top: 85px; bottom: auto; transform: scale(0.7); transform-origin: top left; }
+            .mascot-area-global { right: 20px; left: auto; top: 85px; bottom: auto; transform: scale(0.7); transform-origin: top right; }
             
             .glass-modal { padding: 25px 15px; margin: auto; }
             .lumari-choice-container { gap: 10px; justify-content: center; }
@@ -612,12 +627,23 @@
                 <div class="audio-header">Sons & Foco</div>
                 <div class="audio-row">
                     <select id="noise-type" class="noise-select">
-                        <option value="brown">Ruído Marrom</option>
-                        <option value="white">Ruído Branco</option>
-                        <option value="pink">Ruído Rosa</option>
-                        <option value="rain">Chuva Leve</option>
-                        <option value="ocean">Ondas do Mar</option>
-                        <option value="purr">Ronronar de Gato</option>
+                        <optgroup label="Sons Ambientes">
+                            <option value="brown">Ruído Marrom</option>
+                            <option value="white">Ruído Branco</option>
+                            <option value="pink">Ruído Rosa</option>
+                            <option value="rain">Chuva Leve</option>
+                            <option value="ocean">Ondas do Mar</option>
+                        </optgroup>
+                        <optgroup label="Gatos">
+                            <option value="purr">Ronronar Clássico</option>
+                            <option value="purr_light">Ronronar Leve</option>
+                            <option value="purr_deep">Ronronar Profundo</option>
+                        </optgroup>
+                        <optgroup label="Transe & Concentração">
+                            <option value="binaural_focus">Binaural (Foco Total)</option>
+                            <option value="solfeggio_432">Solfeggio 432Hz (Paz)</option>
+                            <option value="cosmic_trance">Drone Cósmico (Transe)</option>
+                        </optgroup>
                     </select>
                     <button class="icon-btn" id="btn-ambient-play" onclick="toggleAmbient()"><i class="fas fa-volume-down"></i></button>
                 </div>
@@ -669,27 +695,27 @@
             <section id="settings" class="tab-content">
                 <div class="settings-grid">
                     <div class="settings-card">
-                        <h3 style="margin-bottom: 20px; color: var(--text-main);"><i class="fas fa-stopwatch" style="color: var(--primary);"></i> Tempos</h3>
+                        <h3 style="margin-bottom: 20px; color: var(--text-main);"><i class="fas fa-stopwatch" style="color: var(--primary);"></i> Conigurar Pomodoro</h3>
                         <div class="input-group"><label>Foco (min)</label><input type="number" id="set-focus" min="1"></div>
                         <div class="input-group"><label>Pausa Curta (min)</label><input type="number" id="set-short" min="1"></div>
                         <div class="input-group"><label>Pausa Longa (min)</label><input type="number" id="set-long" min="1"></div>
                         <div class="input-group"><label>Ciclos p/ Pausa Longa</label><input type="number" id="set-cycles" min="1"></div>
-                        <button class="btn-save" onclick="saveSettings()">Salvar Tempos</button>
+                        <button class="btn-save" onclick="saveSettings()">Salvar</button>
                     </div>
                     <div class="settings-card">
-                        <h3 style="margin-bottom: 20px; color: var(--text-main);"><i class="fas fa-image" style="color: var(--primary);"></i> Wallpaper do Fundo</h3>
+                        <h3 style="margin-bottom: 20px; color: var(--text-main);"><i class="fas fa-image" style="color: var(--primary);"></i> Wallpaper</h3>
                         <div class="input-group">
-                            <label>Foto do seu Computador/Celular</label>
+                            <label>Arquivo Local</label>
                             <div class="custom-file-upload" style="margin-bottom: 8px;">
                                 <input type="file" id="set-bg-file" accept="image/*" hidden>
                                 <label for="set-bg-file" class="file-label"><i class="fas fa-upload"></i> Escolher Arquivo</label>
                                 <span class="file-name" id="bg-file-name">Nenhum...</span>
                             </div>
-                            <label style="margin-top: 15px;">Ou URL da Imagem da Web</label>
+                            <label style="margin-top: 15px;">URL da Imagem</label>
                             <input type="text" id="set-bg" placeholder="Cole o link da imagem">
                         </div>
-                        <div class="input-group" style="display: flex; align-items: center; gap: 10px;"><input type="checkbox" id="set-bg-blur" style="width: 20px; height: 20px; cursor: pointer;"><label for="set-bg-blur" style="margin:0; cursor:pointer;">Ativar Fundo Vidro (Blur)</label></div>
-                        <button class="btn-save" onclick="saveVisuals()" style="margin-bottom: 30px;">Aplicar Fundo</button>
+                        <div class="input-group" style="display: flex; align-items: center; gap: 10px;"><input type="checkbox" id="set-bg-blur" style="width: 20px; height: 20px; cursor: pointer;"><label for="set-bg-blur" style="margin:0; cursor:pointer;">Ativar Blur</label></div>
+                        <button class="btn-save" onclick="saveVisuals()" style="margin-bottom: 30px;">Aplicar</button>
                         
                         <div style="border-top: 1px solid var(--glass-border); padding-top: 20px;">
                             <button class="btn-buy" onclick="logoutUser()" style="margin-bottom: 10px; background: rgba(255,255,255,0.05);"><i class="fas fa-sign-out-alt"></i> Sair da Conta</button>
@@ -700,7 +726,6 @@
             </section>
         </main>
         
-        <!-- MASCOTE GLOBAL (Movido para Superior Esquerda) -->
         <div class="mascot-area-global mascot-area" id="mascot-global" onclick="playLumariVoice()">
             <div class="mascot-float-wrap">
                 <div class="mascot-blink-wrap">
@@ -847,7 +872,7 @@
         function saveCroppedAvatar() { if(!cropperInstance) return; appData.user.avatar = cropperInstance.getCroppedCanvas({ width: 256, height: 256, imageSmoothingEnabled: true, imageSmoothingQuality: 'high', }).toDataURL('image/jpeg', 0.85); saveDataToCloud(); showToast('Foto atualizada!', 'success'); document.getElementById('crop-modal').classList.remove('active'); if(cropperInstance) { cropperInstance.destroy(); cropperInstance = null; } setTimeout(openAvatarModal, 300); }
         function clearAvatar() { if(appData.user.avatar && confirm("Remover foto?")) { appData.user.avatar = ''; saveDataToCloud(); openAvatarModal(); } }
 
-        /* === VOZ DOS LUMARIS (Cries estilo Pokémon) === */
+        /* === VOZ DOS LUMARIS === */
         function playLumariVoice(type = appData.user.lumariType, level = appData.user.level) {
             if(!type) return;
             try {
@@ -988,9 +1013,8 @@
 
         const titles = ["Iniciante", "Focado", "Produtivo", "Mestre do Tempo", "Lenda do Foco"];
         
-        function addXP(minutes) {
-            appData.user.xp += (minutes * 10);
-            appData.user.coins += (minutes * 10);
+        function giveXP(amount) {
+            appData.user.xp += amount;
             let xpNeeded = appData.user.level * 100;
             let leveledUp = false;
 
@@ -1009,6 +1033,12 @@
                 }
             }
             saveDataToCloud();
+            updateProfileUI();
+        }
+
+        function addXP(minutes) {
+            appData.user.coins += (minutes * 10);
+            giveXP(minutes * 10);
         }
 
         function triggerEvolutionEffect() {
@@ -1218,6 +1248,16 @@
 
         /* === 6. LOJA VIRTUAL === */
         const storeItems = [
+            // Lumaris
+            { id: 'lumari_fire', name: 'Espírito de Fogo', cost: 1000, icon: '1.png', type: 'lumari', val: 'fire' },
+            { id: 'lumari_water', name: 'Espírito de Água', cost: 1000, icon: 'a1.png', type: 'lumari', val: 'water' },
+            { id: 'lumari_plant', name: 'Espírito de Planta', cost: 1000, icon: 'p1.png', type: 'lumari', val: 'plant' },
+            { id: 'lumari_lightning', name: 'Espírito de Raio', cost: 1000, icon: 'r1.png', type: 'lumari', val: 'lightning' },
+            
+            // Consumíveis (XP)
+            { id: 'xp_small', name: 'Cristal de XP (+50)', cost: 100, icon: '💎', type: 'consumable', action: 'xp', val: 50 },
+            { id: 'xp_large', name: 'Cristal Máximo (+200)', cost: 350, icon: '🔮', type: 'consumable', action: 'xp', val: 200 },
+
             { id: 'aura_power', name: 'Aura Elemental', cost: 500, icon: '✨', type: 'aura', val: 'elemental' },
             { id: 'aura_stellar', name: 'Aura Estelar', cost: 800, icon: '⭐', type: 'aura', val: 'stellar' },
             { id: 'aura_dark', name: 'Aura Sombria', cost: 800, icon: '🌑', type: 'aura', val: 'dark' },
@@ -1262,7 +1302,9 @@
             const grid = document.getElementById('store-grid'); grid.innerHTML = '';
             
             const categories = [
-                { id: 'cursor', name: '🖱️ Cursores Cyberpunk' },
+                { id: 'lumari', name: '🥚 Novos Lumaris' },
+                { id: 'consumable', name: '🧪 Poções & Boosts' },
+                { id: 'cursor', name: '🖱️ Cursores' },
                 { id: 'aura', name: '✨ Auras Mágicas' },
                 { id: 'chime', name: '🔔 Sinos Premium' },
                 { id: 'bgUrl', name: '🖼️ Wallpapers Premium' },
@@ -1273,17 +1315,33 @@
             categories.forEach(cat => {
                 const items = storeItems.filter(i => i.type === cat.id || (cat.id==='bgUrl' && i.type==='bgUrl') || (cat.id==='bg' && i.type==='bg'));
                 
-                if(items.length > 0 && cat.id !== 'bgUrl') {
+                if(items.length > 0 && cat.id !== 'bgUrl') { // junta bg e bgUrl visualmente
                     grid.innerHTML += `<div class="store-category-title"><h3 style="color: var(--primary);">${cat.name}</h3></div>`;
                     
                     const catItems = storeItems.filter(i => i.type === cat.id || (cat.id==='bg' && i.type==='bgUrl'));
                     
                     catItems.forEach(item => {
-                        const isOwned = appData.user.inventory.includes(item.id);
-                        const btnHtml = isOwned ? `<button class="btn-buy" style="background:var(--primary); color:#000;" onclick="equipItem('${item.id}')">Usar Item</button>` : `<button class="btn-buy" onclick="buyItem('${item.id}')">Comprar</button>`;
-                        
+                        let btnHtml = '';
                         let iconHtml = '';
-                        if (item.type === 'cursor') {
+                        
+                        // Botão de Ação Diferenciado para Lumaris, Consumíveis e Cosméticos
+                        if (item.type === 'lumari') {
+                            if (appData.user.lumariType === item.val) {
+                                btnHtml = `<button class="btn-buy" style="background:var(--success); color:#000;" disabled>Atual</button>`;
+                            } else {
+                                btnHtml = `<button class="btn-buy" onclick="buyItem('${item.id}')">Adotar (Substitui Atual)</button>`;
+                            }
+                        } else if (item.type === 'consumable') {
+                            btnHtml = `<button class="btn-buy" onclick="buyItem('${item.id}')">Comprar</button>`;
+                        } else {
+                            const isOwned = appData.user.inventory.includes(item.id);
+                            btnHtml = isOwned ? `<button class="btn-buy" style="background:var(--primary); color:#000;" onclick="equipItem('${item.id}')">Usar Item</button>` : `<button class="btn-buy" onclick="buyItem('${item.id}')">Comprar</button>`;
+                        }
+                        
+                        // Renderização das Imagens
+                        if (item.type === 'lumari') {
+                            iconHtml = `<div class="store-preview-box"><img src="${item.icon}" style="height:60px; object-fit:contain; filter:drop-shadow(0 5px 15px rgba(0,0,0,0.5));"></div>`;
+                        } else if (item.type === 'cursor') {
                             iconHtml = `<div class="store-preview-box"><div class="store-cursor-preview ${item.val}"></div></div>`;
                         } else if (item.type === 'color') {
                             iconHtml = `<div class="store-preview-box"><div class="store-color-preview" style="background: ${item.val}; box-shadow: 0 0 15px ${item.val};"></div></div>`;
@@ -1303,9 +1361,31 @@
 
         function buyItem(id) {
             const item = storeItems.find(i => i.id === id);
+            
+            // Confirmação para Lumaris (já que perdem o atual e não salva no inventário)
+            if (item.type === 'lumari') {
+                if(!confirm(`Atenção: Ao adotar o ${item.name}, o seu Lumari atual irá embora e você precisará comprá-lo de novo na loja se quiser voltar. Tem certeza?`)) return;
+            }
+
             if(appData.user.coins >= item.cost) {
-                appData.user.coins -= item.cost; appData.user.inventory.push(id);
-                showToast(`Compra realizada!`, 'success'); equipItem(id); renderStore();
+                appData.user.coins -= item.cost; 
+                
+                if (item.type === 'lumari') {
+                    appData.user.lumariType = item.val;
+                    showToast(`Você adotou o ${item.name}!`, 'success');
+                    saveDataToCloud();
+                    updateProfileUI();
+                } else if (item.type === 'consumable' && item.action === 'xp') {
+                    giveXP(item.val);
+                    showToast(`Você ganhou +${item.val} XP!`, 'success');
+                } else {
+                    // Cosméticos entram no inventário pra sempre
+                    appData.user.inventory.push(id);
+                    showToast(`Compra realizada!`, 'success'); 
+                    equipItem(id); 
+                }
+                
+                renderStore();
             } else { showToast('Moedas insuficientes! Estude mais.', 'warning'); }
         }
 
@@ -1404,7 +1484,7 @@
             appData.settings.longBreak = parseInt(document.getElementById('set-long').value); 
             appData.settings.cyclesGoal = parseInt(document.getElementById('set-cycles').value);
             saveDataToCloud(); if(!sessionActive) { timeLeft = appData.settings.focus * 60; updatePomodoroUI(); } 
-            showToast('Tempos salvos!', 'success');
+            showToast('Salvo!', 'success');
         }
 
         /* === 8. ÁUDIO UNIFICADO E LO-FI === */
@@ -1457,20 +1537,98 @@
             else { btn.classList.remove('active'); showToast('Modo Auto desativado.', 'warning'); }
         }
 
+        /* === Sintetizadores Manuais de Transe e Foco === */
         let audioContext, gainNode, currentNoiseNode, extraNodes = []; let isAmbientPlaying = false;
-        function stopAmbient() { if(currentNoiseNode) { currentNoiseNode.stop(); currentNoiseNode.disconnect(); } extraNodes.forEach(n => n.disconnect()); extraNodes = []; isAmbientPlaying = false; }
+        
+        function stopAmbient() { 
+            if(currentNoiseNode) { 
+                try { currentNoiseNode.stop(); } catch(e){} 
+                currentNoiseNode.disconnect(); 
+            } 
+            extraNodes.forEach(n => { try { n.disconnect(); } catch(e){} }); 
+            extraNodes = []; 
+            isAmbientPlaying = false; 
+        }
+
         function toggleAmbient() {
             const btn = document.getElementById('btn-ambient-play');
             if(isAmbientPlaying) { stopAmbient(); btn.innerHTML = '<i class="fas fa-volume-mute"></i>'; btn.classList.remove('active'); }
             else { initAmbientAudio(document.getElementById('noise-type').value); btn.innerHTML = '<i class="fas fa-volume-up"></i>'; btn.classList.add('active'); }
         }
+
         function initAmbientAudio(type) {
-            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)(); stopAmbient();
+            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)(); 
+            stopAmbient();
+            
             if (!gainNode) { gainNode = audioContext.createGain(); gainNode.connect(audioContext.destination); }
-            gainNode.gain.value = document.getElementById('volume-slider').value; isAmbientPlaying = true;
-            if (type === 'purr') {
-                let osc = audioContext.createOscillator(); osc.type = 'sawtooth'; osc.frequency.value = 40; let filter = audioContext.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 150; let lfo = audioContext.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 25; let lfoGain = audioContext.createGain(); lfoGain.gain.value = 0.8; let master = audioContext.createGain(); master.gain.value = 0.6; lfo.connect(lfoGain); lfoGain.connect(master.gain); osc.connect(filter); filter.connect(master); master.connect(gainNode); osc.start(); lfo.start(); currentNoiseNode = osc; extraNodes.push(filter, lfo, lfoGain, master); return;
+            gainNode.gain.value = document.getElementById('volume-slider').value; 
+            isAmbientPlaying = true;
+
+            // 1. SISTEMA DE RONRONARES DO GATO
+            if (type.startsWith('purr')) {
+                let baseFreq = type === 'purr_light' ? 55 : (type === 'purr_deep' ? 30 : 40);
+                let lfoFreq = type === 'purr_light' ? 28 : (type === 'purr_deep' ? 20 : 25);
+                let filterFreq = type === 'purr_light' ? 200 : (type === 'purr_deep' ? 100 : 150);
+                
+                let osc = audioContext.createOscillator(); osc.type = 'sawtooth'; osc.frequency.value = baseFreq; 
+                let filter = audioContext.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = filterFreq; 
+                let lfo = audioContext.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = lfoFreq; 
+                let lfoGain = audioContext.createGain(); lfoGain.gain.value = 0.8; 
+                let master = audioContext.createGain(); master.gain.value = 0.6; 
+                
+                lfo.connect(lfoGain); lfoGain.connect(master.gain); 
+                osc.connect(filter); filter.connect(master); master.connect(gainNode); 
+                osc.start(); lfo.start(); currentNoiseNode = osc; extraNodes.push(filter, lfo, lfoGain, master); 
+                return;
             }
+
+            // 2. SISTEMA DE BINAURAL FOCUS (ONDAS BETA)
+            if (type === 'binaural_focus') {
+                let osc1 = audioContext.createOscillator(); osc1.type = 'sine'; osc1.frequency.value = 200;
+                let osc2 = audioContext.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = 214; // Diferença de 14Hz (Atenção/Foco)
+                let master = audioContext.createGain(); master.gain.value = 0.3;
+                osc1.connect(master); osc2.connect(master); master.connect(gainNode);
+                osc1.start(); osc2.start(); currentNoiseNode = osc1; extraNodes.push(osc2, master);
+                return;
+            }
+
+            // 3. SISTEMA SOLFEGGIO 432HZ (TRANSE DE PAZ)
+            if (type === 'solfeggio_432') {
+                let osc = audioContext.createOscillator(); osc.type = 'sine'; osc.frequency.value = 432;
+                let lfo = audioContext.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.1; // LFO bem devagar (Respiração)
+                let lfoGain = audioContext.createGain(); lfoGain.gain.value = 0.3;
+                let master = audioContext.createGain(); master.gain.value = 0.4;
+                lfo.connect(lfoGain); lfoGain.connect(master.gain);
+                osc.connect(master); master.connect(gainNode);
+                osc.start(); lfo.start(); currentNoiseNode = osc; extraNodes.push(lfo, lfoGain, master);
+                return;
+            }
+
+            // 4. SISTEMA DRONE CÓSMICO (ISOLAMENTO PROFUNDO)
+            if (type === 'cosmic_trance') {
+                let osc = audioContext.createOscillator(); osc.type = 'triangle'; osc.frequency.value = 90;
+                let oscLfo = audioContext.createOscillator(); oscLfo.type = 'sine'; oscLfo.frequency.value = 0.05;
+                let oscLfoGain = audioContext.createGain(); oscLfoGain.gain.value = 15;
+                oscLfo.connect(oscLfoGain); oscLfoGain.connect(osc.frequency);
+                let filter = audioContext.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 250;
+                let master = audioContext.createGain(); master.gain.value = 0.5;
+                osc.connect(filter); filter.connect(master);
+                
+                // Cama de Ruído Marrom no fundo
+                const bufferSize = audioContext.sampleRate * 2; const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate); const output = buffer.getChannelData(0); let lastOut = 0;
+                for (let i = 0; i < bufferSize; i++) { let white = Math.random() * 2 - 1; output[i] = (lastOut + (0.02 * white)) / 1.02; lastOut = output[i]; output[i] *= 1.5; }
+                let noiseSource = audioContext.createBufferSource(); noiseSource.buffer = buffer; noiseSource.loop = true;
+                let noiseFilter = audioContext.createBiquadFilter(); noiseFilter.type = 'lowpass'; noiseFilter.frequency.value = 100;
+                let noiseGain = audioContext.createGain(); noiseGain.gain.value = 0.4;
+                noiseSource.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(master);
+                
+                master.connect(gainNode);
+                osc.start(); oscLfo.start(); noiseSource.start();
+                currentNoiseNode = osc; extraNodes.push(oscLfo, oscLfoGain, filter, master, noiseSource, noiseFilter, noiseGain);
+                return;
+            }
+
+            // 5. RUÍDOS CLÁSSICOS (BRANCO, MARROM, CHUVA)
             const bufferSize = audioContext.sampleRate * 2; const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate); const output = buffer.getChannelData(0); let lastOut = 0;
             for (let i = 0; i < bufferSize; i++) {
                 let white = Math.random() * 2 - 1;
