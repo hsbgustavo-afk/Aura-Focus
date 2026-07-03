@@ -791,7 +791,7 @@
                 </div>
             </section>
 
-           <!-- NOVA ABA CO-OP REAL-TIME -->
+          <!-- NOVA ABA CO-OP REAL-TIME -->
             <section id="coop-room" class="tab-content">
                 <div class="settings-card" style="width:100%; max-width:800px;">
                     <h2 style="color:var(--primary); margin-bottom:10px;"><i class="fas fa-users"></i> Luma Co-op</h2>
@@ -804,15 +804,24 @@
                         <button class="btn-buy" style="width:auto; border: 1px solid var(--glass-border);" onclick="createCoopRoom()"><i class="fas fa-plus"></i> Criar Nova Sala</button>
                     </div>
 
-                    <!-- Header da Sala Ativa (Fica oculto até entrar) -->
-                    <div id="coop-active-header" style="display:none; justify-content:space-between; align-items:center; background:rgba(0,255,0,0.05); padding:15px; border-radius:10px; border:1px solid var(--primary); margin-bottom:20px;">
-                        <div><span style="color:var(--text-muted);">Sala Atual:</span> <b style="font-size:1.4rem; letter-spacing:2px; color:var(--primary); margin-left: 10px;" id="current-room-display">---</b></div>
-                        <button class="btn-buy" style="width:auto; background:rgba(255,0,0,0.2); color:#ffcccc; border:1px solid rgba(255,0,0,0.3);" onclick="leaveCoopRoom()"><i class="fas fa-sign-out-alt"></i> Sair da Sala</button>
-                    </div>
+                    <!-- Painel da Sala Ativa -->
+                    <div id="coop-active-panel" style="display:none; flex-direction:column; gap:20px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,255,0,0.05); padding:15px; border-radius:10px; border:1px solid var(--primary);">
+                            <div><span style="color:var(--text-muted);">Sala Atual:</span> <b style="font-size:1.4rem; letter-spacing:2px; color:var(--primary); margin-left: 10px;" id="current-room-display">---</b></div>
+                            <button class="btn-buy" style="width:auto; background:rgba(255,0,0,0.2); color:#ffcccc; border:1px solid rgba(255,0,0,0.3);" onclick="leaveCoopRoom()"><i class="fas fa-sign-out-alt"></i> Encerrar / Sair</button>
+                        </div>
 
-                    <!-- Grid de Usuários -->
-                    <div class="coop-grid" id="coop-grid">
-                        <div style="grid-column:1/-1; color:var(--text-muted); text-align: center;">Você não está em nenhuma sala no momento.</div>
+                        <!-- Boss Exclusivo da Sala -->
+                        <div class="boss-card" style="margin: 0 auto; border-color: #ff9100; background: radial-gradient(circle, rgba(255,145,0,0.1) 0%, rgba(0,0,0,0.8) 100%);">
+                            <h3 style="color:#ff9100; margin-bottom:5px;">O Guardião da Sala</h3>
+                            <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:15px;">Ataquem juntos focando no Pomodoro!</p>
+                            <img src="boss.png" class="boss-img" id="coop-boss-img" alt="Coop Boss" style="width: 120px; height: 120px; filter: drop-shadow(0 0 15px #ff9100);">
+                            <div class="hp-bar-bg" style="border-color: #ff9100;"><div class="hp-bar-fill" id="coop-boss-hp-fill" style="background: #ff9100; box-shadow: 0 0 10px #ff9100;"></div></div>
+                            <p style="color:#ff9100; font-weight:bold; font-size:0.9rem;" id="coop-boss-hp-text">1000 / 1000 Minutos</p>
+                        </div>
+
+                        <h3 style="color:var(--text-main); text-align:left; border-bottom:1px solid var(--glass-border); padding-bottom:10px;"><i class="fas fa-trophy" style="color:#ffd700;"></i> Ranking ao Vivo</h3>
+                        <div class="coop-grid" id="coop-grid"></div>
                     </div>
                 </div>
             </section>
@@ -1417,13 +1426,21 @@ document.addEventListener('mouseup', () => { isDraggingFloat = false; });
 /* === MULTIPLAYER CO-OP REAL-TIME === */
 let currentRoomId = null;
 let coopUnsubscribe = null;
+let roomBossUnsubscribe = null;
 let isRoomLeader = false;
+let currentRoomRanking = []; // Guarda o ranking final para exibir ao sair
 
 async function createCoopRoom() {
     if(!isUserLoggedIn) return showToast("Faça login para criar salas!", "warning");
     const code = Math.random().toString(36).substring(2, 7).toUpperCase();
     try {
-        await db.collection('rooms').doc(code).set({ leader: auth.currentUser.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        // Inicializa a sala com um Boss de 1000 HP
+        await db.collection('rooms').doc(code).set({ 
+            leader: auth.currentUser.uid, 
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            bossHp: 1000,
+            maxBossHp: 1000
+        });
         await joinCoopRoom(code);
         showToast("Sala criada com sucesso!", "success");
     } catch(e) { showToast("Erro ao criar sala.", "danger"); }
@@ -1441,11 +1458,16 @@ async function joinCoopRoom(codeToJoin = null) {
         isRoomLeader = roomDoc.data().leader === auth.currentUser.uid;
         currentRoomId = code;
         
-        // Atualiza os seus dados no banco apontando para a sala nova
-        await db.collection('users').doc(auth.currentUser.uid).update({ currentRoom: code, coopStatus: getMyStatusText(), coopColor: getMyStatusColor() });
+        // Zera os pontos do usuário ao entrar na sala nova
+        await db.collection('users').doc(auth.currentUser.uid).update({ 
+            currentRoom: code, 
+            coopStatus: getMyStatusText(), 
+            coopColor: getMyStatusColor(),
+            coopScore: 0 
+        });
         
         document.getElementById('coop-controls').style.display = 'none';
-        document.getElementById('coop-active-header').style.display = 'flex';
+        document.getElementById('coop-active-panel').style.display = 'flex';
         document.getElementById('current-room-display').innerText = code;
         
         listenToRoom(code);
@@ -1454,66 +1476,118 @@ async function joinCoopRoom(codeToJoin = null) {
 }
 
 function listenToRoom(code) {
-    if(coopUnsubscribe) coopUnsubscribe(); // Limpa escuta antiga
+    if(coopUnsubscribe) coopUnsubscribe();
+    if(roomBossUnsubscribe) roomBossUnsubscribe();
     
-    // O onSnapshot atualiza a tela instantaneamente quando alguém entra, sai ou muda de status!
+    // Escuta os usuários da sala e gera o Ranking
     coopUnsubscribe = db.collection('users').where('currentRoom', '==', code).onSnapshot(snapshot => {
         const grid = document.getElementById('coop-grid');
         grid.innerHTML = '';
         
-        // Se a pessoa for removida da sala, a tela dela atualiza pra sair
         let meFound = false;
+        let usersList = [];
 
         snapshot.forEach(doc => {
-            const data = doc.data(); const uid = doc.id; const isMe = uid === auth.currentUser.uid;
-            if(isMe) meFound = true;
+            const data = doc.data(); 
+            if(doc.id === auth.currentUser.uid) meFound = true;
+            usersList.push({ id: doc.id, ...data });
+        });
 
-            const avatarSrc = data.avatar || (data.lumariType ? lumariImages[data.lumariType][0] : '1.png');
-            let kickBtn = '';
+        // Fui expulso?
+        if(!meFound && currentRoomId === code) return leaveCoopRoom(true);
+
+        // Ordena a lista de usuários pelos pontos (do maior para o menor)
+        usersList.sort((a, b) => (b.coopScore || 0) - (a.coopScore || 0));
+        currentRoomRanking = usersList; // Salva para o popup final
+
+        usersList.forEach((userData, index) => {
+            const isMe = userData.id === auth.currentUser.uid;
             
-            // Só exibe botão de expulsar se você for líder e não for você mesmo
+            // Corrige o "undefined": Procura os dados na pasta 'user' em vez da raiz do banco
+            const safeUser = userData.user || {};
+            const avatarSrc = safeUser.avatar || (safeUser.lumariType ? lumariImages[safeUser.lumariType][0] : '1.png');
+            const userName = safeUser.name || 'Estudante';
+            const score = userData.coopScore || 0;
+            
+            let kickBtn = '';
             if(isRoomLeader && !isMe) {
-                kickBtn = `<button onclick="kickUser('${uid}')" style="background:rgba(255,0,0,0.2); border:1px solid red; color:white; font-size:0.7rem; padding:3px 8px; border-radius:5px; margin-top:10px; cursor:pointer;">Expulsar</button>`;
+                kickBtn = `<button onclick="kickUser('${userData.id}')" style="background:rgba(255,0,0,0.2); border:1px solid red; color:white; font-size:0.7rem; padding:3px 8px; border-radius:5px; margin-top:10px; cursor:pointer; width:100%;">Expulsar</button>`;
             }
 
+            // Posição no Pódio (Ouro, Prata, Bronze)
+            let rankIcon = `<span style="font-size:1.2rem; font-weight:bold; color:var(--text-muted);">${index + 1}º</span>`;
+            if(index === 0) rankIcon = `<i class="fas fa-crown" style="color:#ffd700; font-size:1.5rem; filter:drop-shadow(0 0 5px #ffd700);"></i>`;
+            else if(index === 1) rankIcon = `<i class="fas fa-medal" style="color:#c0c0c0; font-size:1.3rem;"></i>`;
+            else if(index === 2) rankIcon = `<i class="fas fa-medal" style="color:#cd7f32; font-size:1.2rem;"></i>`;
+
             grid.innerHTML += `
-                <div class="coop-user-card" style="border-color: ${data.coopColor || 'var(--glass-border)'};">
-                    <img src="${avatarSrc}" style="width:60px; height:60px; border-radius:50%; border:2px solid ${data.coopColor || 'var(--text-muted)'}; margin-bottom:10px; object-fit:cover;">
-                    <h4>${data.name} ${isMe ? '(Você)' : ''}</h4>
-                    <p style="color:${data.coopColor || 'var(--text-muted)'}; font-size:0.8rem; font-weight:bold; margin-top:5px;">${data.coopStatus || 'Na Sala'}</p>
+                <div class="coop-user-card" style="border-color: ${userData.coopColor || 'var(--glass-border)'}; position:relative; overflow:hidden;">
+                    <div style="position:absolute; top:10px; left:10px;">${rankIcon}</div>
+                    <img src="${avatarSrc}" style="width:70px; height:70px; border-radius:50%; border:3px solid ${userData.coopColor || 'var(--text-muted)'}; margin-bottom:10px; object-fit:cover; background:var(--bg-color);">
+                    <h4>${userName} ${isMe ? '(Você)' : ''}</h4>
+                    <p style="color:#ffd700; font-weight:bold; margin-top:5px; font-size:1rem;"><i class="fas fa-star"></i> ${score} pts</p>
+                    <p style="color:${userData.coopColor || 'var(--text-muted)'}; font-size:0.75rem; font-weight:bold; margin-top:5px; background:rgba(0,0,0,0.5); padding:3px 8px; border-radius:10px;">${userData.coopStatus || 'Na Sala'}</p>
                     ${kickBtn}
                 </div>
             `;
         });
+    });
 
-        // Fui expulso?
-        if(!meFound && currentRoomId === code) leaveCoopRoom(true);
+    // Escuta o Boss Coletivo
+    roomBossUnsubscribe = db.collection('rooms').doc(code).onSnapshot(doc => {
+        if(!doc.exists) return; 
+        const data = doc.data();
+        const hp = data.bossHp || 0;
+        const maxHp = data.maxBossHp || 1000;
+        
+        const pct = Math.max(0, (hp / maxHp) * 100);
+        document.getElementById('coop-boss-hp-fill').style.width = pct + '%';
+        document.getElementById('coop-boss-hp-text').innerText = `${hp} / ${maxHp} Minutos Restantes`;
+        
+        const bossImg = document.getElementById('coop-boss-img');
+        if(hp <= 0) {
+            bossImg.style.filter = "grayscale(1) brightness(0.5)";
+            document.getElementById('coop-boss-hp-text').innerText = "Chefe Derrotado!";
+            document.getElementById('coop-boss-hp-text').style.color = "var(--success)";
+        } else {
+            bossImg.style.filter = "drop-shadow(0 0 15px #ff9100)";
+            document.getElementById('coop-boss-hp-text').style.color = "#ff9100";
+        }
     });
 }
 
 async function leaveCoopRoom(kicked = false) {
     if(!isUserLoggedIn || !currentRoomId) return;
-    if(coopUnsubscribe) coopUnsubscribe();
-    currentRoomId = null; isRoomLeader = false;
     
+    // Monta o placar final
+    let rankingMsg = "🏆 RANKING FINAL DA SALA 🏆\n\n";
+    currentRoomRanking.forEach((u, i) => {
+        const name = u.user?.name || 'Estudante';
+        rankingMsg += `${i + 1}º Lugar: ${name} (${u.coopScore || 0} pts)\n`;
+    });
+
+    if(coopUnsubscribe) coopUnsubscribe();
+    if(roomBossUnsubscribe) roomBossUnsubscribe();
+    
+    currentRoomId = null; isRoomLeader = false;
     await db.collection('users').doc(auth.currentUser.uid).update({ currentRoom: null });
+    
     document.getElementById('coop-controls').style.display = 'flex';
-    document.getElementById('coop-active-header').style.display = 'none';
+    document.getElementById('coop-active-panel').style.display = 'none';
     document.getElementById('coop-code').value = '';
-    document.getElementById('coop-grid').innerHTML = '<div style="grid-column:1/-1; color:var(--text-muted); text-align: center;">Você não está em nenhuma sala no momento.</div>';
+    document.getElementById('coop-grid').innerHTML = '';
     
     if(kicked) showToast("Você foi removido da sala.", "warning");
+    else alert(rankingMsg); // Exibe o ranking quando você mesmo escolhe sair
 }
 
 async function kickUser(uid) {
     if(!isRoomLeader) return;
     if(confirm("Remover este usuário da sala?")) {
-        // Remove a "currentRoom" do usuário, acionando o onSnapshot dele pra kickar ele da UI
         await db.collection('users').doc(uid).update({ currentRoom: null });
     }
 }
 
-/* === Lógica de Cores e Status Automáticos === */
 function getMyStatusText() {
     if(!sessionActive) return "Na Sala de Espera";
     if(!pomoInterval && pomoState === 'study') return "Pausado";
@@ -1529,8 +1603,6 @@ function getMyStatusColor() {
     return "var(--text-muted)";
 }
 
-// Um monitor invisível! Ele checa a cada 2s se você pausou ou deu play
-// e avisa os seus amigos na sala. Sem precisar mexer na função do pomodoro.
 let lastCoopStatus = '';
 setInterval(() => {
     if(!isUserLoggedIn || !currentRoomId) return;
@@ -1850,7 +1922,13 @@ function togglePomodoro() {
 
                 appData.user.lastFocusDate = Date.now(); 
                 addXP(1); 
-                dealBossDamage(1);
+                dealBossDamage(1); // Boss Pessoal
+                
+                // NOVO: Pontuação Co-op e Dano ao Guardião da Sala
+                if (currentRoomId && isUserLoggedIn) {
+                    db.collection('users').doc(auth.currentUser.uid).update({ coopScore: firebase.firestore.FieldValue.increment(1) });
+                    db.collection('rooms').doc(currentRoomId).update({ bossHp: firebase.firestore.FieldValue.increment(-1) });
+                }
             }
             if (timeLeft <= 0) handleCycleEnd();
         }, 1000);
