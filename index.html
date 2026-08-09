@@ -1546,39 +1546,13 @@ const auth = firebase.auth(), db = firebase.firestore(), googleProvider = new fi
 const defaultState = {
     user: { name: 'Estudante', lumariName: '', xp: 0, level: 1, lumariLevel: 1, lumariXp: 0, streak: 0, avatar: '', coins: 0, inventory: [], lumariType: null, achievements: [], buffCharges: 0, itemsBought: 0, lastFocusDate: 0, roomBg: '' },
     tasks: [],
-    studyCycle: {
-        currentIndex: 0,
-        subjects: [
-            { id: 'sub_1', name: 'Matematica', pomodorosGoal: 2 },
-            { id: 'sub_2', name: 'Portugues', pomodorosGoal: 1 },
-            { id: 'sub_3', name: 'Biologia', pomodorosGoal: 2 }
-        ]
-    },
-    plannerSubjects: [
-        { id: 'prio_1', name: 'Matemática', weight: 3 },
-        { id: 'prio_2', name: 'Redação', weight: 3 },
-        { id: 'prio_3', name: 'História', weight: 2 },
-        { id: 'prio_4', name: 'Inglês', weight: 1 }
-    ],
-    srsTopics: [
-        {
-            id: 'srs_demo_1',
-            title: 'Revisão: Revolução Francesa',
-            intervalDays: 1,
-            nextReviewDate: Date.now()
-        }
-    ],
-    flashcards: [
-        {
-            id: 'deck_demo',
-            title: '🚀 Luma Concept Demos',
-            color: '#00ff00',
-            cards: [
-                { id: '1', front: 'O que é a técnica Pomodoro?', back: 'Um método de gestão de tempo baseado em blocos de foco intenso (ex: 25m) intercalados por curtas pausas.' },
-                { id: '2', front: 'O que significa Active Recall?', back: 'O ato de testar ativamente sua memória durante o estudo, em vez de apenas reler resumos passivamente.' }
-            ]
-        }
-    ],
+   studyCycle: {
+            currentIndex: 0,
+            subjects: []
+        },
+        plannerSubjects: [],
+        srsTopics: [],
+        flashcards: [],
     settings: { focus: 25, shortBreak: 5, longBreak: 15, cyclesGoal: 4 },
     visuals: { bgUrl: '', color: '#00ff00', blur: true, clockStyle: 'classic', mascotAura: false, bgDark: false, mascotHat: '', cursor: 'default' },
     audio: { type: 'brown', lofiAuto: true, premiumChime: false, musicVol: 0.5, sfxVol: 0.8 },
@@ -1683,17 +1657,88 @@ function addTask() {
         input.value = ''; saveDataToCloud(); renderTasks();
     }
 }
+
+
+
+
+
+
+
+
+
 function toggleTask(index) {
-    appData.tasks[index].done = !appData.tasks[index].done;
-    if(appData.tasks[index].done) appData.tasks[index].active = false;
-    saveDataToCloud(); renderTasks(); playChime('coin'); 
+    let task = appData.tasks[index];
+    task.done = !task.done;
+    
+    if (task.done) {
+        task.active = false; // Tira o foco da tarefa
+        
+        // --- INÍCIO DA AUTOMAÇÃO SRS ---
+        if (!appData.srsTopics) appData.srsTopics = [];
+        
+        // Limpa o texto caso venha importado do cronograma (ex: remove "[Ciclo 1] ")
+        let cleanTitle = task.text.replace(/\[.*?\]\s*/, '').trim();
+        
+        // Verifica se essa matéria já não está no SRS para evitar duplicatas (caso você desmarque e marque de novo)
+        let alreadyExists = appData.srsTopics.some(t => t.title === cleanTitle);
+        
+        if (!alreadyExists && cleanTitle !== "") {
+            appData.srsTopics.push({
+                id: 'srs_' + Date.now(),
+                title: cleanTitle,
+                intervalDays: 1, // Curva de Ebbinghaus: 1º dia (24h)
+                nextReviewDate: Date.now() + 86400000 // +1 dia em milissegundos
+            });
+            showToast(`"${cleanTitle}" agendado para revisão amanhã!`, "success");
+        }
+        // --- FIM DA AUTOMAÇÃO SRS ---
+    }
+    
+    saveDataToCloud(); 
+    renderTasks(); 
+    renderSmartScheduleUI(); // Atualiza o cronograma 
+    if (typeof renderSRSReviews === 'function') renderSRSReviews(); // Atualiza a lista do SRS em tempo real
+    playChime('coin'); 
 }
-function deleteTask(index) { appData.tasks.splice(index, 1); saveDataToCloud(); renderTasks(); }
+
+
+
+
+
+
+
+function deleteTask(index) { 
+    appData.tasks.splice(index, 1); 
+    saveDataToCloud(); 
+    renderTasks(); 
+    renderSmartScheduleUI(); // Atualiza o cronograma automaticamente
+}
+
+
+
+
+
+
+
+
 function setActiveTask(index) {
     if(appData.tasks[index].done) return;
     appData.tasks.forEach(t => t.active = false); appData.tasks[index].active = true;
     saveDataToCloud(); renderTasks(); showToast('Alvo de foco definido!', 'info', 'fas fa-bullseye');
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* === PLANEJADOR DE ESTUDOS INTELIGENTE COM PESOS === */
 function renderPlannerSubjects() {
@@ -1870,10 +1915,39 @@ function renderSmartScheduleUI() {
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Seu dia fatiado em ${totalCycles} sessões de Pomodoro com intervalos perfeitos.</p>
         <div class="timeline" style="margin-top: 0;">`;
 
-    let currentTime = new Date();
-    currentTime.setHours(8, 0, 0, 0);
+    
+
+
+
+
+
+
+let currentTime = new Date(); // Agora inicia exatamente no horário atual
+
+    // Encontrar qual é o último ciclo pendente para não colocar pausa depois dele
+    let lastPendingIndex = -1;
+    for (let i = todaySessions.length - 1; i >= 0; i--) {
+        let expectedTaskText = `[Ciclo ${i + 1}] ${todaySessions[i]}`;
+        let matchingTask = appData.tasks ? appData.tasks.find(t => t.text === expectedTaskText) : null;
+        if (!(matchingTask && matchingTask.done)) {
+            lastPendingIndex = i;
+            break;
+        }
+    }
+
+    let allDone = true;
 
     todaySessions.forEach((subName, idx) => {
+        // Verifica se essa tarefa exata já foi concluída no To-Do list
+        let expectedTaskText = `[Ciclo ${idx + 1}] ${subName}`;
+        let matchingTask = appData.tasks ? appData.tasks.find(t => t.text === expectedTaskText) : null;
+        let isCompleted = matchingTask && matchingTask.done;
+
+        // Se o ciclo já foi marcado como concluído, pula e não mostra na timeline
+        if (isCompleted) return;
+        
+        allDone = false; // Achou pelo menos uma pendente
+
         let isLongBreak = ((idx + 1) % cyclesGoal === 0) && (idx !== todaySessions.length - 1);
         let startTimeStr = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         currentTime.setMinutes(currentTime.getMinutes() + focusTime);
@@ -1890,7 +1964,8 @@ function renderSmartScheduleUI() {
             </div>
         </div>`;
 
-        if (idx < todaySessions.length - 1) {
+        // Só exibe a pausa se não for o último ciclo pendente do dia
+        if (idx < lastPendingIndex) {
             html += `<div class="timeline-item break ${isLongBreak ? 'long' : ''}">
                 <div class="time">${breakTimeStr}</div>
                 <div class="content">
@@ -1900,6 +1975,17 @@ function renderSmartScheduleUI() {
             </div>`;
         }
     });
+
+    // Mostra mensagem de sucesso se o usuário finalizou todas as tarefas importadas
+    if (allDone && todaySessions.length > 0) {
+        html += `<div style="text-align: center; padding: 20px; background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); border-radius: 12px; color: var(--success); margin-top: 10px;">
+            <h4>🎉 Dia Concluído!</h4>
+            <p style="font-size: 0.85rem; margin-top: 5px;">Você já finalizou todos os ciclos programados para hoje.</p>
+        </div>`;
+    }
+
+
+
 
     html += `</div>
         <button class="btn-save" style="margin-top: 25px; width: 100%;" onclick="importScheduleToTasks('${todaySessions.join(',')}')"><i class="fas fa-download"></i> Importar Matérias Para Minhas Tarefas de Hoje</button>
