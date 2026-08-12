@@ -439,37 +439,98 @@
         .cycle-item-name { font-weight: 600; color: white; font-size: 1rem; display: flex; align-items: center; gap: 10px; }
         .srs-badge { background: #ff9100; color: #000; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 0 10px rgba(255,145,0,0.4); }
 
-        /* === LUMA FLASHCARDS SYSTEM === */
+
+
+
+
+
+       /* === LUMA FLASHCARDS SYSTEM === */
         .flashcards-header { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 800px; margin-bottom: 25px; }
         .deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; width: 100%; max-width: 800px; }
-        .deck-card { 
-            background: rgba(0,0,0,0.4); 
-            border: 1px solid var(--glass-border); 
-            border-radius: 20px; 
-            padding: 25px; 
-            text-align: left; 
-            transition: 0.3s; 
-            position: relative; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between; 
-            min-height: 160px;
-            border-top: 4px solid var(--deck-color, var(--primary));
-        }
-        .deck-card:hover { 
-            transform: translateY(-5px); 
-            border-color: var(--deck-color, var(--primary)); 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
-        }
+        .deck-card { background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 20px; padding: 25px; text-align: left; transition: 0.3s; position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 160px; border-top: 4px solid var(--deck-color, var(--primary)); }
+        .deck-card:hover { transform: translateY(-5px); border-color: var(--deck-color, var(--primary)); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
 
-        /* Animação 3D do Flashcard */
-        .card-scene { width: 100%; max-width: 500px; height: 300px; perspective: 1000px; margin: 20px auto; }
-        .card-object { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); cursor: pointer !important; }
+        /* Estilo do Novo Editor de Cartas */
+        .editor-container { background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 12px; margin-bottom: 20px; overflow: hidden; text-align: left; }
+        .editor-toolbar { background: rgba(255,255,255,0.03); padding: 12px 15px; border-bottom: 1px solid var(--glass-border); display: flex; gap: 15px; color: var(--text-muted); font-size: 0.9rem; }
+        .editor-toolbar i { cursor: pointer; transition: 0.2s; }
+        .editor-toolbar i:hover { color: var(--primary); }
+        .editor-textarea { width: 100%; background: transparent; border: none; color: white; padding: 15px; font-size: 0.95rem; min-height: 120px; resize: vertical; outline: none; font-family: var(--font); line-height: 1.5; }
+
+       
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Estilos do Editor Rich Text - SEM SCROLL, CRESCE AUTOMATICAMENTE */
+        .editor-contenteditable { width: 100%; background: transparent; border: none; color: white; padding: 15px; font-size: 0.95rem; min-height: 100px; overflow: visible; outline: none; font-family: var(--font); line-height: 1.5; text-align: left; }
+        .editor-contenteditable[placeholder]:empty:before { content: attr(placeholder); color: rgba(255,255,255,0.4); pointer-events: none; display: block; }
+        .editor-contenteditable img { max-width: 100%; border-radius: 8px; margin: 10px 0; }
+
+       
+
+
+
+
+
+
+
+
+/* Animação 3D do Flashcard - LARGURA MÁXIMA E ALTURA CONTROLADA POR JS */
+        .card-scene { width: 100%; max-width: 1200px; perspective: 1000px; margin: 20px auto 40px; transition: height 0.3s ease-out; }
+        .card-object { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); cursor: pointer; }
         .card-object.is-flipped { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; border: 1px solid var(--glass-border); background: var(--glass-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
-        .card-face-back { transform: rotateY(180deg); border-color: var(--primary); background: rgba(10, 15, 20, 0.9); }
+        
+        .card-face { position: absolute; top: 0; left: 0; width: 100%; height: max-content; min-height: 350px; backface-visibility: hidden; border-radius: 20px; border: 1px solid var(--glass-border); background: var(--glass-bg); display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; padding: 50px 40px 40px; text-align: left; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
+        .card-face-back { transform: rotateY(180deg); border-color: var(--primary); background: rgba(10, 15, 20, 0.95); }
         .card-label { position: absolute; top: 15px; left: 20px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); }
-        .card-content { font-size: 1.3rem; font-weight: 500; color: white; line-height: 1.4; }
+        
+        /* Histórico de Acertos/Erros (Bolinhas) */
+        .card-history { position: absolute; top: 15px; right: 20px; display: flex; gap: 6px; align-items: center; }
+        .history-dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); }
+        .history-dot.right { background: var(--success); border-color: #00ff00; box-shadow: 0 0 10px var(--success); }
+        .history-dot.wrong { background: var(--danger); border-color: #ff1744; box-shadow: 0 0 10px var(--danger); }
+
+
+
+
+
+
+
+
+        
+        /* Sem altura limite e sem scroll interno */
+        .card-content { font-size: 1.15rem; font-weight: 400; color: white; line-height: 1.6; width: 100%; overflow: visible; white-space: pre-wrap; margin-top: 15px; cursor: text; padding-bottom: 20px; }
+        .card-content img { max-width: 100%; border-radius: 10px; margin: 15px 0; }
+        
+        /* Botão e Área de Explicação */
+        .explanation-btn { background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white; padding: 10px 20px; border-radius: 12px; cursor: pointer; margin-top: 15px; transition: 0.2s; font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; }
+        .explanation-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+        /* Explicação também sem scroll, cresce junto com a carta */
+        .explanation-content { margin-top: 15px; padding: 20px; background: rgba(0,0,0,0.4); border-left: 4px solid var(--primary); border-radius: 10px; font-size: 1rem; color: #ddd; display: none; width: 100%; overflow: visible; line-height: 1.6; cursor: text; padding-bottom: 30px; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         /* Botões de Feedback de Memória */
         .recall-btns { display: flex; gap: 10px; justify-content: center; width: 100%; max-width: 500px; margin: 10px auto 0; opacity: 0; pointer-events: none; transition: 0.3s; }
@@ -945,19 +1006,63 @@ body.hide-mascot .mascot-area-global {
         </div>
     </div>
 
-    <!-- MODAL NATIVO: ADICIONAR CARTA AO BARALHO -->
+
+
+
+
+
+
+    <!-- MODAL NATIVO: ADICIONAR / EDITAR CARTA AO BARALHO -->
     <div class="glass-modal-overlay" id="modal-new-card">
-        <div class="glass-modal">
-            <h2>Nova Carta</h2>
-            <p>Crie uma pergunta e resposta para praticar o Active Recall.</p>
-            <input type="text" id="input-card-front" placeholder="Pergunta (Frente da carta)">
-            <textarea id="input-card-back" placeholder="Resposta / Explicação (Verso da carta)" style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); color: white; padding: 15px; border-radius: 12px; font-size: 1rem; margin-bottom: 15px; outline: none; transition: 0.3s; min-height: 90px; resize: vertical; font-family: var(--font);"></textarea>
+        <div class="glass-modal" style="max-width: 850px; width: 95%; max-height: 90dvh; overflow-y: auto;">
+            <h2 id="modal-card-title">Nova Carta</h2>
+            <p>Selecione um texto e use as ferramentas para formatar. Você pode colar imagens diretamente!</p>
+            
+            <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; text-align: left;">Frente (Pergunta ou Questão)</div>
+            <div class="editor-container">
+                <div class="editor-toolbar">
+                    <i class="fas fa-bold" onmousedown="event.preventDefault(); document.execCommand('bold', false, null);" title="Negrito"></i> 
+                    <i class="fas fa-italic" onmousedown="event.preventDefault(); document.execCommand('italic', false, null);" title="Itálico"></i> 
+                    <i class="fas fa-underline" onmousedown="event.preventDefault(); document.execCommand('underline', false, null);" title="Sublinhado"></i> 
+                    <i class="fas fa-strikethrough" onmousedown="event.preventDefault(); document.execCommand('strikeThrough', false, null);" title="Tachado"></i> 
+                    <span style="color: var(--glass-border);">|</span> 
+                    <i class="fas fa-list-ul" onmousedown="event.preventDefault(); document.execCommand('insertUnorderedList', false, null);" title="Lista com marcadores"></i> 
+                    <i class="fas fa-list-ol" onmousedown="event.preventDefault(); document.execCommand('insertOrderedList', false, null);" title="Lista numerada"></i> 
+                    <span style="color: var(--glass-border);">|</span> 
+                    <i class="fas fa-image" onmousedown="event.preventDefault(); let url = prompt('Cole o link (URL) da imagem:'); if(url) document.execCommand('insertImage', false, url);" title="Inserir Imagem por Link"></i> 
+                    <i class="fas fa-eraser" onmousedown="event.preventDefault(); document.execCommand('removeFormat', false, null);" title="Limpar Formatação"></i>
+                </div>
+                <div id="input-card-front" class="editor-contenteditable" contenteditable="true" placeholder="Cole aqui o texto da sua questão..."></div>
+            </div>
+
+            <div style="font-size: 0.85rem; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; text-align: left;">Verso (Resposta Direta / Gabarito)</div>
+            <div class="editor-container">
+                <div class="editor-toolbar">
+                    <i class="fas fa-bold" onmousedown="event.preventDefault(); document.execCommand('bold', false, null);"></i> <i class="fas fa-italic" onmousedown="event.preventDefault(); document.execCommand('italic', false, null);"></i> <i class="fas fa-underline" onmousedown="event.preventDefault(); document.execCommand('underline', false, null);"></i> <span style="color: var(--glass-border);">|</span> <i class="fas fa-list-ul" onmousedown="event.preventDefault(); document.execCommand('insertUnorderedList', false, null);"></i> <i class="fas fa-image" onmousedown="event.preventDefault(); let url = prompt('Cole o link (URL) da imagem:'); if(url) document.execCommand('insertImage', false, url);"></i>
+                </div>
+                <div id="input-card-back" class="editor-contenteditable" contenteditable="true" placeholder="Gabarito da questão..." style="min-height: 60px;"></div>
+            </div>
+            
+            <div style="font-size: 0.85rem; color: #ffea00; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; text-align: left;"><i class="fas fa-lightbulb"></i> Explicação (Opcional)</div>
+            <div class="editor-container" style="border-left: 2px solid #ffea00;">
+                <div class="editor-toolbar">
+                    <i class="fas fa-bold" onmousedown="event.preventDefault(); document.execCommand('bold', false, null);"></i> <i class="fas fa-italic" onmousedown="event.preventDefault(); document.execCommand('italic', false, null);"></i> <i class="fas fa-underline" onmousedown="event.preventDefault(); document.execCommand('underline', false, null);"></i> <span style="color: var(--glass-border);">|</span> <i class="fas fa-list-ul" onmousedown="event.preventDefault(); document.execCommand('insertUnorderedList', false, null);"></i> <i class="fas fa-image" onmousedown="event.preventDefault(); let url = prompt('Cole o link (URL) da imagem:'); if(url) document.execCommand('insertImage', false, url);"></i>
+                </div>
+                <div id="input-card-explanation" class="editor-contenteditable" contenteditable="true" placeholder="Explicação detalhada, comentários da questão..." style="min-height: 60px;"></div>
+            </div>
+
             <div class="modal-btns">
                 <button class="btn-buy" onclick="closeCardModal()">Cancelar</button>
                 <button class="btn-save" onclick="confirmCreateCard()"><i class="fas fa-check"></i> Salvar Carta</button>
             </div>
         </div>
     </div>
+
+
+
+
+
+
 
 
 
@@ -1162,11 +1267,30 @@ body.hide-mascot .mascot-area-global {
         </aside>
 
         <main>
-            <!-- ABA POMODORO & TO-DO LIST -->
+
+
+
+
+
+
+
+
+
+
+      <!-- ABA POMODORO & TO-DO LIST -->
             <section id="pomodoro" class="tab-content active">
+                <!-- BANNER DE ATRASO INTELIGENTE -->
+                <div id="delay-banner" style="display:none; background: rgba(255,23,68,0.15); border: 3px solid #ff1744; color: #ff1744; padding: 15px; border-radius: 30px; margin-bottom: 20px; width: 29%; max-width: 800px; margin-left: auto; margin-right: 999; text-align: center; font-weight: 999; align-items: center; justify-content: center; flex-wrap: wrap; gap: 15px;"></div>
+
                 <div class="pomodoro-layout">
                     <div class="pomodoro-container">
                         <button class="btn-open-panel" onclick="toggleCustomPanel()"><i class="fas fa-palette"></i></button>
+
+
+
+
+
+
                         <div class="active-task-label" id="active-task-display" style="display:none;"></div>
                         <div class="status-badge" id="pomo-status">Modo Foco</div>
                         
@@ -1396,12 +1520,21 @@ body.hide-mascot .mascot-area-global {
                     <div class="deck-grid" id="decks-container"></div>
                 </div>
 
+
+
+
+
+
+
+
                 <!-- TELA 2: ESTUDO / REVISÃO DO DECK -->
-                <div id="fc-study-view" style="display: none; width: 100%; max-width: 800px; text-align: center;">
+                <div id="fc-study-view" style="display: none; width: 100%; max-width: 1200px; margin: auto; text-align: center;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                         <button class="btn-buy" style="width: auto;" onclick="exitStudyView()"><i class="fas fa-arrow-left"></i> Voltar aos Decks</button>
                         <h3 id="study-deck-title" style="color: white;">Nome do Deck</h3>
                         <div style="display: flex; gap: 8px; align-items: center;">
+                            <button class="btn-buy" style="width: auto; padding: 10px 15px; color: #00b0ff; border-color: rgba(0,176,255,0.3);" onclick="editCurrentCard()" title="Editar esta carta"><i class="fas fa-edit"></i></button>
+                            <button class="btn-buy" style="width: auto; padding: 10px 15px; color: var(--danger); border-color: rgba(255,23,68,0.3);" onclick="deleteCurrentCard()" title="Apagar esta carta"><i class="fas fa-trash"></i></button>
                             <button class="btn-buy" style="width: auto; padding: 10px 15px;" onclick="shuffleCurrentDeck()" title="Embaralhar cartas agora"><i class="fas fa-random"></i> Embaralhar</button>
                             <button class="btn-save" style="width: auto; background: rgba(255,255,255,0.1); color: white;" onclick="openCardModal()"><i class="fas fa-plus"></i> Adicionar Carta</button>
                         </div>
@@ -1410,24 +1543,37 @@ body.hide-mascot .mascot-area-global {
                     <!-- O Cartão em si -->
                     <div class="card-scene" onclick="flipCurrentCard()">
                         <div class="card-object" id="flashcard-object">
-                            <div class="card-face">
+                            <div class="card-face" id="fc-face-front">
                                 <span class="card-label">Pergunta (Frente)</span>
-                                <div class="card-content" id="fc-front-text">Clique em "Adicionar Carta" para começar!</div>
-                                <span style="position: absolute; bottom: 15px; font-size: 0.8rem; color: var(--text-muted);"><i class="fas fa-sync"></i> Clique no cartão para virar</span>
+                                <div class="card-history" id="fc-history-front"></div>
+                                <div class="card-content" id="fc-front-text" onclick="event.stopPropagation()">Clique em "Adicionar Carta" para começar!</div>
+                                <span style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); font-size: 0.8rem; color: var(--text-muted);"><i class="fas fa-sync"></i> Clique no vazio para virar</span>
                             </div>
-                            <div class="card-face card-face-back">
+                            <div class="card-face card-face-back" id="fc-face-back">
                                 <span class="card-label" style="color: var(--primary);">Resposta (Verso)</span>
-                                <div class="card-content" id="fc-back-text">...</div>
+                                <div class="card-history" id="fc-history-back"></div>
+                                <div class="card-content" id="fc-back-text" onclick="event.stopPropagation()">...</div>
+                                
+                                <button class="explanation-btn" id="fc-explanation-btn" onclick="toggleExplanation(event)" style="display:none;">
+                                    <i class="fas fa-lightbulb" style="color: #ffea00;"></i> Ver Explicação
+                                </button>
+                                <div class="explanation-content" id="fc-explanation-text" onclick="event.stopPropagation()"></div>
+                                
+                                <span style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); font-size: 0.8rem; color: var(--text-muted);"><i class="fas fa-sync"></i> Clique no vazio para virar</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Botões de Avaliação -->
                     <div class="recall-btns" id="recall-btns-group">
-                        <button class="btn-recall hard" onclick="rateCard('hard')"><i class="fas fa-times"></i> Difícil (+5 XP)</button>
-                        <button class="btn-recall good" onclick="rateCard('good')"><i class="fas fa-check"></i> Bom (+10 XP)</button>
-                        <button class="btn-recall easy" onclick="rateCard('easy')"><i class="fas fa-star"></i> Fácil (+20 XP)</button>
+                        <button class="btn-recall hard" onclick="rateCard('wrong')" style="background: rgba(255,23,68,0.2); color: #ff1744; border: 1px solid #ff1744;"><i class="fas fa-times"></i> Errei</button>
+                        <button class="btn-recall easy" onclick="rateCard('right')" style="background: rgba(0,230,118,0.2); color: #00e676; border: 1px solid #00e676;"><i class="fas fa-check"></i> Acertei</button>
                     </div>
+
+
+
+
+
                     
                     <p id="fc-progress-text" style="margin-top: 20px; color: var(--text-muted); font-size: 0.85rem;">0 / 0 Cartões revisados</p>
                 </div>
@@ -1628,17 +1774,22 @@ async function saveDataToCloud(force = false) {
     }
 }
 
+
+
+
 /* === TAREFAS (TO-DO LIST) === */
 function renderTasks() {
     if(!appData.tasks) appData.tasks = [];
     const list = document.getElementById('todo-list'); list.innerHTML = '';
     let activeTask = null;
     appData.tasks.forEach((task, index) => {
-        if(task.active && !task.done) activeTask = task;
+        if (task.done) return; // MÁGICA: Se a tarefa foi concluída, ela não é desenhada na tela!
+        
+        if(task.active) activeTask = task;
         list.innerHTML += `
-            <div class="todo-item ${task.done ? 'done' : ''} ${task.active && !task.done ? 'active' : ''}">
-                <button class="todo-check ${task.done ? 'checked' : ''}" onclick="toggleTask(${index})">
-                    <i class="fa-regular ${task.done ? 'fa-check-circle' : 'fa-circle'}"></i>
+            <div class="todo-item ${task.active ? 'active' : ''}">
+                <button class="todo-check" onclick="toggleTask(${index})">
+                    <i class="fa-regular fa-circle"></i>
                 </button>
                 <span class="todo-text" onclick="setActiveTask(${index})">${task.text}</span>
                 <button class="todo-btn" onclick="deleteTask(${index})"><i class="fas fa-trash-alt"></i></button>
@@ -1650,6 +1801,16 @@ function renderTasks() {
     if(activeTask) { display.innerHTML = `<i class="fas fa-bullseye"></i> Focando em: ${activeTask.text}`; display.style.display = 'block'; } 
     else { display.style.display = 'none'; }
 }
+
+
+
+
+
+
+
+
+
+
 function addTask() {
     const input = document.getElementById('new-task-input');
     if(input.value.trim() !== '') {
@@ -1791,7 +1952,63 @@ function removePlannerSubject(index) {
     renderPlannerSubjects();
 }
 
-/* === PLANEJADOR INTELIGENTE COMPLETO: DIÁRIO (POMODORO) + SEMANAL + MENSAL === */
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* === PLANEJADOR INTELIGENTE COMPLETO: DIÁRIO + SEMANAL + MENSAL + ATRASOS === */
+let currentCalMonth = new Date().getMonth();
+let currentCalYear = new Date().getFullYear();
+
+function checkDelays() {
+    const banner = document.getElementById('delay-banner');
+    if (!banner) return;
+    if (!appData.generatedScheduleMap) { banner.style.display = 'none'; return; }
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    let delayedDays = 0;
+
+    for (let dateStr in appData.generatedScheduleMap) {
+        let d = new Date(dateStr + "T00:00:00");
+        if (d < today) {
+            let dayData = appData.generatedScheduleMap[dateStr];
+            // Se era dia de estudo e não foi marcado como concluído retroativamente
+            if (!dayData.isRest && !dayData.isSimulated && !dayData.completed) {
+                let historyFocus = appData.stats.history[dateStr] || 0;
+                if (historyFocus < 15) { // Considera atrasado se estudou menos de 15 minutos naquele dia
+                    delayedDays++;
+                } else {
+                    dayData.completed = true; // Salva que completou para não verificar de novo
+                }
+            }
+        }
+    }
+
+    if (delayedDays > 0) {
+        banner.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Ops! Você possui <b>${delayedDays} dia(s)</b> de estudos acumulados/atrasados. <button class="btn-save" style="margin-left: 10px; width: auto; padding: 6px 15px; font-size: 0.8rem;" onclick="readjustSchedule()">Reajustar Cronograma Automático</button>`;
+        banner.style.display = 'flex';
+    } else {
+        banner.style.display = 'none';
+    }
+}
+
+function readjustSchedule() {
+    if(confirm("Isso irá recalcular e estender seu cronograma a partir de hoje, empurrando as matérias atrasadas para frente. Deseja continuar?")) {
+        generateSmartSchedule();
+        showToast("Cronograma reajustado com sucesso!", "success");
+    }
+}
+
 function generateSmartSchedule() {
     const goal = document.getElementById('ai-goal').value || 'Aprovação e Domínio';
     const months = parseInt(document.getElementById('ai-months').value) || 3;
@@ -1803,13 +2020,23 @@ function generateSmartSchedule() {
 
     const output = document.getElementById('ai-schedule-output');
     output.style.display = 'block';
-    output.innerHTML = '<div style="text-align: center; color: var(--primary); padding: 40px;"><i class="fas fa-spinner fa-spin fa-3x" style="margin-bottom:15px;"></i><br>A Luma AI está calculando sua rotina Diária, Semanal e Mensal...</div>';
+    output.innerHTML = '<div style="text-align: center; color: var(--primary); padding: 40px;"><i class="fas fa-spinner fa-spin fa-3x" style="margin-bottom:15px;"></i><br>A Luma AI está distribuindo inteligentemente seus pesos...</div>';
 
     setTimeout(() => {
-        let weightedPool = [];
-        appData.plannerSubjects.forEach(sub => {
-            for (let i = 0; i < sub.weight; i++) weightedPool.push(sub.name);
-        });
+        // NOVO ALGORITMO DE DISTRIBUIÇÃO INTELIGENTE: Espaça os pesos maiores para não ficarem grudados
+        let pool = [];
+        let tempSubs = JSON.parse(JSON.stringify(appData.plannerSubjects));
+        let totalWeight = tempSubs.reduce((acc, s) => acc + s.weight, 0);
+        
+        for(let i=0; i<totalWeight; i++) {
+            let bestSub = null;
+            let maxW = -1;
+            tempSubs.forEach(s => { if (s.weight > maxW) { maxW = s.weight; bestSub = s; } });
+            if (bestSub) {
+                pool.push(bestSub.name);
+                bestSub.weight -= 1; // Reduz a prioridade temporária pra dar chance as outras
+            }
+        }
 
         const startDate = new Date();
         const scheduleMap = {};
@@ -1822,24 +2049,23 @@ function generateSmartSchedule() {
             let isSimDay = (d > 0 && d % 14 === 0);
 
             if (isSimDay) {
-                scheduleMap[dateStr] = { subjects: ["📝 SIMULADO GERAL"], isSimulated: true, isRest: false };
+                scheduleMap[dateStr] = { subjects: ["📝 SIMULADO GERAL"], isSimulated: true, isRest: false, completed: false };
             } else if (currDate.getDay() === 0) { 
-                scheduleMap[dateStr] = { subjects: ["☕ Descanso & Revisão Leve SRS"], isSimulated: false, isRest: true };
+                scheduleMap[dateStr] = { subjects: ["☕ Descanso & Revisão Leve SRS"], isSimulated: false, isRest: true, completed: false };
             } else {
-                let subA = weightedPool[(d * 2) % weightedPool.length];
-                let subB = weightedPool[(d * 2 + 1) % weightedPool.length];
-                if (subA === subB && appData.plannerSubjects.length > 1) {
-                    subB = weightedPool[(d * 2 + 2) % weightedPool.length];
-                }
+                let subA = pool[(d * 2) % pool.length];
+                let subB = pool[(d * 2 + 1) % pool.length];
+                if (subA === subB && appData.plannerSubjects.length > 1) subB = pool[(d * 2 + 2) % pool.length];
+                
                 scheduleMap[dateStr] = {
                     subjects: appData.plannerSubjects.length === 1 ? [subA] : [subA, subB],
                     isSimulated: false,
-                    isRest: false
+                    isRest: false,
+                    completed: false
                 };
             }
         }
 
-        // SALVA DEFINITIVAMENTE NO HISTÓRICO DO USUÁRIO
         appData.generatedScheduleMap = scheduleMap;
         appData.scheduleGoal = goal;
         appData.scheduleHours = hours;
@@ -1847,168 +2073,95 @@ function generateSmartSchedule() {
 
         saveDataToCloud();
         renderSmartScheduleUI();
+        checkDelays();
         playChime('evolve');
-        showToast("Cronograma gerado e salvo com sucesso!", "success");
+        showToast("Cronograma inteligente gerado com sucesso!", "success");
     }, 1000);
 }
 
-// FUNÇÃO PARA APAGAR O CRONOGRAMA SALVO QUANDO O USUÁRIO QUISER
 function deleteSavedSchedule() {
-    if (!confirm("Deseja apagar o cronograma salvo para poder criar um novo?")) return;
+    if (!confirm("Deseja apagar o cronograma salvo?")) return;
     appData.generatedScheduleMap = null;
-    appData.scheduleGoal = '';
     saveDataToCloud();
     renderSmartScheduleUI();
-    showToast("Cronograma apagado. Você já pode gerar um novo!", "info");
+    checkDelays();
+    showToast("Cronograma apagado.", "info");
 }
 
-// RENDERIZA O CRONOGRAMA SALVO BASEADO NO DIA DE HOJE SEM RECALCULAR NADA
+function changeCalendarMonth(offset) {
+    currentCalMonth += offset;
+    if (currentCalMonth < 0) { currentCalMonth = 11; currentCalYear--; }
+    if (currentCalMonth > 11) { currentCalMonth = 0; currentCalYear++; }
+    renderSmartScheduleUI();
+}
+
 function renderSmartScheduleUI() {
     const output = document.getElementById('ai-schedule-output');
     if (!output) return;
-
     if (!appData.generatedScheduleMap || Object.keys(appData.generatedScheduleMap).length === 0) {
-        output.style.display = 'none';
-        output.innerHTML = '';
-        return;
+        output.style.display = 'none'; output.innerHTML = ''; return;
     }
-
     output.style.display = 'block';
+    checkDelays(); // Sempre checa atrasos ao renderizar
 
     const goal = appData.scheduleGoal || 'Aprovação e Domínio';
     const hours = appData.scheduleHours || 4;
-    const focusTime = appData.settings.focus || 25;
-    const shortBreak = appData.settings.shortBreak || 5;
-    const longBreak = appData.settings.longBreak || 15;
-    const cyclesGoal = appData.settings.cyclesGoal || 4;
-    const cycleTime = focusTime + shortBreak;
-    const totalMinutes = hours * 60;
-    const totalCycles = Math.max(1, Math.floor(totalMinutes / cycleTime));
+    const totalCycles = Math.max(1, Math.floor((hours * 60) / (appData.settings.focus + appData.settings.shortBreak)));
 
     const daysOfWeek = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
     const todayDate = new Date();
     const todayStr = todayDate.toISOString().split('T')[0];
     const scheduleMap = appData.generatedScheduleMap;
-    const todayData = scheduleMap[todayStr] || { subjects: ["☕ Dia Livre / Sem programação para hoje"], isSimulated: false, isRest: true };
+    const todayData = scheduleMap[todayStr] || { subjects: ["☕ Dia Livre / Fora do Cronograma"], isSimulated: false, isRest: true };
 
     let todaySessions = [];
-    if (todayData.isRest) {
-        todaySessions = ["Revisão Luma SRS", "Leitura Leve"];
-    } else if (todayData.subjects.length === 1) {
-        for (let c = 0; c < totalCycles; c++) todaySessions.push(todayData.subjects[0]);
-    } else {
+    if (todayData.isRest) { todaySessions = ["Revisão Luma SRS", "Leitura Leve"]; } 
+    else if (todayData.subjects.length === 1) { for (let c = 0; c < totalCycles; c++) todaySessions.push(todayData.subjects[0]); } 
+    else {
         let half = Math.ceil(totalCycles / 2);
-        for (let c = 0; c < totalCycles; c++) {
-            todaySessions.push(c < half ? todayData.subjects[0] : todayData.subjects[1]);
-        }
+        for (let c = 0; c < totalCycles; c++) todaySessions.push(c < half ? todayData.subjects[0] : todayData.subjects[1]);
     }
 
-    let html = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px;">
-            <h3 style="color: white; margin: 0; font-size: 1.3rem;"><i class="fas fa-flag-checkered" style="color: var(--primary);"></i> Objetivo: ${goal}</h3>
-            <button class="btn-buy" style="width: auto; padding: 8px 15px; background: rgba(255, 23, 68, 0.2); color: #ff1744; border: 1px solid #ff1744;" onclick="deleteSavedSchedule()"><i class="fas fa-trash"></i> Apagar Cronograma Salvo</button>
-        </div>
-    `;
+    let html = `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px;">
+        <h3 style="color: white; margin: 0; font-size: 1.3rem;"><i class="fas fa-flag-checkered" style="color: var(--primary);"></i> Objetivo: ${goal}</h3>
+        <button class="btn-buy" style="width: auto; padding: 8px 15px; background: rgba(255, 23, 68, 0.2); color: #ff1744; border: 1px solid #ff1744;" onclick="deleteSavedSchedule()"><i class="fas fa-trash"></i> Apagar Cronograma</button>
+    </div>`;
 
     html += `<div class="ai-plan-section" style="background: rgba(var(--primary-rgb), 0.05); border-color: var(--primary);">
         <h4><i class="fas fa-clock"></i> Plano Diário: Hoje (${daysOfWeek[todayDate.getDay()]})</h4>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Seu dia fatiado em ${totalCycles} sessões de Pomodoro com intervalos perfeitos.</p>
-        <div class="timeline" style="margin-top: 0;">`;
+        <div class="timeline" style="margin-top: 15px;">`;
 
-    
-
-
-
-
-
-
-let currentTime = new Date(); // Agora inicia exatamente no horário atual
-
-    // Encontrar qual é o último ciclo pendente para não colocar pausa depois dele
+    let currentTime = new Date();
     let lastPendingIndex = -1;
     for (let i = todaySessions.length - 1; i >= 0; i--) {
-        let expectedTaskText = `[Ciclo ${i + 1}] ${todaySessions[i]}`;
+        let expectedTaskText = `[Cronograma] ${todaySessions[i]}`;
         let matchingTask = appData.tasks ? appData.tasks.find(t => t.text === expectedTaskText) : null;
-        if (!(matchingTask && matchingTask.done)) {
-            lastPendingIndex = i;
-            break;
-        }
+        if (!(matchingTask && matchingTask.done)) { lastPendingIndex = i; break; }
     }
-
     let allDone = true;
 
     todaySessions.forEach((subName, idx) => {
-        // Verifica se essa tarefa exata já foi concluída no To-Do list
-        let expectedTaskText = `[Ciclo ${idx + 1}] ${subName}`;
+        let expectedTaskText = `[Cronograma] ${subName}`;
         let matchingTask = appData.tasks ? appData.tasks.find(t => t.text === expectedTaskText) : null;
-        let isCompleted = matchingTask && matchingTask.done;
-
-        // Se o ciclo já foi marcado como concluído, pula e não mostra na timeline
-        if (isCompleted) return;
+        if (matchingTask && matchingTask.done) return;
         
-        allDone = false; // Achou pelo menos uma pendente
-
-        let isLongBreak = ((idx + 1) % cyclesGoal === 0) && (idx !== todaySessions.length - 1);
+        allDone = false;
+        let isLongBreak = ((idx + 1) % appData.settings.cyclesGoal === 0) && (idx !== todaySessions.length - 1);
         let startTimeStr = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        currentTime.setMinutes(currentTime.getMinutes() + focusTime);
+        currentTime.setMinutes(currentTime.getMinutes() + appData.settings.focus);
         let breakTimeStr = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        let currentBreakDuration = isLongBreak ? longBreak : shortBreak;
-        currentTime.setMinutes(currentTime.getMinutes() + currentBreakDuration);
+        currentTime.setMinutes(currentTime.getMinutes() + (isLongBreak ? appData.settings.longBreak : appData.settings.shortBreak));
 
-        html += `<div class="timeline-item">
-            <div class="time">${startTimeStr}</div>
-            <div class="content">
-                <h4><i class="fas fa-book"></i> Focar: ${subName}</h4>
-                <p>${focusTime} min de concentração total.</p>
-            </div>
-        </div>`;
-
-        // Só exibe a pausa se não for o último ciclo pendente do dia
+        html += `<div class="timeline-item"><div class="time">${startTimeStr}</div><div class="content"><h4><i class="fas fa-book"></i> ${subName}</h4></div></div>`;
         if (idx < lastPendingIndex) {
-            html += `<div class="timeline-item break ${isLongBreak ? 'long' : ''}">
-                <div class="time">${breakTimeStr}</div>
-                <div class="content">
-                    <h4><i class="fas fa-coffee"></i> Pausa ${isLongBreak ? 'Longa' : 'Curta'} (${currentBreakDuration} min)</h4>
-                    <p>${isLongBreak ? 'Descanso longo para recuperar o cérebro.' : 'Respire e alongue-se.'}</p>
-                </div>
-            </div>`;
+            html += `<div class="timeline-item break ${isLongBreak ? 'long' : ''}"><div class="time">${breakTimeStr}</div><div class="content"><h4><i class="fas fa-coffee"></i> Pausa ${isLongBreak ? 'Longa' : 'Curta'}</h4></div></div>`;
         }
     });
 
-    // Mostra mensagem de sucesso se o usuário finalizou todas as tarefas importadas
-    if (allDone && todaySessions.length > 0) {
-        html += `<div style="text-align: center; padding: 20px; background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); border-radius: 12px; color: var(--success); margin-top: 10px;">
-            <h4>🎉 Dia Concluído!</h4>
-            <p style="font-size: 0.85rem; margin-top: 5px;">Você já finalizou todos os ciclos programados para hoje.</p>
-        </div>`;
-    }
-
-
-
-
+    if (allDone && todaySessions.length > 0) html += `<div style="text-align: center; padding: 20px; color: var(--success);"><h4>🎉 Dia Concluído!</h4></div>`;
+    
     html += `</div>
-        <button class="btn-save" style="margin-top: 25px; width: 100%;" onclick="importScheduleToTasks('${todaySessions.join(',')}')"><i class="fas fa-download"></i> Importar Matérias Para Minhas Tarefas de Hoje</button>
-    </div>`;
-
-    let weeklyListHtml = '';
-    for (let offset = 0; offset < 7; offset++) {
-        let tempD = new Date();
-        tempD.setDate(todayDate.getDate() + offset);
-        let tempStr = tempD.toISOString().split('T')[0];
-        let dayInfo = scheduleMap[tempStr] || { subjects: ["☕ Livre / Sem programação"], isRest: true };
-        let dayNameLabel = offset === 0 ? `Hoje (${daysOfWeek[tempD.getDay()]})` : daysOfWeek[tempD.getDay()];
-
-        if (dayInfo.isRest) {
-            weeklyListHtml += `<li><i class="fas fa-bed" style="color: #00b0ff;"></i> <b>${dayNameLabel}:</b> <span style="color: #00b0ff;">Consolidação e Descanso SRS</span></li>`;
-        } else {
-            weeklyListHtml += `<li><i class="fas fa-angle-right"></i> <b>${dayNameLabel}:</b> ${dayInfo.subjects.join(' + ')} <span style="color: var(--text-muted); font-size: 0.8rem;">(${hours}h)</span></li>`;
-        }
-    }
-
-    html += `<div class="ai-plan-section">
-        <h4><i class="fas fa-calendar-week"></i> Rotina dos Próximos 7 Dias</h4>
-        <ul class="ai-plan-list">${weeklyListHtml}</ul>
+        <button class="btn-save" style="margin-top: 25px; width: 100%;" onclick="importScheduleToTasks('${todaySessions.join(',')}')"><i class="fas fa-download"></i> Importar Matérias Para o Pomodoro</button>
     </div>`;
 
     html += buildMonthlyCalendarHTML();
@@ -2018,53 +2171,44 @@ let currentTime = new Date(); // Agora inicia exatamente no horário atual
 function importScheduleToTasks(subjectsStr) {
     const subjects = subjectsStr.split(',');
     subjects.forEach((sub, i) => {
-        appData.tasks.push({
-            text: `[Ciclo ${i + 1}] ${sub}`,
-            done: false,
-            active: i === 0 && !appData.tasks.some(t => t.active)
-        });
+        appData.tasks.push({ text: `[Cronograma] ${sub}`, done: false, active: i === 0 && !appData.tasks.some(t => t.active) });
     });
-    saveDataToCloud();
-    renderTasks();
-    showToast("Matérias importadas para as Tarefas de Hoje!", "success");
+    saveDataToCloud(); renderTasks();
+    showToast("Importado para as Tarefas!", "success");
     document.querySelector('[data-target="pomodoro"]').click();
 }
 
 function buildMonthlyCalendarHTML() {
     if (!appData.generatedScheduleMap) return '';
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth();
     const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDay = new Date(currentCalYear, currentCalMonth, 1).getDay();
+    const daysInMonth = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
+    const todayStr = new Date().toISOString().split('T')[0];
 
     let html = `<div class="ai-plan-section">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h4><i class="fas fa-calendar-alt"></i> Calendário de ${monthNames[month]} / ${year}</h4>
-            <span style="font-size:0.8rem; color:var(--text-muted);">Clique no dia para ver detalhes</span>
+            <button class="icon-btn" onclick="changeCalendarMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+            <h4 style="margin:0;"><i class="fas fa-calendar-alt"></i> ${monthNames[currentCalMonth]} / ${currentCalYear}</h4>
+            <button class="icon-btn" onclick="changeCalendarMonth(1)"><i class="fas fa-chevron-right"></i></button>
         </div>
         <div class="calendar-grid">
-            <div class="calendar-day-head">Dom</div><div class="calendar-day-head">Seg</div><div class="calendar-day-head">Ter</div>
-            <div class="calendar-day-head">Qua</div><div class="calendar-day-head">Qui</div><div class="calendar-day-head">Sex</div>
-            <div class="calendar-day-head">Sáb</div>`;
+            <div class="calendar-day-head">Dom</div><div class="calendar-day-head">Seg</div><div class="calendar-day-head">Ter</div><div class="calendar-day-head">Qua</div><div class="calendar-day-head">Qui</div><div class="calendar-day-head">Sex</div><div class="calendar-day-head">Sáb</div>`;
 
     for (let i = 0; i < firstDay; i++) html += `<div class="calendar-cell other-month"></div>`;
 
     for (let day = 1; day <= daysInMonth; day++) {
-        let dateObj = new Date(year, month, day);
+        let dateObj = new Date(currentCalYear, currentCalMonth, day);
+        dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset()); // Fix timezone issue
         let dateStr = dateObj.toISOString().split('T')[0];
-        let isToday = (day === today.getDate());
+        let isToday = (dateStr === todayStr);
         let dayData = appData.generatedScheduleMap[dateStr];
 
         let tagHtml = '';
         if (dayData) {
-            if (dayData.isSimulated) tagHtml = `<span class="tag-pill tag-sim">Simulado</span>`;
-            else tagHtml = dayData.subjects.map(s => `<span class="tag-pill tag-study">${s.split(' ')[0]}</span>`).join('');
+            if (dayData.isSimulated) tagHtml += `<span class="tag-pill tag-sim">Simulado</span>`;
+            else tagHtml += dayData.subjects.map(s => `<span class="tag-pill tag-study">${s.split(' ')[0]}</span>`).join('');
+            if (dayData.customEvents && dayData.customEvents.length > 0) tagHtml += `<span class="tag-pill" style="background:#ffea00; color:#000;">⭐ Evento</span>`;
         }
-
-        const srsDue = (appData.srsTopics || []).some(t => new Date(t.nextReviewDate).toISOString().split('T')[0] === dateStr);
-        if (srsDue) tagHtml += `<span class="tag-pill tag-srs">SRS</span>`;
 
         html += `<div class="calendar-cell ${isToday ? 'today' : ''}" onclick="openDayDetailsModal('${dateStr}')">
             <span class="day-number">${day}</span>
@@ -2075,13 +2219,6 @@ function buildMonthlyCalendarHTML() {
     return html;
 }
 
-
-
-
-
-
-
-// MODAL DE DETALHES AO CLICAR NO DIA DO CALENDÁRIO
 function openDayDetailsModal(dateStr) {
     const modal = document.getElementById('modal-day-details');
     const title = document.getElementById('modal-day-title');
@@ -2089,7 +2226,7 @@ function openDayDetailsModal(dateStr) {
     if (!modal || !title || !content) return;
 
     let parts = dateStr.split('-');
-    title.innerText = `Planejamento para ${parts[2]}/${parts[1]}/${parts[0]}`;
+    title.innerText = `Planejamento: ${parts[2]}/${parts[1]}/${parts[0]}`;
     let dayData = appData.generatedScheduleMap ? appData.generatedScheduleMap[dateStr] : null;
     let html = '';
 
@@ -2097,25 +2234,84 @@ function openDayDetailsModal(dateStr) {
         html += `<div style="margin-bottom:15px;"><b style="color:var(--primary);">📚 Estudo Programado:</b><ul style="margin-left:20px; margin-top:5px; color:white;">`;
         dayData.subjects.forEach(s => html += `<li>${s}</li>`);
         html += `</ul></div>`;
+        if (dayData.customEvents && dayData.customEvents.length > 0) {
+            html += `<div style="margin-bottom:15px;"><b style="color:#ffea00;">⭐ Eventos Especiais:</b><ul style="margin-left:20px; margin-top:5px; color:white;">`;
+            dayData.customEvents.forEach(e => html += `<li>${e}</li>`);
+            html += `</ul></div>`;
+        }
     } else {
-        html += `<p style="color:var(--text-muted);">Nenhum estudo programado para este dia.</p>`;
+        html += `<p style="color:var(--text-muted);">Dia fora do alcance do cronograma gerado.</p>`;
     }
 
-    let srsList = (appData.srsTopics || []).filter(t => new Date(t.nextReviewDate).toISOString().split('T')[0] === dateStr);
-    if (srsList.length > 0) {
-        html += `<div style="margin-bottom:15px;"><b style="color:#ff9100;">🔔 Revisões Espaçadas (SRS):</b><ul style="margin-left:20px; margin-top:5px; color:white;">`;
-        srsList.forEach(t => html += `<li>${t.title}</li>`);
-        html += `</ul></div>`;
+    // Botões de Interação Avançada (Trocar e Evento)
+    if (dayData) {
+        html += `<div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn-buy" style="flex:1; border: 1px solid #00b0ff; color: #00b0ff;" onclick="promptSwapSubject('${dateStr}')"><i class="fas fa-exchange-alt"></i> Trocar Matéria</button>
+            <button class="btn-buy" style="flex:1; border: 1px solid #ffea00; color: #ffea00;" onclick="promptAddEvent('${dateStr}')"><i class="fas fa-calendar-plus"></i> Add Evento</button>
+        </div>`;
     }
 
     content.innerHTML = html;
     modal.classList.add('active');
 }
 
+function promptSwapSubject(dateStr1) {
+    let dateStr2 = prompt("Digite a data EXATA para a qual deseja mandar o estudo de hoje.\nFormato obrigatório: AAAA-MM-DD\nExemplo para 31 de Agosto de 2026: 2026-08-31");
+    if (!dateStr2 || dateStr2 === dateStr1) return;
+    
+    if (!appData.generatedScheduleMap[dateStr2]) {
+        appData.generatedScheduleMap[dateStr2] = { subjects: ["Dia vazio original"], isRest: true };
+    }
+    
+    let temp = appData.generatedScheduleMap[dateStr1];
+    appData.generatedScheduleMap[dateStr1] = appData.generatedScheduleMap[dateStr2];
+    appData.generatedScheduleMap[dateStr2] = temp;
+    
+    saveDataToCloud();
+    showToast("Cronograma atualizado com a troca!", "success");
+    closeDayDetailsModal();
+    renderSmartScheduleUI();
+}
+
+function promptAddEvent(dateStr) {
+    let eventName = prompt("Nome do Evento (Ex: Prova de Matemática, Simulado Cursinho, etc):");
+    if (!eventName) return;
+    
+    let dayData = appData.generatedScheduleMap[dateStr];
+    if (!dayData.customEvents) dayData.customEvents = [];
+    dayData.customEvents.push(eventName);
+    
+    saveDataToCloud();
+    showToast("Evento adicionado!", "success");
+    closeDayDetailsModal();
+    renderSmartScheduleUI();
+}
+
 function closeDayDetailsModal() {
     const modal = document.getElementById('modal-day-details');
     if (modal) modal.classList.remove('active');
-}/* === SISTEMA DE REVISÕES SRS (SPACED REPETITION) E NOTIFICAÇÕES === */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* === SISTEMA DE REVISÕES SRS (SPACED REPETITION) E NOTIFICAÇÕES === */
 function renderSRSReviews() {
     if (!appData.srsTopics) appData.srsTopics = [];
     const todayList = document.getElementById('srs-today-list');
@@ -2502,12 +2698,9 @@ function resetVisualDefaults() {
 function toggleZenMode() { document.body.classList.toggle('zen-mode'); }
 
 document.addEventListener('keydown', (e) => {
-    if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-    
+    // Mantemos apenas o atalho "Esc" para sair do Modo Zen.
+    // Os atalhos do Pomodoro foram removidos para não atrapalhar a digitação de flashcards.
     if (e.key === 'Escape' && document.body.classList.contains('zen-mode')) { toggleZenMode(); }
-    if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); togglePomodoro(); }
-    if (e.key === 's' || e.key === 'S') { skipPomodoroCycle(); }
-    if (e.key === 'm' || e.key === 'M') { toggleAmbient(); }
 });
 
 function updateBossUI() {
@@ -3192,55 +3385,275 @@ function shuffleCurrentDeck() {
     showToast("🔀 Cartas embaralhadas!", "success");
 }
 
+
+
+
+
+
+let editingCardId = null;
+
 function openCardModal() {
+    editingCardId = null; // Garante que estamos criando uma nova carta
     const modal = document.getElementById('modal-new-card');
-    const frontInput = document.getElementById('input-card-front');
-    const backInput = document.getElementById('input-card-back');
-    if (!modal || !frontInput || !backInput) return;
+    document.getElementById('modal-card-title').innerText = "Nova Carta";
     
-    frontInput.value = '';
-    backInput.value = '';
+    document.getElementById('input-card-front').innerHTML = '';
+    document.getElementById('input-card-back').innerHTML = '';
+    document.getElementById('input-card-explanation').innerHTML = '';
+    
     modal.classList.add('active');
-    setTimeout(() => frontInput.focus(), 100);
+    setTimeout(() => document.getElementById('input-card-front').focus(), 100);
+}
+
+function editCurrentCard() {
+    const deck = appData.flashcards.find(d => d.id === currentDeckId);
+    if (!deck || !deck.cards || deck.cards.length === 0) return;
+    
+    const card = deck.cards[currentCardIndex];
+    editingCardId = card.id; // Avisa o sistema que estamos editando
+    
+    const modal = document.getElementById('modal-new-card');
+    document.getElementById('modal-card-title').innerText = "Editar Carta";
+    
+    document.getElementById('input-card-front').innerHTML = card.front || '';
+    document.getElementById('input-card-back').innerHTML = card.back || '';
+    document.getElementById('input-card-explanation').innerHTML = card.explanation || '';
+    
+    modal.classList.add('active');
 }
 
 function closeCardModal() {
-    const modal = document.getElementById('modal-new-card');
-    if (modal) modal.classList.remove('active');
+    document.getElementById('modal-new-card').classList.remove('active');
 }
 
 function confirmCreateCard() {
     if (!appData.flashcards) appData.flashcards = [];
     const deck = appData.flashcards.find(d => d.id === currentDeckId);
-    if (!deck) {
-        showToast("Erro: Nenhum baralho selecionado!", "danger");
-        return;
-    }
+    if (!deck) return showToast("Erro: Nenhum baralho selecionado!", "danger");
 
-    const frontInput = document.getElementById('input-card-front');
-    const backInput = document.getElementById('input-card-back');
-    if (!frontInput || !backInput) return;
-    
-    const front = frontInput.value.trim();
-    const back = backInput.value.trim();
+    // Lendo o HTML rico (innerHTML)
+    const front = document.getElementById('input-card-front').innerHTML.trim();
+    const back = document.getElementById('input-card-back').innerHTML.trim();
+    const explanation = document.getElementById('input-card-explanation').innerHTML.trim();
 
-    if (!front || !back) {
-        showToast("Preencha a pergunta e a resposta da carta!", "warning");
-        return;
+    if (!front || !back || front === '<br>' || back === '<br>') {
+        return showToast("Preencha ao menos a Frente e o Verso da carta!", "warning");
     }
 
     if (!deck.cards) deck.cards = [];
-    deck.cards.push({
-        id: 'card_' + Date.now(),
-        front: front,
-        back: back
-    });
+
+    if (editingCardId) {
+        // Atualiza a carta existente
+        const card = deck.cards.find(c => c.id === editingCardId);
+        if (card) {
+            card.front = front;
+            card.back = back;
+            card.explanation = explanation;
+            showToast("Carta atualizada com sucesso!", "success");
+        }
+    } else {
+        // Cria uma nova
+        deck.cards.push({
+            id: 'card_' + Date.now(),
+            front: front,
+            back: back,
+            explanation: explanation
+        });
+        showToast("Carta adicionada com sucesso!", "success");
+    }
 
     saveDataToCloud();
     closeCardModal();
-    showToast("Carta adicionada com sucesso!", "success");
-    loadCardUI();
+    renderDecks();
+    loadCardUI(); // Recarrega a tela com os novos dados
 }
+
+function deleteCurrentCard() {
+    const deck = appData.flashcards.find(d => d.id === currentDeckId);
+    if (!deck || !deck.cards || deck.cards.length === 0) return;
+    
+    if (!confirm("Tem certeza que deseja apagar esta carta permanentemente?")) return;
+
+    deck.cards.splice(currentCardIndex, 1);
+    saveDataToCloud();
+    showToast("Carta apagada com sucesso!", "info");
+
+    if (deck.cards.length === 0) {
+        currentCardIndex = 0;
+    } else if (currentCardIndex >= deck.cards.length) {
+        currentCardIndex = 0; 
+    }
+    loadCardUI();
+    renderDecks(); 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Ajuste de altura dinâmico - Mede a face atual e expande o container!
+function updateCardHeight() {
+    const scene = document.querySelector('.card-scene');
+    const front = document.getElementById('fc-face-front');
+    const back = document.getElementById('fc-face-back');
+    if (!scene || !front || !back) return;
+    
+    // Pequeno delay para o CSS aplicar o display:block da explicação e depois calcular
+    setTimeout(() => {
+        if (isCardFlipped) {
+            scene.style.height = back.offsetHeight + 'px';
+        } else {
+            scene.style.height = front.offsetHeight + 'px';
+        }
+    }, 30);
+}
+
+function loadCardUI() {
+    const deck = appData.flashcards.find(d => d.id === currentDeckId);
+    const cardObject = document.getElementById('flashcard-object');
+    const recallBtns = document.getElementById('recall-btns-group');
+    
+    cardObject.classList.remove('is-flipped');
+    isCardFlipped = false;
+    recallBtns.classList.remove('show');
+
+    if (!deck || !deck.cards || deck.cards.length === 0) {
+        document.getElementById('fc-front-text').innerHTML = "Este baralho está vazio!";
+        document.getElementById('fc-back-text').innerHTML = "Adicione cartões para estudar.";
+        document.getElementById('fc-progress-text').innerText = "0 / 0 Cartões";
+        document.getElementById('fc-explanation-btn').style.display = 'none';
+        document.getElementById('fc-explanation-text').style.display = 'none';
+        document.getElementById('fc-history-front').innerHTML = '';
+        document.getElementById('fc-history-back').innerHTML = '';
+        updateCardHeight();
+        return;
+    }
+
+    const card = deck.cards[currentCardIndex];
+    document.getElementById('fc-front-text').innerHTML = card.front;
+    document.getElementById('fc-back-text').innerHTML = card.back;
+    document.getElementById('fc-progress-text').innerText = `${currentCardIndex + 1} / ${deck.cards.length} Cartões`;
+    
+    // Tratamento do botão de Explicação
+    const explBtn = document.getElementById('fc-explanation-btn');
+    const explText = document.getElementById('fc-explanation-text');
+    explText.style.display = 'none'; // Sempre inicia fechada
+    
+    if (card.explanation && card.explanation.trim() !== '' && card.explanation.trim() !== '<br>') {
+        explBtn.style.display = 'inline-flex';
+        explText.innerHTML = card.explanation;
+    } else {
+        explBtn.style.display = 'none';
+        explText.innerHTML = '';
+    }
+
+    // Histórico de Acertos e Erros (Bolinhas)
+    let historyHtml = '';
+    if (card.history && card.history.length > 0) {
+        card.history.forEach(res => {
+            historyHtml += `<div class="history-dot ${res}"></div>`;
+        });
+    } else {
+        historyHtml = '<span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Sem histórico</span>';
+    }
+    document.getElementById('fc-history-front').innerHTML = historyHtml;
+    document.getElementById('fc-history-back').innerHTML = historyHtml;
+
+    updateCardHeight();
+}
+
+function flipCurrentCard() {
+    const deck = appData.flashcards.find(d => d.id === currentDeckId);
+    if (!deck || !deck.cards || deck.cards.length === 0) return;
+
+    const cardObject = document.getElementById('flashcard-object');
+    const recallBtns = document.getElementById('recall-btns-group');
+    
+    isCardFlipped = !isCardFlipped;
+    if (isCardFlipped) {
+        cardObject.classList.add('is-flipped');
+        recallBtns.classList.add('show');
+        playChime('preview');
+    } else {
+        cardObject.classList.remove('is-flipped');
+        recallBtns.classList.remove('show');
+    }
+    updateCardHeight();
+}
+
+function toggleExplanation(event) {
+    event.stopPropagation();
+    const explText = document.getElementById('fc-explanation-text');
+    if (explText.style.display === 'none' || explText.style.display === '') {
+        explText.style.display = 'block';
+    } else {
+        explText.style.display = 'none';
+    }
+    updateCardHeight();
+}
+
+// Substituir a antiga função RateCard que tinha 3 opções para ter apenas 2.
+function rateCard(result) {
+    const deck = appData.flashcards.find(d => d.id === currentDeckId);
+    if (!deck || !deck.cards || deck.cards.length === 0) return;
+
+    const card = deck.cards[currentCardIndex];
+
+    let interval = card.interval || 0;
+    let repetitions = card.repetitions || 0;
+    let easeFactor = card.easeFactor || 2.5;
+
+    // Inicia o histórico se não existir
+    if (!card.history) card.history = [];
+
+    if (result === 'wrong') {
+        repetitions = 0;
+        interval = 1;
+        easeFactor = Math.max(1.3, easeFactor - 0.2);
+        card.history.push('wrong');
+    } else {
+        // result === 'right'
+        if (repetitions === 0) interval = 1;
+        else if (repetitions === 1) interval = 3;
+        else interval = Math.round(interval * easeFactor);
+        repetitions++;
+        easeFactor += 0.15;
+        card.history.push('right');
+    }
+    
+    // Mantém apenas as últimas 3 respostas no visual do histórico
+    if (card.history.length > 3) card.history.shift();
+
+    card.interval = interval;
+    card.repetitions = repetitions;
+    card.easeFactor = easeFactor;
+    card.nextReview = Date.now() + (interval * 86400000);
+
+    let xpGain = result === 'right' ? 15 : 5;
+    giveXP(xpGain);
+    playChime('coin');
+    showToast(`Revisão processada! (+${xpGain} XP)`, 'success');
+    
+    currentCardIndex = (currentCardIndex + 1) % deck.cards.length;
+    saveDataToCloud();
+    renderDecks();
+    
+    setTimeout(loadCardUI, 200);
+}
+
+
+
+
+
+
 
 window.createNewDeck = openDeckModal;
 window.addNewCardToCurrentDeck = openCardModal;
