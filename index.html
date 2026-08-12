@@ -1071,10 +1071,29 @@ body.hide-mascot .mascot-area-global {
         <div class="glass-modal" style="max-width: 500px; text-align: left;">
             <h2 id="modal-day-title" style="color: var(--primary); margin-bottom: 5px;">Data</h2>
             <p id="modal-day-subtitle" style="margin-bottom: 20px; color: var(--text-muted);">Planejamento para o dia</p>
-            <div id="modal-day-content" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;"></div>
+            <div id="modal-day-content" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px; scrollbar-width: thin;"></div>
             <button class="btn-buy" onclick="closeDayDetailsModal()"><i class="fas fa-times"></i> Fechar</button>
         </div>
     </div>
+
+<!-- MODAL NATIVO: SELECIONAR DIA PARA TROCA NO CALENDÁRIO -->
+    <div class="glass-modal-overlay" id="modal-swap-calendar">
+        <div class="glass-modal" style="max-width: 800px; width: 95%;">
+            <h2 style="color: #00b0ff;"><i class="fas fa-exchange-alt"></i> Trocar Matéria</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Selecione no calendário abaixo o dia para o qual deseja mover o estudo.</p>
+            
+            <div id="swap-calendar-container" style="text-align: left;"></div>
+            
+            <button class="btn-buy" style="margin-top: 20px;" onclick="closeSwapModal()"><i class="fas fa-times"></i> Cancelar Troca</button>
+        </div>
+    </div>
+
+
+
+
+
+
+
 
 
 
@@ -1825,40 +1844,47 @@ function addTask() {
 
 
 
-
-
 function toggleTask(index) {
     let task = appData.tasks[index];
     task.done = !task.done;
     
     if (task.done) {
-        task.active = false; // Tira o foco da tarefa
+        task.active = false; 
         
-        // --- INÍCIO DA AUTOMAÇÃO SRS ---
+        // --- 1. AUTOMAÇÃO SRS ---
         if (!appData.srsTopics) appData.srsTopics = [];
-        
-        // Limpa o texto caso venha importado do cronograma (ex: remove "[Ciclo 1] ")
         let cleanTitle = task.text.replace(/\[.*?\]\s*/, '').trim();
-        
-        // Verifica se essa matéria já não está no SRS para evitar duplicatas (caso você desmarque e marque de novo)
         let alreadyExists = appData.srsTopics.some(t => t.title === cleanTitle);
         
         if (!alreadyExists && cleanTitle !== "") {
             appData.srsTopics.push({
                 id: 'srs_' + Date.now(),
                 title: cleanTitle,
-                intervalDays: 1, // Curva de Ebbinghaus: 1º dia (24h)
-                nextReviewDate: Date.now() + 86400000 // +1 dia em milissegundos
+                intervalDays: 1, 
+                nextReviewDate: Date.now() + 86400000 
             });
             showToast(`"${cleanTitle}" agendado para revisão amanhã!`, "success");
         }
-        // --- FIM DA AUTOMAÇÃO SRS ---
+
+        // --- 2. AUTOMAÇÃO DE CONCLUSÃO DO DIA NO CALENDÁRIO ---
+        // Puxa apenas as tarefas que vieram do cronograma
+        let cronogramaTasks = appData.tasks.filter(t => t.text.includes('[Cronograma]'));
+        // Verifica se todas elas já estão com o 'check' marcado
+        let allDone = cronogramaTasks.length > 0 && cronogramaTasks.every(t => t.done);
+        
+        if (allDone) {
+            // Se todas foram feitas, avisa o calendário que o dia de hoje está concluído!
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (appData.generatedScheduleMap && appData.generatedScheduleMap[todayStr]) {
+                appData.generatedScheduleMap[todayStr].completed = true;
+            }
+        }
     }
     
     saveDataToCloud(); 
     renderTasks(); 
-    renderSmartScheduleUI(); // Atualiza o cronograma 
-    if (typeof renderSRSReviews === 'function') renderSRSReviews(); // Atualiza a lista do SRS em tempo real
+    renderSmartScheduleUI(); 
+    if (typeof renderSRSReviews === 'function') renderSRSReviews(); 
     playChime('coin'); 
 }
 
@@ -2002,12 +2028,92 @@ function checkDelays() {
     }
 }
 
+
+
+
+
+
+
 function readjustSchedule() {
-    if(confirm("Isso irá recalcular e estender seu cronograma a partir de hoje, empurrando as matérias atrasadas para frente. Deseja continuar?")) {
-        generateSmartSchedule();
-        showToast("Cronograma reajustado com sucesso!", "success");
+    if(!confirm("Isso pegará as matérias dos dias atrasados e as colocará a partir de hoje, empurrando o restante do cronograma para frente. Deseja continuar?")) return;
+
+    const today = new Date();
+    today.setHours(0,0,0,0); // Zera as horas para comparar datas com precisão
+
+    let pendingSubjectsQueue = [];
+    let dates = Object.keys(appData.generatedScheduleMap).sort();
+
+    // 1. Coleta todas as matérias que ficaram para trás e as do futuro
+    dates.forEach(dateStr => {
+        let d = new Date(dateStr + "T00:00:00");
+        let dayData = appData.generatedScheduleMap[dateStr];
+
+        if (d < today) {
+            // Se o dia passou, não foi concluído e era dia de estudo, pega a matéria pra fila
+            if (!dayData.isRest && !dayData.isSimulated && !dayData.completed) {
+                pendingSubjectsQueue.push(dayData.subjects);
+                // Transforma o dia passado em "Livre", mas mantém os eventos que você criou
+                appData.generatedScheduleMap[dateStr] = { 
+                    subjects: ["☕ Dia não estudado"], 
+                    isRest: true, 
+                    completed: true, 
+                    customEvents: dayData.customEvents || [] 
+                };
+            }
+        } else {
+            // Dias de hoje em diante: pega a matéria pra fila (se for dia de estudo)
+            if (!dayData.isRest && !dayData.isSimulated) {
+                pendingSubjectsQueue.push(dayData.subjects);
+            }
+            // Limpa as matérias do futuro para o re-encaixe, mas guarda os eventos intactos!
+            dayData.subjects = [];
+        }
+    });
+
+    // 2. Re-encaixa a fila de matérias de hoje em diante (Efeito Dominó)
+    let datePointer = new Date(today);
+    let queueIndex = 0;
+
+    while (queueIndex < pendingSubjectsQueue.length) {
+        let currDateStr = datePointer.toISOString().split('T')[0];
+        
+        // Se a data ainda não existir no mapa, cria ela
+        if (!appData.generatedScheduleMap[currDateStr]) {
+            appData.generatedScheduleMap[currDateStr] = { subjects: [], isRest: false, isSimulated: false, completed: false, customEvents: [] };
+        }
+
+        let dayData = appData.generatedScheduleMap[currDateStr];
+
+        // Respeita os Domingos (Descanso) e Simulados, e não joga matéria neles
+        if (datePointer.getDay() === 0) {
+            dayData.subjects = ["☕ Descanso & Revisão Leve SRS"];
+            dayData.isRest = true;
+        } else if (dayData.isSimulated) {
+            dayData.subjects = ["📝 SIMULADO GERAL"];
+        } else {
+            // Encaixa a matéria da fila no dia útil
+            dayData.subjects = pendingSubjectsQueue[queueIndex];
+            dayData.isRest = false;
+            dayData.isSimulated = false;
+            queueIndex++;
+        }
+        
+        // Avança um dia
+        datePointer.setDate(datePointer.getDate() + 1);
     }
+
+    saveDataToCloud();
+    renderSmartScheduleUI();
+    showToast("Efeito dominó aplicado! Cronograma salvo.", "success");
 }
+
+
+
+
+
+
+
+
 
 function generateSmartSchedule() {
     const goal = document.getElementById('ai-goal').value || 'Aprovação e Domínio';
@@ -2178,6 +2284,15 @@ function importScheduleToTasks(subjectsStr) {
     document.querySelector('[data-target="pomodoro"]').click();
 }
 
+
+
+
+
+
+
+
+
+
 function buildMonthlyCalendarHTML() {
     if (!appData.generatedScheduleMap) return '';
     const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
@@ -2198,16 +2313,35 @@ function buildMonthlyCalendarHTML() {
 
     for (let day = 1; day <= daysInMonth; day++) {
         let dateObj = new Date(currentCalYear, currentCalMonth, day);
-        dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset()); // Fix timezone issue
+        dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset());
         let dateStr = dateObj.toISOString().split('T')[0];
         let isToday = (dateStr === todayStr);
         let dayData = appData.generatedScheduleMap[dateStr];
 
         let tagHtml = '';
         if (dayData) {
-            if (dayData.isSimulated) tagHtml += `<span class="tag-pill tag-sim">Simulado</span>`;
-            else tagHtml += dayData.subjects.map(s => `<span class="tag-pill tag-study">${s.split(' ')[0]}</span>`).join('');
-            if (dayData.customEvents && dayData.customEvents.length > 0) tagHtml += `<span class="tag-pill" style="background:#ffea00; color:#000;">⭐ Evento</span>`;
+            let isPast = dateStr < todayStr;
+            let isDelayed = isPast && !dayData.isRest && !dayData.isSimulated && !dayData.completed;
+            let isCompleted = isPast && dayData.completed && !dayData.isRest;
+
+            // NOVA LÓGICA: Verifica o passado e oculta/exibe dependendo do status
+            if (isCompleted) {
+                // Dia concluído: oculta as matérias e mostra apenas o selo verde
+                tagHtml += `<span class="tag-pill" style="background: rgba(0, 230, 118, 0.1); color: #00e676; border: 1px solid rgba(0, 230, 118, 0.3);"><i class="fas fa-check"></i> Concluído</span>`;
+            } else if (isDelayed) {
+                // Dia atrasado: mostra o selo de aviso e as matérias pendentes
+                tagHtml += `<span class="tag-pill" style="background: rgba(255, 23, 68, 0.15); color: #ff1744; border: 1px solid rgba(255, 23, 68, 0.4);"><i class="fas fa-exclamation-triangle"></i> Atrasado</span>`;
+                tagHtml += dayData.subjects.map(s => `<span class="tag-pill tag-study" style="opacity:0.6;">${s.split(' ')[0]}</span>`).join('');
+            } else {
+                // Dias de hoje e do futuro: renderização normal das pílulas de matéria
+                if (dayData.isSimulated) tagHtml += `<span class="tag-pill tag-sim">Simulado</span>`;
+                else if (!dayData.isRest) tagHtml += dayData.subjects.map(s => `<span class="tag-pill tag-study">${s.split(' ')[0]}</span>`).join('');
+            }
+
+            // Eventos sempre aparecem, não importa se é passado ou futuro
+            if (dayData.customEvents && dayData.customEvents.length > 0) {
+                tagHtml += `<span class="tag-pill" style="background:#ffea00; color:#000;">⭐ Evento</span>`;
+            }
         }
 
         html += `<div class="calendar-cell ${isToday ? 'today' : ''}" onclick="openDayDetailsModal('${dateStr}')">
@@ -2218,6 +2352,18 @@ function buildMonthlyCalendarHTML() {
     html += `</div></div>`;
     return html;
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 function openDayDetailsModal(dateStr) {
     const modal = document.getElementById('modal-day-details');
@@ -2255,23 +2401,114 @@ function openDayDetailsModal(dateStr) {
     modal.classList.add('active');
 }
 
+// Variáveis para controlar o calendário de troca
+let swapSourceDate = null;
+let swapCalMonth = new Date().getMonth();
+let swapCalYear = new Date().getFullYear();
+
 function promptSwapSubject(dateStr1) {
-    let dateStr2 = prompt("Digite a data EXATA para a qual deseja mandar o estudo de hoje.\nFormato obrigatório: AAAA-MM-DD\nExemplo para 31 de Agosto de 2026: 2026-08-31");
-    if (!dateStr2 || dateStr2 === dateStr1) return;
+    swapSourceDate = dateStr1;
     
-    if (!appData.generatedScheduleMap[dateStr2]) {
-        appData.generatedScheduleMap[dateStr2] = { subjects: ["Dia vazio original"], isRest: true };
+    // Abre o calendário no mesmo mês/ano do dia de origem
+    let parts = dateStr1.split('-');
+    swapCalYear = parseInt(parts[0]);
+    swapCalMonth = parseInt(parts[1]) - 1;
+
+    document.getElementById('modal-day-details').classList.remove('active'); // Fecha os detalhes do dia
+    renderSwapCalendar(); // Desenha o calendário
+    document.getElementById('modal-swap-calendar').classList.add('active'); // Abre a nova janela
+}
+
+function changeSwapCalendarMonth(offset) {
+    swapCalMonth += offset;
+    if (swapCalMonth < 0) { swapCalMonth = 11; swapCalYear--; }
+    if (swapCalMonth > 11) { swapCalMonth = 0; swapCalYear++; }
+    renderSwapCalendar();
+}
+
+function renderSwapCalendar() {
+    const container = document.getElementById('swap-calendar-container');
+    if (!container || !appData.generatedScheduleMap) return;
+
+    const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    const firstDay = new Date(swapCalYear, swapCalMonth, 1).getDay();
+    const daysInMonth = new Date(swapCalYear, swapCalMonth + 1, 0).getDate();
+
+    let html = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <button class="icon-btn" onclick="changeSwapCalendarMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+            <h4 style="margin:0;"><i class="fas fa-calendar-alt"></i> ${monthNames[swapCalMonth]} / ${swapCalYear}</h4>
+            <button class="icon-btn" onclick="changeSwapCalendarMonth(1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="calendar-grid">
+            <div class="calendar-day-head">Dom</div><div class="calendar-day-head">Seg</div><div class="calendar-day-head">Ter</div><div class="calendar-day-head">Qua</div><div class="calendar-day-head">Qui</div><div class="calendar-day-head">Sex</div><div class="calendar-day-head">Sáb</div>`;
+
+    for (let i = 0; i < firstDay; i++) html += `<div class="calendar-cell other-month"></div>`;
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        let dateObj = new Date(swapCalYear, swapCalMonth, day);
+        dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset());
+        let dateStr = dateObj.toISOString().split('T')[0];
+        let dayData = appData.generatedScheduleMap[dateStr];
+
+        let tagHtml = '';
+        if (dayData) {
+            if (dayData.isSimulated) tagHtml += `<span class="tag-pill tag-sim">Simulado</span>`;
+            else tagHtml += dayData.subjects.map(s => `<span class="tag-pill tag-study">${s.split(' ')[0]}</span>`).join('');
+            if (dayData.customEvents && dayData.customEvents.length > 0) tagHtml += `<span class="tag-pill" style="background:#ffea00; color:#000;">⭐ Evento</span>`;
+        } else {
+            // Se o dia está vazio e nem gerado foi
+            tagHtml += `<span class="tag-pill" style="background:rgba(255,255,255,0.1); color:#888;">Livre</span>`;
+        }
+
+        // Se for o próprio dia de origem da troca, deixa ele apagadinho e inútil para clique
+        if (dateStr === swapSourceDate) {
+            html += `<div class="calendar-cell today" style="opacity: 0.4; cursor: not-allowed; border-color: #00b0ff;">
+                <span class="day-number">${day}</span>
+                <div class="day-tags">${tagHtml}</div>
+            </div>`;
+        } else {
+            html += `<div class="calendar-cell" onclick="executeSwap('${dateStr}')" style="border-color: rgba(255,255,255,0.1);">
+                <span class="day-number">${day}</span>
+                <div class="day-tags">${tagHtml}</div>
+            </div>`;
+        }
+    }
+    html += `</div>`;
+    container.innerHTML = html;
+}
+
+function executeSwap(targetDateStr) {
+    if (!swapSourceDate || swapSourceDate === targetDateStr) return;
+    
+    // Se o dia de destino não tiver dados criados, inicializa ele como livre
+    if (!appData.generatedScheduleMap[targetDateStr]) {
+        appData.generatedScheduleMap[targetDateStr] = { subjects: ["Dia vazio original"], isRest: true, completed: false, customEvents: [] };
     }
     
-    let temp = appData.generatedScheduleMap[dateStr1];
-    appData.generatedScheduleMap[dateStr1] = appData.generatedScheduleMap[dateStr2];
-    appData.generatedScheduleMap[dateStr2] = temp;
+    // Executa a troca mágica (Efeito Swap)
+    let temp = appData.generatedScheduleMap[swapSourceDate];
+    appData.generatedScheduleMap[swapSourceDate] = appData.generatedScheduleMap[targetDateStr];
+    appData.generatedScheduleMap[targetDateStr] = temp;
     
     saveDataToCloud();
-    showToast("Cronograma atualizado com a troca!", "success");
-    closeDayDetailsModal();
+    showToast("Matérias trocadas com sucesso!", "success");
+    closeSwapModal();
     renderSmartScheduleUI();
 }
+
+function closeSwapModal() {
+    document.getElementById('modal-swap-calendar').classList.remove('active');
+    swapSourceDate = null;
+}
+
+
+
+
+
+
+
+
 
 function promptAddEvent(dateStr) {
     let eventName = prompt("Nome do Evento (Ex: Prova de Matemática, Simulado Cursinho, etc):");
@@ -2286,6 +2523,11 @@ function promptAddEvent(dateStr) {
     closeDayDetailsModal();
     renderSmartScheduleUI();
 }
+
+
+
+
+
 
 function closeDayDetailsModal() {
     const modal = document.getElementById('modal-day-details');
