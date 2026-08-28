@@ -890,7 +890,82 @@ body.hide-mascot .mascot-area-global {
 
 
 
-    </style>
+    
+/* === NOVO: CALENDÁRIO COMPLETO + PAINEL DE PROGRESSO === */
+.full-calendar-page { width:100%; max-width:1400px; margin:0 auto; }
+.calendar-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+.calendar-toolbar-left,.calendar-toolbar-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.calendar-title { font-size:1.45rem; font-weight:700; min-width:230px; }
+.calendar-nav-btn,.calendar-view-btn,.calendar-today-btn { background:rgba(255,255,255,.06); color:white; border:1px solid var(--glass-border); border-radius:10px; padding:9px 12px; cursor:pointer; transition:.2s; }
+.calendar-nav-btn:hover,.calendar-view-btn:hover,.calendar-today-btn:hover { border-color:var(--primary); background:rgba(var(--primary-rgb),.1); }
+.calendar-view-btn.active { background:var(--primary); color:#000; border-color:var(--primary); font-weight:700; }
+.calendar-shell { background:rgba(0,0,0,.38); border:1px solid var(--glass-border); border-radius:20px; overflow:hidden; box-shadow:0 12px 35px rgba(0,0,0,.25); }
+.fc-month-grid { display:grid; grid-template-columns:repeat(7,1fr); }
+.fc-weekday { padding:12px 10px; border-bottom:1px solid var(--glass-border); color:var(--text-muted); font-size:.75rem; font-weight:700; text-transform:uppercase; }
+.fc-day { min-height:125px; border-right:1px solid var(--glass-border); border-bottom:1px solid var(--glass-border); padding:8px; cursor:pointer; transition:.18s; overflow:hidden; }
+.fc-day:nth-child(7n) { border-right:none; }
+.fc-day:hover { background:rgba(var(--primary-rgb),.06); }
+.fc-day.other { opacity:.35; }
+.fc-day.today { background:rgba(var(--primary-rgb),.08); box-shadow:inset 0 0 0 2px var(--primary); }
+.fc-day-number { display:flex; align-items:center; justify-content:space-between; font-size:.82rem; font-weight:700; margin-bottom:6px; }
+.fc-day-number .today-dot { background:var(--primary); color:#000; border-radius:50%; width:25px; height:25px; display:inline-flex; align-items:center; justify-content:center; }
+.fc-event { border-left:3px solid var(--primary); background:rgba(var(--primary-rgb),.12); padding:4px 6px; border-radius:5px; margin:3px 0; font-size:.68rem; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer; }
+.fc-event.generated { border-left-color:#8ea3b8; background:rgba(142,163,184,.12); }
+.fc-event.special { border-left-color:#ffea00; background:rgba(255,234,0,.1); }
+.fc-event.study-log { border-left-color:#00e676; background:rgba(0,230,118,.1); }
+.fc-more { color:var(--primary); font-size:.68rem; padding:3px 5px; font-weight:700; }
+.fc-time-grid { display:grid; grid-template-columns:70px repeat(7,1fr); overflow:auto; min-width:900px; }
+.fc-time-head { position:sticky; top:0; z-index:2; background:rgba(15,15,19,.96); padding:10px; border-bottom:1px solid var(--glass-border); font-size:.75rem; color:var(--text-muted); text-align:center; }
+.fc-time-label { min-height:52px; border-right:1px solid var(--glass-border); border-bottom:1px solid rgba(255,255,255,.05); padding:4px 8px; font-size:.68rem; color:var(--text-muted); text-align:right; }
+.fc-time-slot { min-height:52px; border-right:1px solid rgba(255,255,255,.06); border-bottom:1px solid rgba(255,255,255,.05); position:relative; cursor:pointer; }
+.fc-time-slot:hover { background:rgba(var(--primary-rgb),.05); }
+.fc-time-event { position:absolute; left:4px; right:4px; top:3px; min-height:44px; border-radius:7px; padding:5px 7px; background:rgba(var(--primary-rgb),.18); border-left:3px solid var(--primary); font-size:.68rem; z-index:1; overflow:hidden; }
+.fc-agenda { padding:18px; display:flex; flex-direction:column; gap:10px; }
+.fc-agenda-day { color:var(--primary); font-size:.85rem; font-weight:700; margin-top:8px; }
+.fc-agenda-item { display:grid; grid-template-columns:90px 1fr auto; gap:12px; align-items:center; background:rgba(255,255,255,.035); border:1px solid var(--glass-border); padding:12px; border-radius:12px; cursor:pointer; }
+.fc-agenda-item:hover { border-color:var(--primary); }
+.calendar-empty { padding:45px 20px; text-align:center; color:var(--text-muted); }
+.fc-checkbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:0 0 15px; }
+.fc-filter { background:rgba(0,0,0,.35); border:1px solid var(--glass-border); color:white; padding:8px 10px; border-radius:9px; outline:none; }
+.fc-dashboard { display:grid; grid-template-columns:1.2fr .8fr; gap:18px; margin-top:18px; }
+.fc-card { background:rgba(0,0,0,.38); border:1px solid var(--glass-border); border-radius:18px; padding:20px; }
+.fc-card h3 { font-size:1rem; margin-bottom:15px; display:flex; align-items:center; gap:8px; }
+.fc-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+.fc-kpi { background:rgba(255,255,255,.035); border:1px solid var(--glass-border); border-radius:12px; padding:12px; }
+.fc-kpi span { display:block; color:var(--text-muted); font-size:.7rem; text-transform:uppercase; }
+.fc-kpi b { display:block; font-size:1.35rem; margin-top:4px; color:var(--primary); }
+.fc-subject-list { display:flex; flex-direction:column; gap:10px; max-height:390px; overflow-y:auto; }
+.fc-subject { background:rgba(255,255,255,.035); border:1px solid var(--glass-border); border-radius:13px; padding:12px; }
+.fc-subject-top { display:flex; justify-content:space-between; gap:10px; align-items:center; }
+.fc-subject-name { font-weight:700; }
+.fc-subject-meta { color:var(--text-muted); font-size:.72rem; margin-top:5px; }
+.fc-progress-track { height:7px; background:rgba(255,255,255,.08); border-radius:8px; overflow:hidden; margin-top:9px; }
+.fc-progress-fill { height:100%; background:var(--primary); border-radius:8px; }
+.fc-subject-actions { display:flex; gap:6px; margin-top:10px; }
+.fc-mini-btn { border:1px solid var(--glass-border); background:rgba(255,255,255,.05); color:white; border-radius:8px; padding:6px 9px; cursor:pointer; font-size:.72rem; }
+.fc-mini-btn:hover { border-color:var(--primary); color:var(--primary); }
+.fc-focus-alert { border:1px solid #ff1744; background:rgba(255,23,68,.09); color:#ffb0bd; border-radius:12px; padding:12px; margin-bottom:12px; font-size:.8rem; }
+.fc-legend { display:flex; gap:12px; flex-wrap:wrap; color:var(--text-muted); font-size:.72rem; margin-top:10px; }
+.fc-legend span::before { content:''; display:inline-block; width:9px; height:9px; border-radius:2px; background:var(--primary); margin-right:5px; }
+.fc-legend .lg-generated::before { background:#8ea3b8; }
+.fc-legend .lg-special::before { background:#ffea00; }
+.fc-legend .lg-log::before { background:#00e676; }
+.fc-modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.fc-modal-wide { grid-column:1/-1; }
+.fc-modal-checks { display:flex; gap:18px; flex-wrap:wrap; background:rgba(255,255,255,.035); padding:12px; border-radius:10px; border:1px solid var(--glass-border); }
+.fc-modal-checks label { display:flex; align-items:center; gap:7px; font-size:.85rem; cursor:pointer; }
+.fc-modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:18px; flex-wrap:wrap; }
+.fc-danger-btn { background:rgba(255,23,68,.13)!important; color:#ff6b82!important; border:1px solid rgba(255,23,68,.45)!important; }
+.fc-study-summary { font-size:.78rem; color:var(--text-muted); line-height:1.5; margin-bottom:12px; }
+@media (max-width:1000px) { .fc-dashboard{grid-template-columns:1fr;} .fc-kpis{grid-template-columns:repeat(2,1fr);} }
+@media (max-width:700px) {
+    .calendar-title{min-width:0;font-size:1.1rem}.fc-month-grid{min-width:700px}.calendar-shell{overflow-x:auto}.fc-day{min-height:95px}
+    .fc-modal-grid{grid-template-columns:1fr}.fc-kpis{grid-template-columns:repeat(2,1fr)}.calendar-toolbar{align-items:flex-start}
+}
+.fc-modal-grid input[type="date"],.fc-modal-grid input[type="time"],.fc-modal-grid input[type="search"] { width:100%; background:rgba(0,0,0,.5); border:1px solid var(--glass-border); color:white; padding:12px; border-radius:10px; font-size:1rem; outline:none; }
+.fc-modal-grid input[type="date"]:focus,.fc-modal-grid input[type="time"]:focus { border-color:var(--primary); }
+
+</style>
 </head>
 <body>
 
@@ -1097,6 +1172,81 @@ body.hide-mascot .mascot-area-global {
 
 
 
+
+    <!-- MODAL: EVENTO DO CALENDÁRIO COMPLETO -->
+    <div class="glass-modal-overlay" id="fc-event-modal">
+        <div class="glass-modal" style="max-width:680px;text-align:left;">
+            <h2 id="fc-event-modal-title" style="color:var(--primary);"><i class="fas fa-calendar-plus"></i> Novo evento</h2>
+            <p>Adicione compromissos, provas, aulas, revisões ou qualquer outro evento.</p>
+            <input type="hidden" id="fc-event-id">
+            <div class="fc-modal-grid">
+                <div class="input-group fc-modal-wide"><label>Título</label><input type="text" id="fc-event-title-input" placeholder="Ex.: Prova de Direito Constitucional"></div>
+                <div class="input-group"><label>Data</label><input type="date" id="fc-event-date"></div>
+                <div class="input-group"><label>Categoria</label>
+                    <select id="fc-event-category">
+                        <option value="estudo">📚 Estudo</option>
+                        <option value="prova">📝 Prova / Simulado</option>
+                        <option value="pessoal">⭐ Pessoal</option>
+                        <option value="revisao">🔁 Revisão</option>
+                        <option value="outro">📌 Outro</option>
+                    </select>
+                </div>
+                <div class="input-group"><label>Início</label><input type="time" id="fc-event-start" value="08:00"></div>
+                <div class="input-group"><label>Fim</label><input type="time" id="fc-event-end" value="09:00"></div>
+                <div class="input-group"><label>Repetição</label>
+                    <select id="fc-event-repeat">
+                        <option value="none">Não repetir</option>
+                        <option value="daily">Diariamente</option>
+                        <option value="weekdays">Dias úteis</option>
+                        <option value="weekly">Semanalmente</option>
+                        <option value="monthly">Mensalmente</option>
+                    </select>
+                </div>
+                <div class="input-group"><label>Cor</label><input type="color" id="fc-event-color" value="#00ff00" style="width:100%;height:44px;background:rgba(0,0,0,.4);border:1px solid var(--glass-border);border-radius:10px;"></div>
+                <div class="input-group fc-modal-wide"><label>Observações</label><input type="text" id="fc-event-notes" placeholder="Local, link, lembrete ou detalhes..."></div>
+                <div class="fc-modal-checks fc-modal-wide">
+                    <label><input type="checkbox" id="fc-event-allday"> Evento de dia inteiro</label>
+                    <label><input type="checkbox" id="fc-event-reminder" checked> Lembrar quando abrir o app</label>
+                </div>
+            </div>
+            <div class="fc-modal-actions">
+                <button class="btn-buy fc-danger-btn" id="fc-event-delete" style="display:none;" onclick="deleteCalendarEvent()"><i class="fas fa-trash"></i> Excluir</button>
+                <button class="btn-buy" onclick="closeCalendarEventModal()">Cancelar</button>
+                <button class="btn-save" style="width:auto;padding:12px 20px;" onclick="saveCalendarEvent()"><i class="fas fa-save"></i> Salvar evento</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: REGISTRO DE ESTUDO / PROGRESSO -->
+    <div class="glass-modal-overlay" id="fc-study-modal">
+        <div class="glass-modal" style="max-width:720px;text-align:left;">
+            <h2 style="color:var(--primary);"><i class="fas fa-book-open"></i> Registrar estudo</h2>
+            <p>Registre exatamente o que você fez. Esses dados alimentam o diagnóstico de dificuldade das disciplinas.</p>
+            <div class="fc-modal-grid">
+                <div class="input-group"><label>Data</label><input type="date" id="fc-study-date"></div>
+                <div class="input-group"><label>Matéria</label><select id="fc-study-subject"></select></div>
+                <div class="input-group" id="fc-study-custom-wrap" style="display:none;"><label>Nome da matéria</label><input type="text" id="fc-study-custom-subject" placeholder="Ex.: Direito Administrativo"></div>
+                <div class="input-group"><label>Minutos estudados</label><input type="number" id="fc-study-minutes" min="0" max="1440" value="25"></div>
+                <div class="fc-modal-checks fc-modal-wide">
+                    <label><input type="checkbox" id="fc-study-theory"> 📖 Vi teoria</label>
+                    <label><input type="checkbox" id="fc-study-questions"> 📝 Fiz questões</label>
+                </div>
+                <div class="input-group"><label>Questões feitas</label><input type="number" id="fc-study-total" min="0" value="0"></div>
+                <div class="input-group"><label>Questões certas</label><input type="number" id="fc-study-correct" min="0" value="0"></div>
+                <div class="input-group"><label>Dificuldade percebida</label>
+                    <select id="fc-study-difficulty">
+                        <option value="1">1 — Muito fácil</option><option value="2">2 — Fácil</option><option value="3" selected>3 — Média</option><option value="4">4 — Difícil</option><option value="5">5 — Muito difícil</option>
+                    </select>
+                </div>
+                <div class="input-group fc-modal-wide"><label>Observações</label><input type="text" id="fc-study-note" placeholder="Ex.: errei principalmente atos administrativos..."></div>
+            </div>
+            <div class="fc-modal-actions">
+                <button class="btn-buy" onclick="closeStudyLogModal()">Cancelar</button>
+                <button class="btn-save" style="width:auto;padding:12px 20px;" onclick="saveStudyLog()"><i class="fas fa-check"></i> Registrar progresso</button>
+            </div>
+        </div>
+    </div>
+
     <div class="auth-overlay" id="auth-modal">
         <form id="auth-form" onsubmit="event.preventDefault(); loginUser();" class="auth-box">
             <h2>Luma Focus</h2><p>Faça login para salvar seu progresso na nuvem.</p>
@@ -1178,21 +1328,16 @@ body.hide-mascot .mascot-area-global {
         <aside class="sidebar" id="sidebar">
             <button class="nav-btn active" data-target="pomodoro"><i class="fas fa-brain"></i> Pomodoro </button>
 
-<!-- NOVO BOTÃO LUMA AI -->
-            <button class="nav-btn" data-target="ai-chat" style="color: #ffd700; font-weight: bold;"><i class="fas fa-robot"></i> Luma AI (Groq) <span style="font-size: 0.65rem; background: #ffd700; color: #000; padding: 2px 6px; border-radius: 8px; margin-left: 5px;">PRO</span></button>
-
             <button class="nav-btn" data-target="ai-schedule"><i class="fas fa-magic"></i> Planejador de Estudos </button>
+            <button class="nav-btn" data-target="full-calendar"><i class="fas fa-calendar-days"></i> Calendário & Progresso</button>
 
 <button class="nav-btn" data-target="study-cycle"><i class="fas fa-sync-alt"></i> Ciclo de Estudos</button>
 
             <button class="nav-btn" data-target="srs-reviews"><i class="fas fa-bell"></i> Revisões (SRS)</button>
 
             <button class="nav-btn" data-target="flashcards"><i class="fas fa-layer-group"></i> Flashcards</button>
-
-            <button class="nav-btn" data-target="boss-battle"><i class="fas fa-dragon"></i> Batalha de Foco </button>
             
-            <button class="nav-btn" data-target="clock"><i class="fas fa-clock"></i> Relógio</button>
-            <button class="nav-btn" data-target="stopwatch"><i class="fas fa-stopwatch"></i> Cronômetro </button>
+            
             <button class="nav-btn" data-target="analytics"><i class="fas fa-chart-pie"></i> Analytics </button>
             <button class="nav-btn" data-target="settings"><i class="fas fa-cog"></i> Ajustes</button>
 
@@ -1391,6 +1536,66 @@ body.hide-mascot .mascot-area-global {
 
 
 
+
+
+            <!-- ABA CALENDÁRIO COMPLETO + PROGRESSO DE ESTUDOS -->
+            <section id="full-calendar" class="tab-content">
+                <div class="full-calendar-page">
+                    <div class="calendar-toolbar">
+                        <div class="calendar-toolbar-left">
+                            <button class="calendar-today-btn" onclick="fullCalendarToday()"><i class="fas fa-calendar-day"></i> Hoje</button>
+                            <button class="calendar-nav-btn" onclick="changeFullCalendar(-1)" title="Anterior"><i class="fas fa-chevron-left"></i></button>
+                            <button class="calendar-nav-btn" onclick="changeFullCalendar(1)" title="Próximo"><i class="fas fa-chevron-right"></i></button>
+                            <div class="calendar-title" id="full-calendar-title">Calendário</div>
+                        </div>
+                        <div class="calendar-toolbar-right">
+                            <input class="fc-filter" id="fc-search" type="search" placeholder="🔎 Buscar..." oninput="renderFullCalendar()" style="width:150px;">
+                            <select class="fc-filter" id="fc-subject-filter" onchange="renderFullCalendar()">
+                                <option value="all">Todas as matérias</option>
+                            </select>
+                            <button class="btn-buy" style="width:auto;padding:9px 14px;" onclick="exportFullCalendarICS()"><i class="fas fa-download"></i> Exportar</button>
+                            <button class="btn-save" style="width:auto;padding:9px 14px;" onclick="openCalendarEventModal()"><i class="fas fa-plus"></i> Evento</button>
+                            <button class="btn-save" style="width:auto;padding:9px 14px;" onclick="openStudyLogModal()"><i class="fas fa-chart-line"></i> Registrar estudo</button>
+                        </div>
+                    </div>
+
+                    <div class="fc-checkbar">
+                        <div class="calendar-toolbar-left">
+                            <button class="calendar-view-btn active" data-fc-view="month" onclick="setFullCalendarView('month')">Mês</button>
+                            <button class="calendar-view-btn" data-fc-view="week" onclick="setFullCalendarView('week')">Semana</button>
+                            <button class="calendar-view-btn" data-fc-view="day" onclick="setFullCalendarView('day')">Dia</button>
+                            <button class="calendar-view-btn" data-fc-view="agenda" onclick="setFullCalendarView('agenda')">Agenda</button>
+                        </div>
+                        <label style="font-size:.78rem;color:var(--text-muted);display:flex;align-items:center;gap:7px;">
+                            <input type="checkbox" id="fc-show-generated" checked onchange="renderFullCalendar()"> Mostrar cronograma gerado
+                        </label>
+                    </div>
+
+                    <div class="calendar-shell" id="full-calendar-view"></div>
+                    <div class="fc-legend">
+                        <span class="lg-generated">Cronograma inteligente</span>
+                        <span class="lg-special">Evento pessoal</span>
+                        <span class="lg-log">Registro de estudo</span>
+                    </div>
+
+                    <div class="fc-dashboard">
+                        <div class="fc-card">
+                            <h3><i class="fas fa-chart-line" style="color:var(--primary)"></i> Progresso das disciplinas</h3>
+                            <div id="fc-focus-alert"></div>
+                            <div class="fc-subject-list" id="fc-subject-progress"></div>
+                        </div>
+                        <div class="fc-card">
+                            <h3><i class="fas fa-gauge-high" style="color:var(--primary)"></i> Visão geral</h3>
+                            <div class="fc-kpis" id="fc-kpis"></div>
+                            <div class="fc-study-summary" id="fc-study-summary" style="margin-top:14px;"></div>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                <button class="btn-save" style="width:auto;" onclick="openStudyLogModal()"><i class="fas fa-plus"></i> Registrar sessão</button>
+                                <button class="btn-buy" style="width:auto;" onclick="goToPlannerFromCalendar()"><i class="fas fa-wand-magic-sparkles"></i> Ver planejador</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
 <!-- ABA LUMA AI (GROQ GENERATIVE AI) -->
             <section id="ai-chat" class="tab-content">
@@ -1722,6 +1927,8 @@ const defaultState = {
     visuals: { bgUrl: '', color: '#00ff00', blur: true, clockStyle: 'classic', mascotAura: false, bgDark: false, mascotHat: '', cursor: 'default' },
     audio: { type: 'brown', lofiAuto: true, premiumChime: false, musicVol: 0.5, sfxVol: 0.8 },
     stats: { totalMinutes: 0, totalSessions: 0, history: {}, subjects: {} },
+    calendarEvents: [],
+    studyLogs: [],
     boss: { hp: 600, maxHp: 600 },
     hardcore: { active: false, bet: 0 }
 };
@@ -2104,6 +2311,7 @@ function readjustSchedule() {
 
     saveDataToCloud();
     renderSmartScheduleUI();
+    renderFullCalendar();
     showToast("Efeito dominó aplicado! Cronograma salvo.", "success");
 }
 
@@ -2179,6 +2387,7 @@ function generateSmartSchedule() {
 
         saveDataToCloud();
         renderSmartScheduleUI();
+        renderFullCalendar();
         checkDelays();
         playChime('evolve');
         showToast("Cronograma inteligente gerado com sucesso!", "success");
@@ -2190,6 +2399,7 @@ function deleteSavedSchedule() {
     appData.generatedScheduleMap = null;
     saveDataToCloud();
     renderSmartScheduleUI();
+    renderFullCalendar();
     checkDelays();
     showToast("Cronograma apagado.", "info");
 }
@@ -2820,12 +3030,16 @@ function initializeUI() {
     if(!appData.studyCycle) appData.studyCycle = { currentIndex: 0, subjects: [] };
     if(!appData.srsTopics) appData.srsTopics = [];
     if(!appData.plannerSubjects) appData.plannerSubjects = [];
+    if(!appData.calendarEvents) appData.calendarEvents = [];
+    if(!appData.studyLogs) appData.studyLogs = [];
     
     renderDecks();
     renderStudyCycle();
     renderSRSReviews();
     renderPlannerSubjects();
     renderSmartScheduleUI();
+    renderFullCalendar();
+    checkCalendarReminders();
     initLumaAI();
     
     if (!appData.user.lumariType) {
@@ -2991,6 +3205,7 @@ function clearHistory() {
         const savedActiveChat = appData.activeChatId || null;
 
         appData.stats = { totalMinutes: 0, totalSessions: 0, history: {}, subjects: {} };
+        appData.studyLogs = [];
         appData.user.xp = 0; appData.user.level = 1; appData.user.lumariXp = 0; appData.user.lumariLevel = 1; appData.user.coins = 0; appData.user.inventory = []; appData.user.lumariType = null; appData.user.lumariName = ''; appData.user.achievements = []; appData.user.itemsBought = 0; appData.user.buffCharges = 0; appData.user.lastFocusDate = 0; appData.user.roomBg = ''; appData.visuals.mascotHat = ''; appData.visuals.mascotAura = false; appData.visuals.cursor = 'default';
         appData.boss = { hp: 600, maxHp: 600 }; appData.hardcore = { active: false, bet: 0 };
         
@@ -3015,6 +3230,7 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
             if(targetID === 'analytics') { updateChart(); renderContributionGraph(); renderAchievements(); }
             if(targetID === 'srs-reviews') { renderSRSReviews(); }
             if(targetID === 'ai-schedule') { renderPlannerSubjects(); renderSmartScheduleUI(); }
+            if(targetID === 'full-calendar') { renderFullCalendar(); }
             if(targetID === 'ai-chat') { initLumaAI(); }
             if(window.innerWidth <= 900) toggleMobileMenu();
         }
@@ -3325,6 +3541,464 @@ async function togglePiP() {
     } catch (e) { showToast('Mini Player não suportado pelo seu navegador.', 'warning'); }
 }
 pipVideo.addEventListener('leavepictureinpicture', () => { pipActive = false; });
+
+
+/* ========================================================= */
+/* === CALENDÁRIO COMPLETO + PROGRESSO DE ESTUDOS          === */
+/* ========================================================= */
+let fullCalendarDate = new Date();
+let fullCalendarView = 'month';
+
+function fcDateStr(date) {
+    const d = new Date(date);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+function fcParseDate(str) { return new Date(str + 'T00:00:00'); }
+function fcTodayStr() { return fcDateStr(new Date()); }
+function fcEsc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function fcSubjectNames() {
+    const names = [];
+    (appData.plannerSubjects || []).forEach(s => { if(s.name && !names.includes(s.name)) names.push(s.name); });
+    (appData.studyLogs || []).forEach(l => { if(l.subject && !names.includes(l.subject)) names.push(l.subject); });
+    (appData.studyCycle?.subjects || []).forEach(s => { if(s.name && !names.includes(s.name)) names.push(s.name); });
+    return names;
+}
+function fcEnsureData() {
+    if(!appData.calendarEvents) appData.calendarEvents = [];
+    if(!appData.studyLogs) appData.studyLogs = [];
+}
+function fcRepeatDates(event, fromDate, toDate) {
+    const dates = [];
+    const start = fcParseDate(event.date);
+    const cursor = new Date(start);
+    let guard = 0;
+    while(cursor <= toDate && guard++ < 500) {
+        if(cursor >= fromDate) {
+            const weekday = cursor.getDay();
+            if(event.repeat === 'none' || event.repeat === 'daily' ||
+               (event.repeat === 'weekdays' && weekday > 0 && weekday < 6) ||
+               (event.repeat === 'weekly' && weekday === start.getDay()) ||
+               (event.repeat === 'monthly' && cursor.getDate() === start.getDate())) {
+                dates.push(fcDateStr(cursor));
+            }
+        }
+        if(event.repeat === 'none') break;
+        if(event.repeat === 'weekly') cursor.setDate(cursor.getDate() + 7);
+        else if(event.repeat === 'monthly') cursor.setMonth(cursor.getMonth() + 1);
+        else cursor.setDate(cursor.getDate() + 1);
+    }
+    return dates;
+}
+function fcUserEventsInRange(fromDate, toDate) {
+    fcEnsureData();
+    const items = [];
+    appData.calendarEvents.forEach(ev => {
+        fcRepeatDates(ev, fromDate, toDate).forEach(date => items.push({...ev, date}));
+    });
+    return items;
+}
+function fcGeneratedItemsForDate(dateStr) {
+    const map = appData.generatedScheduleMap || {};
+    const d = map[dateStr];
+    if(!d) return [];
+    const result = [];
+    if(!d.isRest && d.subjects) {
+        d.subjects.forEach((subject, index) => result.push({
+            id:`generated_${dateStr}_${index}`,
+            title:`📚 ${subject}`,
+            date:dateStr,
+            allDay:true,
+            generated:true,
+            subject:subject.replace(/^[^\wÀ-ÿ]+/u,'').trim()
+        }));
+    } else if(d.isRest) {
+        result.push({id:`generated_rest_${dateStr}`,title:d.subjects?.[0] || '☕ Descanso',date:dateStr,allDay:true,generated:true,rest:true});
+    }
+    if(d.customEvents) d.customEvents.forEach((e,index)=>result.push({
+        id:`legacy_${dateStr}_${index}`, title:`⭐ ${e}`, date:dateStr, allDay:true, special:true, legacy:true
+    }));
+    return result;
+}
+function fcItemsForDate(dateStr) {
+    const items = [];
+    const showGenerated = document.getElementById('fc-show-generated')?.checked !== false;
+    if(showGenerated) items.push(...fcGeneratedItemsForDate(dateStr));
+    const start=fcParseDate(dateStr), end=new Date(start); end.setDate(end.getDate()+1);
+    items.push(...fcUserEventsInRange(start,end));
+    (appData.studyLogs||[]).filter(l=>l.date===dateStr).forEach(l=>items.push({
+        id:l.id,title:`📈 Estudo: ${l.subject}`,date:dateStr,
+        allDay:true,studyLog:true,subject:l.subject,
+        minutes:l.minutes,questionsTotal:l.questionsTotal,questionsCorrect:l.questionsCorrect,
+        theory:l.theory,questions:l.questions,note:l.note
+    }));
+    return items;
+}
+function fcItemsForRange(startDate,endDate) {
+    const items=[];
+    const cursor=new Date(startDate);
+    while(cursor<endDate) {
+        items.push(...fcItemsForDate(fcDateStr(cursor)));
+        cursor.setDate(cursor.getDate()+1);
+    }
+    return items;
+}
+function fcFormatDate(date, opts={}) { return new Intl.DateTimeFormat('pt-BR',opts).format(date); }
+function fcMonthLabel() { return fcFormatDate(fullCalendarDate,{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase()); }
+function fcWeekStart(date) {
+    const d=new Date(date); d.setHours(0,0,0,0); d.setDate(d.getDate()-d.getDay()); return d;
+}
+function fcEventTime(ev) {
+    if(ev.allDay) return 'Dia inteiro';
+    return `${ev.start || '—'}${ev.end ? ' – '+ev.end : ''}`;
+}
+function fcColor(ev) {
+    if(ev.color) return ev.color;
+    if(ev.generated) return '#8ea3b8';
+    if(ev.special) return '#ffea00';
+    return 'var(--primary)';
+}
+function fcRenderEvent(ev, compact=false) {
+    const style=`border-left-color:${fcColor(ev)};${ev.color ? `background:${ev.color}18;` : ''}`;
+    const cls=`fc-event ${ev.generated?'generated':''} ${ev.special?'special':''} ${ev.studyLog?'study-log':''}`;
+    const dragAttrs=(!ev.generated && !ev.legacy && !ev.studyLog)?`draggable="true" ondragstart="startCalendarEventDrag(event,'${fcEsc(ev.id)}')"`:'';
+    return `<div class="${cls}" ${dragAttrs} style="${style}" title="${fcEsc(ev.title)} — ${fcEsc(fcEventTime(ev))}" onclick="event.stopPropagation();openCalendarItem('${fcEsc(ev.id)}','${fcEsc(ev.date)}')">${fcEsc(ev.title)}</div>`;
+}
+function fcPopulateSubjectFilter() {
+    const select=document.getElementById('fc-subject-filter'); if(!select) return;
+    const current=select.value || 'all';
+    const names=fcSubjectNames();
+    select.innerHTML='<option value="all">Todas as matérias</option>'+names.map(n=>`<option value="${fcEsc(n)}">${fcEsc(n)}</option>`).join('');
+    select.value=names.includes(current)?current:'all';
+}
+function fcFiltered(items) {
+    const filter=document.getElementById('fc-subject-filter')?.value || 'all';
+    const query=(document.getElementById('fc-search')?.value || '').trim().toLowerCase();
+    return items.filter(e=>(filter==='all' || e.subject===filter || e.title.includes(filter)) &&
+        (!query || `${e.title} ${e.subject||''} ${e.notes||''}`.toLowerCase().includes(query)));
+}
+function renderFullCalendar() {
+    fcEnsureData();
+    const root=document.getElementById('full-calendar-view'); if(!root) return;
+    fcPopulateSubjectFilter();
+    document.querySelectorAll('[data-fc-view]').forEach(b=>b.classList.toggle('active',b.dataset.fcView===fullCalendarView));
+    const title=document.getElementById('full-calendar-title');
+    if(title) {
+        if(fullCalendarView==='month') title.textContent=fcMonthLabel();
+        else if(fullCalendarView==='week') {
+            const s=fcWeekStart(fullCalendarDate), e=new Date(s); e.setDate(e.getDate()+6);
+            title.textContent=`${fcFormatDate(s,{day:'2-digit',month:'short'})} – ${fcFormatDate(e,{day:'2-digit',month:'short',year:'numeric'})}`;
+        } else if(fullCalendarView==='day') title.textContent=fcFormatDate(fullCalendarDate,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+        else title.textContent='Próximos eventos';
+    }
+    if(fullCalendarView==='month') root.innerHTML=fcRenderMonth();
+    if(fullCalendarView==='week') root.innerHTML=fcRenderTimeGrid(7);
+    if(fullCalendarView==='day') root.innerHTML=fcRenderTimeGrid(1);
+    if(fullCalendarView==='agenda') root.innerHTML=fcRenderAgenda();
+    renderCalendarProgress();
+}
+function fcRenderMonth() {
+    const y=fullCalendarDate.getFullYear(), m=fullCalendarDate.getMonth();
+    const first=new Date(y,m,1), start=new Date(y,m,1-first.getDay());
+    let html='<div class="fc-month-grid">';
+    ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].forEach(d=>html+=`<div class="fc-weekday">${d}</div>`);
+    for(let i=0;i<42;i++){
+        const d=new Date(start); d.setDate(start.getDate()+i);
+        const date=fcDateStr(d), today=date===fcTodayStr(), other=d.getMonth()!==m;
+        let events=fcFiltered(fcItemsForDate(date));
+        html+=`<div class="fc-day ${today?'today':''} ${other?'other':''}" ondragover="event.preventDefault()" ondrop="dropCalendarEvent(event,'${date}')" onclick="openCalendarDate('${date}')">
+            <div class="fc-day-number"><span class="${today?'today-dot':''}">${d.getDate()}</span>${events.length?`<small style="color:var(--text-muted)">${events.length}</small>`:''}</div>
+            ${events.slice(0,4).map(e=>fcRenderEvent(e,true)).join('')}
+            ${events.length>4?`<div class="fc-more">+ ${events.length-4} mais</div>`:''}
+        </div>`;
+    }
+    return html+'</div>';
+}
+function fcRenderTimeGrid(daysCount) {
+    const start=daysCount===1?new Date(fullCalendarDate):fcWeekStart(fullCalendarDate);
+    const hours=[];
+    for(let h=6;h<=22;h++) hours.push(h);
+    let html=`<div style="overflow:auto;"><div class="fc-time-grid" style="grid-template-columns:70px repeat(${daysCount},minmax(160px,1fr));">`;
+    html+='<div class="fc-time-head"></div>';
+    for(let i=0;i<daysCount;i++){const d=new Date(start);d.setDate(start.getDate()+i);html+=`<div class="fc-time-head">${fcFormatDate(d,{weekday:'short',day:'2-digit',month:'2-digit'})}</div>`;}
+    // Faixa de dia inteiro: mantém o cronograma gerado visível também nas visões Semana/Dia.
+    html+='<div class="fc-time-label" style="min-height:78px;">Dia inteiro</div>';
+    for(let i=0;i<daysCount;i++){
+        const d=new Date(start);d.setDate(start.getDate()+i);const date=fcDateStr(d);
+        const allDay=fcFiltered(fcItemsForDate(date)).filter(e=>e.allDay);
+        html+=`<div class="fc-time-slot" style="min-height:78px;" onclick="openCalendarDate('${date}')">${allDay.slice(0,4).map(e=>fcRenderEvent(e,true)).join('')}${allDay.length>4?`<div class="fc-more">+ ${allDay.length-4} mais</div>`:''}</div>`;
+    }
+    hours.forEach(h=>{
+        html+=`<div class="fc-time-label">${String(h).padStart(2,'0')}:00</div>`;
+        for(let i=0;i<daysCount;i++){
+            const d=new Date(start);d.setDate(start.getDate()+i);const date=fcDateStr(d);
+            let events=fcFiltered(fcItemsForDate(date)).filter(e=>!e.allDay && parseInt((e.start||'99:00').split(':')[0])===h);
+            html+=`<div class="fc-time-slot" onclick="openCalendarDate('${date}','${String(h).padStart(2,'0')}:00')">${events.map(e=>`<div class="fc-time-event" style="border-left-color:${fcColor(e)}" onclick="event.stopPropagation();openCalendarItem('${fcEsc(e.id)}','${fcEsc(e.date)}')">${fcEsc(e.title)}<br><small>${fcEsc(fcEventTime(e))}</small></div>`).join('')}</div>`;
+        }
+    });
+    return html+'</div></div>';
+}
+function fcRenderAgenda() {
+    const start=new Date(); start.setHours(0,0,0,0); const end=new Date(start); end.setDate(end.getDate()+60);
+    const items=fcFiltered(fcItemsForRange(start,end)).sort((a,b)=>(a.date+(a.start||'')).localeCompare(b.date+(b.start||'')));
+    if(!items.length) return '<div class="calendar-empty"><i class="fas fa-calendar-check" style="font-size:2rem;color:var(--primary);margin-bottom:10px;"></i><div>Nenhum evento nos próximos 60 dias.</div><button class="btn-save" style="width:auto;margin-top:15px;" onclick="openCalendarEventModal()">Adicionar primeiro evento</button></div>';
+    let html='<div class="fc-agenda">';
+    let last='';
+    items.forEach(e=>{
+        if(e.date!==last){const d=fcParseDate(e.date);html+=`<div class="fc-agenda-day">${fcFormatDate(d,{weekday:'long',day:'numeric',month:'long'})}</div>`;last=e.date;}
+        html+=`<div class="fc-agenda-item" onclick="openCalendarItem('${fcEsc(e.id)}','${fcEsc(e.date)}')">
+            <div style="color:var(--text-muted);font-size:.72rem;">${fcEsc(fcEventTime(e))}</div>
+            <div><b>${fcEsc(e.title)}</b><div style="font-size:.7rem;color:var(--text-muted);margin-top:3px;">${e.generated?'Cronograma inteligente':e.studyLog?'Registro de estudo':(e.category||'Evento')}</div></div>
+            <i class="fas fa-chevron-right" style="color:var(--text-muted)"></i>
+        </div>`;
+    });
+    return html+'</div>';
+}
+
+
+function exportFullCalendarICS(){
+    const start=new Date();start.setHours(0,0,0,0);
+    const end=new Date(start);end.setDate(end.getDate()+365);
+    const events=fcItemsForRange(start,end).filter(e=>!e.studyLog);
+    const stamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z');
+    const icsEscape=v=>String(v||'').replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');
+    const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Luma Focus//Calendario de Estudos//PT-BR'];
+    events.forEach(e=>{
+        const uid=`${e.id}-${e.date}@lumafocus`;
+        if(e.allDay) {
+            const next=new Date(fcParseDate(e.date));next.setDate(next.getDate()+1);
+            lines.push('BEGIN:VEVENT',`UID:${uid}`,`DTSTAMP:${stamp}`,`DTSTART;VALUE=DATE:${e.date.replace(/-/g,'')}`,`DTEND;VALUE=DATE:${fcDateStr(next).replace(/-/g,'')}`,`SUMMARY:${icsEscape(e.title)}`,`DESCRIPTION:${icsEscape(e.notes||'')}`,'END:VEVENT');
+        } else {
+            const base=e.date.replace(/-/g,'');
+            const dtStart=`${base}T${(e.start||'00:00').replace(':','')}00`;
+            const dtEnd=`${base}T${(e.end||e.start||'01:00').replace(':','')}00`;
+            lines.push('BEGIN:VEVENT',`UID:${uid}`,`DTSTAMP:${stamp}`,`DTSTART:${dtStart}`,`DTEND:${dtEnd}`,`SUMMARY:${icsEscape(e.title)}`,`DESCRIPTION:${icsEscape(e.notes||'')}`,'END:VEVENT');
+        }
+    });
+    lines.push('END:VCALENDAR');
+    const blob=new Blob([lines.join('\r\n')],{type:'text/calendar;charset=utf-8'});
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='luma-focus-calendario.ics';a.click();URL.revokeObjectURL(url);
+    showToast('Calendário exportado em formato .ics!','success');
+}
+
+let draggedCalendarEventId=null;
+function startCalendarEventDrag(event,id){draggedCalendarEventId=id;event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',id);}
+function dropCalendarEvent(event,dateStr){
+    event.preventDefault();
+    const id=event.dataTransfer.getData('text/plain')||draggedCalendarEventId;
+    const ev=(appData.calendarEvents||[]).find(e=>e.id===id);
+    if(!ev)return;
+    ev.date=dateStr;ev.updatedAt=Date.now();
+    saveDataToCloud();renderFullCalendar();showToast(`Evento movido para ${dateStr.split('-').reverse().join('/')}.`,'success');
+    draggedCalendarEventId=null;
+}
+function setFullCalendarView(view){fullCalendarView=view;renderFullCalendar();}
+function fullCalendarToday(){fullCalendarDate=new Date();renderFullCalendar();}
+function changeFullCalendar(offset){
+    if(fullCalendarView==='month') fullCalendarDate.setMonth(fullCalendarDate.getMonth()+offset);
+    else if(fullCalendarView==='week') fullCalendarDate.setDate(fullCalendarDate.getDate()+offset*7);
+    else if(fullCalendarView==='day') fullCalendarDate.setDate(fullCalendarDate.getDate()+offset);
+    else fullCalendarDate.setDate(fullCalendarDate.getDate()+offset*30);
+    renderFullCalendar();
+}
+function openCalendarDate(dateStr,time=''){
+    fullCalendarDate=fcParseDate(dateStr);
+    if(time){openCalendarEventModal(dateStr,time);}
+    else if(fullCalendarView==='month'){fullCalendarView='day';renderFullCalendar();}
+}
+function openCalendarItem(id,dateStr){
+    const ev=(appData.calendarEvents||[]).find(e=>e.id===id);
+    if(ev){openCalendarEventModal(dateStr,ev);return;}
+    const item=fcItemsForDate(dateStr).find(e=>e.id===id);
+    if(item && item.generated){
+        const subject=item.subject || item.title.replace(/^📚 /,'');
+        if(!item.rest){
+            openStudyLogModal(dateStr, subject);
+        } else {
+            showToast(`📚 ${item.title.replace(/^📚 /,'')}`, 'info');
+        }
+        return;
+    }
+    if(item && item.studyLog){
+        showToast(`📈 ${item.subject}: ${item.minutes||0} min • ${item.questionsCorrect||0}/${item.questionsTotal||0} acertos${item.theory?' • teoria':''}${item.questions?' • questões':''}`, 'info');
+        return;
+    }
+    if(item && item.legacy){
+        showToast(item.title.replace(/^⭐ /,''), 'info');
+    }
+}
+function openCalendarEventModal(dateStr='', existing=null){
+    const modal=document.getElementById('fc-event-modal'); if(!modal)return;
+    const ev=existing;
+    document.getElementById('fc-event-modal-title').innerHTML=ev?'<i class="fas fa-pen"></i> Editar evento':'<i class="fas fa-calendar-plus"></i> Novo evento';
+    document.getElementById('fc-event-id').value=ev?.id||'';
+    document.getElementById('fc-event-title-input').value=ev?.title||'';
+    document.getElementById('fc-event-date').value=ev?.date||dateStr||fcDateStr(fullCalendarDate);
+    document.getElementById('fc-event-category').value=ev?.category||'estudo';
+    document.getElementById('fc-event-start').value=ev?.start||'08:00';
+    document.getElementById('fc-event-end').value=ev?.end||'09:00';
+    document.getElementById('fc-event-repeat').value=ev?.repeat||'none';
+    document.getElementById('fc-event-color').value=ev?.color||appData.visuals.color||'#00ff00';
+    document.getElementById('fc-event-notes').value=ev?.notes||'';
+    document.getElementById('fc-event-allday').checked=!!ev?.allDay;
+    document.getElementById('fc-event-reminder').checked=ev?.reminder!==false;
+    document.getElementById('fc-event-delete').style.display=ev?'inline-flex':'none';
+    modal.classList.add('active');
+}
+function closeCalendarEventModal(){document.getElementById('fc-event-modal')?.classList.remove('active');}
+function saveCalendarEvent(){
+    fcEnsureData();
+    const title=document.getElementById('fc-event-title-input').value.trim();
+    const date=document.getElementById('fc-event-date').value;
+    if(!title||!date){showToast('Informe pelo menos título e data.','warning');return;}
+    const id=document.getElementById('fc-event-id').value||`event_${Date.now()}`;
+    const event={
+        id,title,date,
+        category:document.getElementById('fc-event-category').value,
+        start:document.getElementById('fc-event-start').value,
+        end:document.getElementById('fc-event-end').value,
+        repeat:document.getElementById('fc-event-repeat').value,
+        color:document.getElementById('fc-event-color').value,
+        notes:document.getElementById('fc-event-notes').value.trim(),
+        allDay:document.getElementById('fc-event-allday').checked,
+        reminder:document.getElementById('fc-event-reminder').checked,
+        updatedAt:Date.now()
+    };
+    const idx=appData.calendarEvents.findIndex(e=>e.id===id);
+    if(idx>=0) appData.calendarEvents[idx]=event; else appData.calendarEvents.push(event);
+    saveDataToCloud(); closeCalendarEventModal(); renderFullCalendar();
+    showToast(idx>=0?'Evento atualizado!':'Evento adicionado ao calendário!','success');
+}
+function deleteCalendarEvent(){
+    const id=document.getElementById('fc-event-id').value;
+    if(!id||!confirm('Excluir este evento?'))return;
+    appData.calendarEvents=appData.calendarEvents.filter(e=>e.id!==id);
+    saveDataToCloud();closeCalendarEventModal();renderFullCalendar();showToast('Evento excluído.','info');
+}
+function openStudyLogModal(dateStr='', preselectedSubject=''){
+    fcEnsureData();
+    const modal=document.getElementById('fc-study-modal'); if(!modal)return;
+    document.getElementById('fc-study-date').value=dateStr||fcDateStr(fullCalendarDate)||fcTodayStr();
+    const select=document.getElementById('fc-study-subject');
+    const names=fcSubjectNames();
+    select.innerHTML=names.map(n=>`<option value="${fcEsc(n)}">${fcEsc(n)}</option>`).join('')+'<option value="__custom">➕ Outra matéria...</option>';
+    if(preselectedSubject && names.includes(preselectedSubject)) select.value=preselectedSubject;
+    else if(!names.length) select.value='__custom';
+    document.getElementById('fc-study-custom-wrap').style.display=select.value==='__custom'?'block':'none';
+    if(select.value==='__custom' && preselectedSubject) document.getElementById('fc-study-custom-subject').value=preselectedSubject;
+    select.onchange=()=>document.getElementById('fc-study-custom-wrap').style.display=select.value==='__custom'?'block':'none';
+    document.getElementById('fc-study-minutes').value=25;
+    document.getElementById('fc-study-total').value=0;
+    document.getElementById('fc-study-correct').value=0;
+    document.getElementById('fc-study-theory').checked=false;
+    document.getElementById('fc-study-questions').checked=false;
+    document.getElementById('fc-study-difficulty').value=3;
+    document.getElementById('fc-study-note').value='';
+    modal.classList.add('active');
+}
+function closeStudyLogModal(){document.getElementById('fc-study-modal')?.classList.remove('active');}
+function saveStudyLog(){
+    fcEnsureData();
+    const select=document.getElementById('fc-study-subject');
+    const subject=select.value==='__custom'?document.getElementById('fc-study-custom-subject').value.trim():select.value;
+    const date=document.getElementById('fc-study-date').value;
+    let total=Math.max(0,parseInt(document.getElementById('fc-study-total').value)||0);
+    let correct=Math.max(0,parseInt(document.getElementById('fc-study-correct').value)||0);
+    if(correct>total)correct=total;
+    if(!subject||!date){showToast('Informe a matéria e a data.','warning');return;}
+    const log={
+        id:`study_${Date.now()}`,date,subject,
+        minutes:Math.max(0,parseInt(document.getElementById('fc-study-minutes').value)||0),
+        theory:document.getElementById('fc-study-theory').checked,
+        questions:document.getElementById('fc-study-questions').checked,
+        questionsTotal:total,questionsCorrect:correct,
+        difficulty:parseInt(document.getElementById('fc-study-difficulty').value)||3,
+        note:document.getElementById('fc-study-note').value.trim(),
+        createdAt:Date.now()
+    };
+    appData.studyLogs.push(log);
+    // O registro fica separado do Pomodoro para não duplicar minutos no Analytics existente.
+    saveDataToCloud();closeStudyLogModal();renderFullCalendar();
+    showToast(`Progresso de ${subject} registrado!`,'success');
+}
+function fcSubjectStats(){
+    fcEnsureData();
+    const stats={};
+    fcSubjectNames().forEach(name=>stats[name]={name,minutes:0,total:0,correct:0,logs:0,theory:0,questionSessions:0,diffSum:0,last:''});
+    appData.studyLogs.forEach(l=>{
+        if(!stats[l.subject])stats[l.subject]={name:l.subject,minutes:0,total:0,correct:0,logs:0,theory:0,questionSessions:0,diffSum:0,last:''};
+        const s=stats[l.subject];
+        s.minutes+=Number(l.minutes)||0;s.total+=Number(l.questionsTotal)||0;s.correct+=Number(l.questionsCorrect)||0;
+        s.logs++;if(l.theory)s.theory++;if(l.questions)s.questionSessions++;s.diffSum+=Number(l.difficulty)||3;
+        if(!s.last||l.date>s.last)s.last=l.date;
+    });
+    return Object.values(stats);
+}
+function renderCalendarProgress(){
+    const kpi=document.getElementById('fc-kpis'), list=document.getElementById('fc-subject-progress'), alert=document.getElementById('fc-focus-alert'), summary=document.getElementById('fc-study-summary');
+    if(!kpi||!list)return;
+    const logs=appData.studyLogs||[];
+    const totalMinutes=logs.reduce((a,l)=>a+(Number(l.minutes)||0),0);
+    const pomodoroMinutes=Number(appData.stats?.totalMinutes)||0;
+    const totalQ=logs.reduce((a,l)=>a+(Number(l.questionsTotal)||0),0);
+    const correct=logs.reduce((a,l)=>a+(Number(l.questionsCorrect)||0),0);
+    const accuracy=totalQ?Math.round(correct/totalQ*100):0;
+    const theory=logs.filter(l=>l.theory).length, questionSessions=logs.filter(l=>l.questions).length;
+    kpi.innerHTML=[
+        ['Tempo registrado',`${Math.floor(totalMinutes/60)}h ${totalMinutes%60}m`],
+        ['Questões',totalQ],
+        ['Acertos',totalQ?`${accuracy}%`:'—'],
+        ['Sessões',logs.length]
+    ].map(x=>`<div class="fc-kpi"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('');
+    const stats=fcSubjectStats().map(s=>{
+        s.accuracy=s.total?Math.round(s.correct/s.total*100):null;s.avgDiff=s.logs?Math.round(s.diffSum/s.logs*10)/10:0;
+        s.hard=(s.accuracy!==null&&s.accuracy<70)||s.avgDiff>=4;
+        return s;
+    }).sort((a,b)=>(b.hard?1:0)-(a.hard?1:0)||(a.accuracy??101)-(b.accuracy??101));
+    const hard=stats.filter(s=>s.hard);
+    alert.innerHTML=hard.length?`<div class="fc-focus-alert"><b>⚠️ Foco recomendado:</b> ${hard.slice(0,3).map(s=>fcEsc(s.name)).join(', ')}. ${hard.length>3?`+ ${hard.length-3} outra(s).`:''} Revise teoria e priorize questões nessas disciplinas.</div>`:'<div style="padding:10px 0;color:var(--success);font-size:.8rem;">✓ Nenhuma disciplina foi marcada como dificuldade alta com os dados atuais.</div>';
+    list.innerHTML=stats.length?stats.map(s=>{
+        const pct=s.accuracy===null?0:s.accuracy;
+        const status=s.hard?'⚠️ Focar':'✓ Estável';
+        return `<div class="fc-subject">
+            <div class="fc-subject-top"><span class="fc-subject-name">${fcEsc(s.name)}</span><span class="priority-badge ${s.hard?'prio-high':'prio-low'}">${status}</span></div>
+            <div class="fc-subject-meta">${s.total} questões • ${s.accuracy===null?'sem acertos registrados':s.accuracy+'% de acerto'} • ${s.minutes} min • ${s.logs} registro(s)</div>
+            <div class="fc-progress-track"><div class="fc-progress-fill" style="width:${Math.max(0,Math.min(100,pct))}%"></div></div>
+            <div class="fc-subject-actions">
+                <button class="fc-mini-btn" onclick="focusSubjectFromCalendar(decodeURIComponent('${encodeURIComponent(s.name)}'))"><i class="fas fa-bullseye"></i> Focar</button>
+                <button class="fc-mini-btn" onclick="openStudyLogModal('',decodeURIComponent('${encodeURIComponent(s.name)}'))"><i class="fas fa-plus"></i> Registrar</button>
+            </div>
+        </div>`;
+    }).join(''):'<div class="calendar-empty" style="padding:25px 10px;">Registre sua primeira sessão para começar o diagnóstico por disciplina.</div>';
+    summary.innerHTML=`<b>Como o diagnóstico funciona:</b> uma disciplina entra em <span style="color:#ff6b82;">Focar</span> quando a taxa de acerto registrada fica abaixo de 70% ou a dificuldade percebida média chega a 4/5. Você também pode usar o número de questões e minutos para acompanhar volume. <br><br>📖 Teoria registrada: <b style="color:white">${theory}</b> • 📝 Sessões com questões: <b style="color:white">${questionSessions}</b> • ⏱️ Pomodoro já acumulado no app: <b style="color:white">${Math.floor(pomodoroMinutes/60)}h ${pomodoroMinutes%60}m</b>`;
+}
+function focusSubjectFromCalendar(subject){
+    appData.tasks.forEach(t=>t.active=false);
+    appData.tasks.unshift({text:`[Calendário] Focar em ${subject}`,done:false,active:true});
+    saveDataToCloud();renderTasks();document.querySelector('[data-target="pomodoro"]')?.click();
+    showToast(`Alvo de foco definido: ${subject}`,'success');
+}
+function goToPlannerFromCalendar(){document.querySelector('[data-target="ai-schedule"]')?.click();}
+
+
+function checkCalendarReminders(){
+    fcEnsureData();
+    const today=fcTodayStr();
+    const key=`luma_calendar_reminders_${today}`;
+    let shown=[];
+    try { shown=JSON.parse(localStorage.getItem(key)||'[]'); } catch(e) {}
+    const events=fcUserEventsInRange(fcParseDate(today),new Date(fcParseDate(today).getTime()+86400000));
+    events.filter(e=>e.reminder && !e.allDay && !shown.includes(e.id)).forEach(e=>{
+        const msg=`${e.title}${e.start?' às '+e.start:''}`;
+        showToast(`🔔 Hoje: ${msg}`,'info');
+        shown.push(e.id);
+    });
+    try { localStorage.setItem(key,JSON.stringify(shown)); } catch(e) {}
+}
 
 /* === ANALYTICS E EXTRAS === */
 let focusChartInstance = null; let subjectChartInstance = null;
