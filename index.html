@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Luma Focus | Premium Productivity</title>
     
     <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
@@ -1081,6 +1081,917 @@ body.hide-mascot .mascot-area-global {
 }
 .fc-modal-grid input[type="date"],.fc-modal-grid input[type="time"],.fc-modal-grid input[type="search"] { width:100%; background:rgba(0,0,0,.5); border:1px solid var(--glass-border); color:white; padding:12px; border-radius:10px; font-size:1rem; outline:none; }
 .fc-modal-grid input[type="date"]:focus,.fc-modal-grid input[type="time"]:focus { border-color:var(--primary); }
+
+
+        /* =========================================================
+           RESPONSIVIDADE APRIMORADA — DESKTOP / TABLET / MOBILE
+           Mantém o layout e a lógica existentes, apenas adapta
+           tamanhos, espaçamentos, grids, menus e modais.
+           ========================================================= */
+
+        html, body {
+            width: 100%;
+            max-width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .app-container,
+        header,
+        main,
+        aside.sidebar,
+        .tab-content,
+        .pomodoro-layout,
+        .settings-grid,
+        .stats-grid,
+        .store-grid,
+        .deck-grid,
+        .ai-chat-layout,
+        .full-calendar-page {
+            min-width: 0;
+        }
+
+        img, video, canvas, svg {
+            max-width: 100%;
+        }
+
+        button, input, select, textarea {
+            max-width: 100%;
+        }
+
+        /* Evita que conteúdos longos provoquem overflow horizontal */
+        h1, h2, h3, h4, h5, h6, p, span, label, a, td, th {
+            overflow-wrap: anywhere;
+        }
+
+        /* ---------- NOTEBOOKS / TELAS MÉDIAS ---------- */
+        @media (max-width: 1200px) {
+            .app-container {
+                grid-template-columns: 270px minmax(0, 1fr);
+            }
+
+            header {
+                padding: 0 24px;
+            }
+
+            main {
+                padding: 28px 24px;
+            }
+
+            .pomodoro-layout {
+                gap: 30px;
+            }
+
+            .visual-container {
+                width: 300px;
+                height: 300px;
+            }
+
+            .time-display {
+                font-size: clamp(3.5rem, 7vw, 5.5rem);
+            }
+
+            .ai-chat-layout {
+                grid-template-columns: 240px minmax(0, 1fr);
+            }
+
+            .full-calendar-page {
+                max-width: 100%;
+            }
+
+            .calendar-title {
+                min-width: 0;
+            }
+        }
+
+        /* ---------- TABLET / MOBILE ---------- */
+        @media (max-width: 900px) {
+            html, body {
+                width: 100%;
+                height: 100%;
+                height: 100dvh;
+            }
+
+            body {
+                overflow: hidden;
+                background-attachment: scroll;
+            }
+
+            .app-container {
+                width: 100%;
+                height: 100dvh;
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-rows: 68px minmax(0, 1fr);
+            }
+
+            header {
+                min-width: 0;
+                width: 100%;
+                height: 68px;
+                padding: 0 14px;
+                gap: 10px;
+            }
+
+            .header-left,
+            .header-right {
+                min-width: 0;
+                gap: 8px;
+            }
+
+            .header-left {
+                flex: 1 1 auto;
+            }
+
+            .header-right {
+                flex: 0 0 auto;
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex: 0 0 40px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .desktop-sidebar-btn {
+                display: none !important;
+            }
+
+            .profile-area {
+                min-width: 0;
+                gap: 10px;
+            }
+
+            .avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .user-info {
+                min-width: 0;
+                overflow: hidden;
+            }
+
+            .user-info h2 {
+                font-size: .9rem;
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .user-info p {
+                font-size: .7rem;
+                white-space: nowrap;
+            }
+
+            .level-badge {
+                padding: 3px 7px;
+                margin-left: 3px;
+            }
+
+            .xp-bar-container {
+                width: min(120px, 30vw);
+            }
+
+            .header-right .icon-btn {
+                width: 38px !important;
+                height: 38px !important;
+            }
+
+            aside.sidebar {
+                position: fixed;
+                inset: 0 auto 0 0;
+                width: min(320px, 86vw);
+                height: 100dvh;
+                z-index: 999;
+                transform: translateX(-105%);
+                left: 0;
+                padding: 20px 15px;
+                overflow-y: auto;
+                transition: transform .3s ease;
+            }
+
+            aside.sidebar.open {
+                left: 0;
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.show {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            main {
+                grid-column: 1;
+                min-height: 0;
+                width: 100%;
+                height: 100%;
+                padding: 20px 12px;
+                overflow-x: hidden;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tab-content,
+            .tab-content.active {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+            }
+
+            .tab-content.active {
+                padding-bottom: 90px;
+            }
+
+            /* Grids */
+            .settings-grid,
+            .stats-grid {
+                grid-template-columns: 1fr;
+                width: 100%;
+                max-width: 100%;
+                gap: 14px;
+            }
+
+            .settings-card,
+            .stat-card {
+                width: 100%;
+                min-width: 0;
+                padding: 20px;
+            }
+
+            .store-grid,
+            .deck-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                width: 100%;
+            }
+
+            /* Pomodoro */
+            .pomodoro-layout {
+                width: 100%;
+                max-width: 100%;
+                flex-direction: column;
+                align-items: center;
+                gap: 25px;
+                margin-top: 10px;
+            }
+
+            .pomodoro-container {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .status-badge {
+                margin-bottom: 25px;
+                max-width: 95%;
+                text-align: center;
+            }
+
+            .visual-container {
+                width: min(72vw, 280px);
+                height: min(72vw, 280px);
+                margin-bottom: 30px;
+            }
+
+            .time-display {
+                font-size: clamp(3rem, 13vw, 4rem) !important;
+            }
+
+            .style-digital {
+                width: min(92vw, 430px);
+                height: 120px;
+            }
+
+            .style-digital .time-display {
+                font-size: clamp(3.2rem, 14vw, 4.5rem) !important;
+            }
+
+            .style-bar {
+                width: min(92vw, 500px);
+                height: 100px;
+            }
+
+            .style-bar .time-display {
+                font-size: clamp(3rem, 12vw, 3.8rem) !important;
+                top: -8px;
+            }
+
+            .controls {
+                width: 100%;
+                max-width: 430px;
+                gap: 10px;
+                margin-bottom: 22px;
+            }
+
+            .btn-ctrl {
+                width: clamp(58px, 17vw, 72px);
+                height: 52px;
+            }
+
+            .session-stats {
+                width: min(100%, 430px);
+                justify-content: center;
+                gap: 15px;
+                padding: 12px 15px;
+                flex-wrap: wrap;
+                text-align: center;
+            }
+
+            .shortcuts-hint {
+                text-align: center;
+            }
+
+            .todo-section {
+                width: 100%;
+                max-width: 100%;
+                padding: 20px;
+            }
+
+            /* Painéis e ciclos */
+            .cycle-header,
+            .flashcards-header {
+                width: 100%;
+                max-width: 100%;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
+            .cycle-card {
+                width: 100%;
+                max-width: 100%;
+                padding: 20px;
+            }
+
+            .cycle-current-box {
+                padding: 18px;
+            }
+
+            .cycle-current-title {
+                font-size: 1.2rem;
+            }
+
+            .cycle-item {
+                padding: 13px 15px;
+            }
+
+            .timeline {
+                max-width: 100%;
+                margin-left: 5px;
+            }
+
+            .contrib-wrapper {
+                max-width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* AI */
+            .ai-chat-layout {
+                width: 100%;
+                max-width: 100%;
+                height: auto;
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .ai-sidebar-panel {
+                width: 100%;
+                max-height: 230px;
+                min-height: 0;
+            }
+
+            .ai-main-window {
+                width: 100%;
+                height: 65dvh;
+                min-height: 420px;
+            }
+
+            .ai-header {
+                padding: 14px 15px;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .ai-context-badge {
+                font-size: .68rem;
+            }
+
+            .ai-messages-area {
+                padding: 15px;
+            }
+
+            .ai-message {
+                max-width: 92%;
+            }
+
+            .ai-input-wrapper {
+                gap: 7px;
+            }
+
+            /* Calendário */
+            .full-calendar-page {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .calendar-toolbar {
+                align-items: stretch;
+            }
+
+            .calendar-toolbar-left,
+            .calendar-toolbar-right {
+                width: 100%;
+            }
+
+            .calendar-toolbar-left {
+                justify-content: flex-start;
+            }
+
+            .calendar-toolbar-right {
+                justify-content: flex-start;
+            }
+
+            .calendar-title {
+                flex: 1 1 100%;
+                font-size: 1.15rem;
+            }
+
+            .calendar-nav-btn,
+            .calendar-view-btn,
+            .calendar-today-btn {
+                min-height: 40px;
+            }
+
+            /* Modais */
+            .glass-modal-overlay {
+                padding: 12px;
+                align-items: center;
+            }
+
+            .glass-modal {
+                width: 100% !important;
+                max-width: 100% !important;
+                max-height: calc(100dvh - 24px);
+                padding: 24px 16px;
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+
+            .modal-btns,
+            .auth-btns,
+            .fc-modal-actions {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .modal-btns > *,
+            .auth-btns > *,
+            .fc-modal-actions > * {
+                flex: 1 1 140px;
+                min-width: 0;
+            }
+
+            .crop-container {
+                max-height: 55dvh;
+            }
+
+            .large-avatar-preview {
+                width: min(180px, 55vw);
+                height: min(180px, 55vw);
+                font-size: clamp(2.5rem, 12vw, 4rem);
+            }
+
+            .evo-modal {
+                max-width: 100% !important;
+            }
+
+            .evo-img-container {
+                width: min(250px, 65vw);
+                height: min(250px, 65vw);
+            }
+
+            /* Painel lateral de personalização */
+            .custom-panel {
+                width: min(340px, 92vw);
+                max-width: 92vw;
+                padding: 22px 17px;
+            }
+
+            /* Notificações / player */
+            #toast-container {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                align-items: stretch;
+            }
+
+            .toast {
+                width: 100%;
+                max-width: 100%;
+                padding: 13px 15px;
+                font-size: .88rem;
+            }
+
+            #floating-player {
+                right: 10px;
+                left: 10px;
+                bottom: max(10px, env(safe-area-inset-bottom));
+                width: auto;
+                max-width: calc(100vw - 20px);
+                justify-content: space-between;
+            }
+
+            /* Mascote: mantém a posição sem cobrir o conteúdo */
+            .mascot-area-global {
+                right: 8px;
+                bottom: 85px;
+                transform: scale(.62);
+                transform-origin: bottom right;
+                max-width: 150px;
+            }
+        }
+
+        /* ---------- CELULARES ---------- */
+        @media (max-width: 600px) {
+            header {
+                padding: 0 10px;
+            }
+
+            .header-left {
+                gap: 5px;
+            }
+
+            .profile-area {
+                gap: 7px;
+            }
+
+            .avatar {
+                width: 36px;
+                height: 36px;
+            }
+
+            .user-info h2 {
+                font-size: .82rem;
+                max-width: 110px;
+            }
+
+            .user-info p {
+                display: none;
+            }
+
+            .xp-bar-container {
+                display: none;
+            }
+
+            .header-right {
+                gap: 5px;
+            }
+
+            .header-right .icon-btn {
+                width: 36px !important;
+                height: 36px !important;
+            }
+
+            main {
+                padding: 16px 9px;
+            }
+
+            .tab-content.active {
+                padding-bottom: 100px;
+            }
+
+            .store-grid,
+            .deck-grid,
+            .achievements-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .store-item,
+            .settings-card,
+            .stat-card,
+            .cycle-card,
+            .todo-section {
+                border-radius: 16px;
+            }
+
+            .store-item {
+                padding: 20px;
+            }
+
+            .visual-container {
+                width: min(78vw, 260px);
+                height: min(78vw, 260px);
+            }
+
+            .status-badge {
+                font-size: .78rem;
+                letter-spacing: 1px;
+                padding: 7px 14px;
+            }
+
+            .controls {
+                gap: 8px;
+            }
+
+            .btn-ctrl {
+                width: calc((100% - 24px) / 4);
+                max-width: 68px;
+                height: 48px;
+                border-radius: 13px;
+            }
+
+            .session-stats {
+                font-size: .78rem;
+                gap: 8px 14px;
+            }
+
+            .todo-input-group {
+                gap: 7px;
+            }
+
+            .todo-input-group input {
+                min-width: 0;
+                padding: 11px 12px;
+            }
+
+            .timeline {
+                padding-left: 14px;
+            }
+
+            .timeline-item::before {
+                left: -21px;
+            }
+
+            .cycle-current-box {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .cycle-item {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .ai-sidebar-panel {
+                max-height: 210px;
+                padding: 15px;
+            }
+
+            .ai-main-window {
+                height: 68dvh;
+                min-height: 380px;
+            }
+
+            .ai-header {
+                padding: 12px;
+            }
+
+            .ai-header > div:first-child {
+                min-width: 0;
+                flex: 1 1 100%;
+            }
+
+            .ai-context-badge {
+                width: fit-content;
+            }
+
+            .ai-message {
+                max-width: 96%;
+                gap: 8px;
+            }
+
+            .ai-msg-avatar {
+                width: 32px;
+                height: 32px;
+                font-size: .85rem;
+            }
+
+            .ai-msg-bubble {
+                padding: 11px 13px;
+                font-size: .88rem;
+            }
+
+            .ai-input-bar {
+                padding: 10px;
+            }
+
+            /* Calendário: mantém todas as colunas utilizáveis com rolagem horizontal */
+            .calendar-shell {
+                max-width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .fc-month-grid {
+                min-width: 620px;
+            }
+
+            .fc-day {
+                min-height: 90px;
+                padding: 6px;
+            }
+
+            .fc-weekday {
+                padding: 9px 6px;
+                font-size: .68rem;
+            }
+
+            .fc-event {
+                font-size: .62rem;
+            }
+
+            .fc-modal-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .fc-modal-wide {
+                grid-column: auto;
+            }
+
+            .fc-kpis {
+                grid-template-columns: 1fr 1fr !important;
+            }
+
+            .custom-panel {
+                width: 92vw;
+            }
+
+            .color-grid {
+                gap: 9px;
+            }
+
+            .color-swatch {
+                width: 32px;
+                height: 32px;
+            }
+
+            .mascot-area-global {
+                display: none;
+            }
+
+            .huge-clock {
+                font-size: clamp(3rem, 18vw, 4rem);
+            }
+
+            .date-display {
+                font-size: 1rem;
+                letter-spacing: 1px;
+            }
+
+            .sw-time-display {
+                font-size: clamp(2.7rem, 14vw, 3.5rem);
+            }
+
+            .style-digital {
+                height: 100px;
+            }
+
+            .style-bar {
+                height: 85px;
+            }
+
+            .style-bar .time-display {
+                font-size: 3rem !important;
+            }
+        }
+
+        /* ---------- CELULARES MUITO PEQUENOS ---------- */
+        @media (max-width: 380px) {
+            .app-container {
+                grid-template-rows: 62px minmax(0, 1fr);
+            }
+
+            header {
+                height: 62px;
+            }
+
+            .mobile-menu-btn {
+                width: 34px;
+                flex-basis: 34px;
+            }
+
+            .avatar {
+                width: 34px;
+                height: 34px;
+            }
+
+            .user-info h2 {
+                max-width: 90px;
+                font-size: .76rem;
+            }
+
+            main {
+                padding-left: 7px;
+                padding-right: 7px;
+            }
+
+            .visual-container {
+                width: min(74vw, 235px);
+                height: min(74vw, 235px);
+            }
+
+            .time-display {
+                font-size: 2.75rem !important;
+            }
+
+            .btn-ctrl {
+                width: 52px;
+                height: 46px;
+            }
+
+            .session-stats {
+                padding: 10px;
+                gap: 7px;
+            }
+
+            .glass-modal {
+                padding: 20px 12px;
+            }
+
+            .fc-kpis {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* ---------- TELAS PEQUENAS NA HORIZONTAL ---------- */
+        @media (max-width: 900px) and (orientation: landscape) {
+            .app-container {
+                grid-template-rows: 58px minmax(0, 1fr);
+            }
+
+            header {
+                height: 58px;
+            }
+
+            .sidebar {
+                width: min(300px, 60vw) !important;
+            }
+
+            main {
+                padding-top: 12px;
+            }
+
+            .visual-container {
+                width: 210px;
+                height: 210px;
+                margin-bottom: 18px;
+            }
+
+            .time-display {
+                font-size: 3rem !important;
+            }
+
+            .pomodoro-layout {
+                flex-direction: row;
+                align-items: flex-start;
+                justify-content: center;
+            }
+
+            .todo-section {
+                max-width: 320px;
+            }
+
+            .ai-main-window {
+                height: calc(100dvh - 85px);
+                min-height: 300px;
+            }
+        }
+
+        /* ---------- ACESSIBILIDADE / TOQUE ---------- */
+        @media (hover: none), (pointer: coarse) {
+            .btn-ctrl,
+            .nav-btn,
+            .icon-btn,
+            .btn-save,
+            .btn-buy,
+            .btn-text-icon,
+            .calendar-nav-btn,
+            .calendar-view-btn,
+            .calendar-today-btn,
+            .fc-mini-btn {
+                min-height: 42px;
+            }
+
+            .nav-btn {
+                padding-top: 13px;
+                padding-bottom: 13px;
+            }
+
+            #custom-cursor {
+                display: none !important;
+            }
+
+            * {
+                cursor: auto !important;
+            }
+        }
 
 </style>
 </head>
