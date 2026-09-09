@@ -1993,6 +1993,89 @@ body.hide-mascot .mascot-area-global {
             }
         }
 
+
+        /* === CORREÇÕES MOBILE: LUMARI + AÇÕES DOS DECKS === */
+        @media (max-width: 900px) {
+            /* O Lumari deve continuar visível no celular.
+               Evita que regras antigas de responsividade o ocultem. */
+            .mascot-area-global {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                right: 8px !important;
+                bottom: 82px !important;
+                transform: scale(.62) !important;
+                transform-origin: bottom right !important;
+                z-index: 900 !important;
+                pointer-events: auto;
+            }
+
+            /* Cabeçalho do deck: título em uma linha e ações abaixo */
+            .flashcards-header {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: flex-start !important;
+                justify-content: flex-start !important;
+                flex-wrap: wrap !important;
+                width: 100% !important;
+                overflow: visible !important;
+            }
+
+            .flashcards-header > div:first-child {
+                width: 100% !important;
+                min-width: 0 !important;
+            }
+
+            .flashcards-header > div:last-child {
+                width: 100% !important;
+                min-width: 0 !important;
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+                align-items: center !important;
+                overflow: visible !important;
+            }
+
+            .flashcards-header > div:last-child > button {
+                display: inline-flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                flex: 1 1 auto !important;
+                width: auto !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+                min-height: 42px;
+                align-items: center;
+                justify-content: center;
+                white-space: normal !important;
+            }
+
+            /* No celular, cada ação ocupa uma linha quando necessário,
+               evitando que o texto seja cortado ou fique fora da tela. */
+            .flashcards-header > div:last-child > button:nth-child(1),
+            .flashcards-header > div:last-child > button:nth-child(2),
+            .flashcards-header > div:last-child > button:nth-child(3),
+            .flashcards-header > div:last-child > button:nth-child(4) {
+                flex-basis: calc(50% - 4px) !important;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .mascot-area-global {
+                display: block !important;
+                right: 4px !important;
+                bottom: 78px !important;
+                transform: scale(.52) !important;
+                z-index: 900 !important;
+            }
+
+            .flashcards-header > div:last-child > button {
+                flex-basis: 100% !important;
+                width: 100% !important;
+                padding: 10px 12px !important;
+                font-size: .84rem;
+            }
+        }
 </style>
 </head>
 <body>
