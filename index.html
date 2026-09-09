@@ -464,6 +464,123 @@
 
 
 
+/* === GERENCIADOR DE CARTAS (CARD MANAGER) === */
+.card-manager-item {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 20px 15px;
+    text-align: left;
+    transition: 0.3s ease;
+    position: relative;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    cursor: default;
+}
+
+.card-manager-item:hover {
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.card-manager-front {
+    font-size: 0.9rem;
+    color: white;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+.card-manager-front img {
+    max-width: 100%;
+    max-height: 60px;
+    border-radius: 6px;
+    margin-top: 5px;
+}
+
+.card-manager-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: 0.3s ease;
+}
+
+.card-manager-item:hover .card-manager-actions {
+    opacity: 1;
+}
+
+.card-manager-actions button {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 0.9rem;
+}
+
+.card-manager-actions .btn-edit-card {
+    background: rgba(0, 176, 255, 0.3);
+    color: #00b0ff;
+    border: 1px solid rgba(0, 176, 255, 0.3);
+}
+
+.card-manager-actions .btn-edit-card:hover {
+    background: #00b0ff;
+    color: #000;
+    transform: scale(1.1);
+}
+
+.card-manager-actions .btn-delete-card {
+    background: rgba(255, 23, 68, 0.3);
+    color: #ff1744;
+    border: 1px solid rgba(255, 23, 68, 0.3);
+}
+
+.card-manager-actions .btn-delete-card:hover {
+    background: #ff1744;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.card-manager-index {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    background: rgba(0, 0, 0, 0.5);
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.card-manager-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 16px;
+    border: 1px dashed var(--glass-border);
+}
+
+
+
+
+
 
 
 
@@ -1756,13 +1873,42 @@ body.hide-mascot .mascot-area-global {
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                         <button class="btn-buy" style="width: auto;" onclick="exitStudyView()"><i class="fas fa-arrow-left"></i> Voltar aos Decks</button>
                         <h3 id="study-deck-title" style="color: white;">Nome do Deck</h3>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <button class="btn-buy" style="width: auto; padding: 10px 15px; color: #00b0ff; border-color: rgba(0,176,255,0.3);" onclick="editCurrentCard()" title="Editar esta carta"><i class="fas fa-edit"></i></button>
+                       
+
+
+
+
+
+
+
+
+
+<div style="display: flex; gap: 8px; align-items: center;">
+
+
+
+        <button class="btn-buy" style="width: auto; padding: 10px 15px; color: #00b0ff; border-color: rgba(0,176,255,0.3);" onclick="editCurrentCard()" title="Editar esta carta"><i class="fas fa-edit"></i></button>
+
+
                             <button class="btn-buy" style="width: auto; padding: 10px 15px; color: var(--danger); border-color: rgba(255,23,68,0.3);" onclick="deleteCurrentCard()" title="Apagar esta carta"><i class="fas fa-trash"></i></button>
-                            <button class="btn-buy" style="width: auto; padding: 10px 15px;" onclick="shuffleCurrentDeck()" title="Embaralhar cartas agora"><i class="fas fa-random"></i> Embaralhar</button>
-                            <button class="btn-save" style="width: auto; background: rgba(255,255,255,0.1); color: white;" onclick="openCardModal()"><i class="fas fa-plus"></i> Adicionar Carta</button>
-                        </div>
-                    </div>
+
+
+<button class="btn-buy" style="width: auto; padding: 10px 15px; " onclick="shuffleCurrentDeck()" title="Embaralhar cartas agora"><i class="fas fa-random"></i> Embaralhar</button>
+
+
+        <button class="btn-save" style="width: auto; padding: 10px 15px; background: rgba(255,255,255,0.1); color: white;" onclick="openCardModal()"><i class="fas fa-plus"></i> Adicionar Carta</button>
+
+
+        <button class="btn-save" style="width: auto; padding: 10px 15px; background: rgba(0, 176, 255, 0.2); color: #00b0ff; border: 1px solid #00b0ff;" onclick="openCardManager()"><i class="fas fa-list"></i> Ver Todas as Cartas</button>
+    </div>
+</div>
+
+
+
+
+
+
+
 
                     <!-- O Cartão em si -->
                     <div class="card-scene" onclick="flipCurrentCard()">
@@ -4340,14 +4486,13 @@ function editCurrentCard() {
 
 function closeCardModal() {
     document.getElementById('modal-new-card').classList.remove('active');
+    editingCardId = null;
 }
-
 function confirmCreateCard() {
     if (!appData.flashcards) appData.flashcards = [];
     const deck = appData.flashcards.find(d => d.id === currentDeckId);
     if (!deck) return showToast("Erro: Nenhum baralho selecionado!", "danger");
 
-    // Lendo o HTML rico (innerHTML)
     const front = document.getElementById('input-card-front').innerHTML.trim();
     const back = document.getElementById('input-card-back').innerHTML.trim();
     const explanation = document.getElementById('input-card-explanation').innerHTML.trim();
@@ -4359,7 +4504,6 @@ function confirmCreateCard() {
     if (!deck.cards) deck.cards = [];
 
     if (editingCardId) {
-        // Atualiza a carta existente
         const card = deck.cards.find(c => c.id === editingCardId);
         if (card) {
             card.front = front;
@@ -4367,8 +4511,8 @@ function confirmCreateCard() {
             card.explanation = explanation;
             showToast("Carta atualizada com sucesso!", "success");
         }
+        editingCardId = null;
     } else {
-        // Cria uma nova
         deck.cards.push({
             id: 'card_' + Date.now(),
             front: front,
@@ -4381,8 +4525,12 @@ function confirmCreateCard() {
     saveDataToCloud();
     closeCardModal();
     renderDecks();
-    loadCardUI(); // Recarrega a tela com os novos dados
+    loadCardUI();
 }
+
+
+
+
 
 function deleteCurrentCard() {
     const deck = appData.flashcards.find(d => d.id === currentDeckId);
@@ -5049,6 +5197,174 @@ async function sendAIMessage() {
 
 
 
+
+
+
+
+
+
+
+// =============================================================
+// GERENCIADOR DE CARTAS (VER TODAS AS CARTAS DO BARALHO)
+// =============================================================
+
+function openCardManager() {
+    const modal = document.getElementById('modal-card-manager');
+    if (!modal) return;
+    
+    const deck = appData.flashcards.find(d => d.id === currentDeckId);
+    if (!deck) {
+        showToast("Nenhum baralho selecionado!", "warning");
+        return;
+    }
+    
+    document.getElementById('manager-deck-title').innerHTML = `<i class="fas fa-layer-group" style="color: ${deck.color || 'var(--primary)'};"></i> ${deck.title} (${deck.cards.length} cartas)`;
+    
+    const grid = document.getElementById('card-manager-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    
+    if (!deck.cards || deck.cards.length === 0) {
+        grid.innerHTML = `<div class="card-manager-empty"><i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block; color: var(--text-muted);"></i>Este baralho ainda não tem cartas.<br><button class="btn-save" style="margin-top: 15px; width: auto;" onclick="closeCardManager(); openCardModal();"><i class="fas fa-plus"></i> Adicionar Primeira Carta</button></div>`;
+        modal.classList.add('active');
+        return;
+    }
+    
+    deck.cards.forEach((card, index) => {
+        // Pega apenas o texto puro da frente (remove HTML para exibição segura)
+        let frontText = card.front || 'Sem conteúdo';
+        // Remove tags HTML para não quebrar a exibição
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = frontText;
+        frontText = tempDiv.textContent || tempDiv.innerText || frontText;
+        
+        if (frontText.length > 80) frontText = frontText.substring(0, 80) + '...';
+        
+        grid.innerHTML += `
+            <div class="card-manager-item" style="border-left: 4px solid ${deck.color || 'var(--primary)'};">
+                <span class="card-manager-index">#${index + 1}</span>
+                <div class="card-manager-front">${card.front || 'Sem conteúdo'}</div>
+                <div class="card-manager-actions">
+                    <button class="btn-edit-card" onclick="event.stopPropagation(); openCardManagerEdit(${index})" title="Editar carta"><i class="fas fa-pen"></i></button>
+                    <button class="btn-delete-card" onclick="event.stopPropagation(); openCardManagerDelete(${index})" title="Excluir carta"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        `;
+    });
+    
+    modal.classList.add('active');
+}
+
+function closeCardManager() {
+    const modal = document.getElementById('modal-card-manager');
+    if (modal) modal.classList.remove('active');
+}
+
+function openCardManagerEdit(index) {
+    const deck = appData.flashcards.find(d => d.id === currentDeckId);
+    if (!deck || !deck.cards || !deck.cards[index]) return;
+    
+    const card = deck.cards[index];
+    editingCardId = card.id;
+    
+    const modal = document.getElementById('modal-new-card');
+    document.getElementById('modal-card-title').innerText = "Editar Carta";
+    
+    document.getElementById('input-card-front').innerHTML = card.front || '';
+    document.getElementById('input-card-back').innerHTML = card.back || '';
+    document.getElementById('input-card-explanation').innerHTML = card.explanation || '';
+    
+    closeCardManager();
+    modal.classList.add('active');
+}
+
+function openCardManagerDelete(index) {
+    const deck = appData.flashcards.find(d => d.id === currentDeckId);
+    if (!deck || !deck.cards || !deck.cards[index]) return;
+    
+    if (!confirm(`Tem certeza que deseja excluir a carta "${deck.cards[index].front}" permanentemente?`)) return;
+    
+    deck.cards.splice(index, 1);
+    saveDataToCloud();
+    showToast("Carta excluída com sucesso!", "info");
+    
+    // Atualiza a lista do gerenciador
+    openCardManager();
+    // Atualiza a visualização do estudo também
+    if (currentCardIndex >= deck.cards.length) currentCardIndex = 0;
+    loadCardUI();
+    renderDecks();
+}
+
+
+
+
+
+
+
+
+
+
+
+
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- MODAL: GERENCIADOR DE CARTAS DO BARALHO -->
+
+<div class="glass-modal-overlay" id="modal-card-manager">
+    <div class="glass-modal" style="max-width: 900px; width: 95%; max-height: 90dvh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+           
+ <h2 id="manager-deck-title" style="color: var(--primary); margin: 0;"><i class="fas fa-layer-group"></i> Todas as Cartas</h2>
+            <button class="btn-close-panel" onclick="closeCardManager()" style="font-size: 1.5rem; background: transparent; border: none; color: var(--text-muted);"><i class="fas fa-times"></i></button>
+        </div>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Passe o mouse sobre uma carta para ver as opções de edição e exclusão.</p>
+        
+        <div id="card-manager-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; max-height: 60vh; overflow-y: auto; padding: 5px;">
+            <!-- As cartas serão inseridas aqui pelo JavaScript -->
+        </div>
+        
+        <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+            <button class="btn-buy" onclick="closeCardManager()"><i class="fas fa-times"></i> Fechar</button>
+            <button class="btn-save" onclick="closeCardManager(); openCardModal();"><i class="fas fa-plus"></i> Adicionar Nova Carta</button>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </body>
 </html>
