@@ -2391,6 +2391,161 @@ html, body {
     }
 }
 
+
+
+/* ============================================================
+   CORREÇÃO DEFINITIVA — TELA DE ESTUDO DOS FLASHCARDS NO MOBILE
+   O cabeçalho da tela de estudo NÃO usa .flashcards-header.
+   Por isso os ajustes anteriores não atingiam os botões desta tela.
+   ============================================================ */
+@media (max-width: 900px) {
+    /* Cabeçalho real da tela de estudo */
+    #fc-study-view > div:first-child {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        gap: 10px !important;
+        margin-bottom: 18px !important;
+        box-sizing: border-box !important;
+        overflow: visible !important;
+    }
+
+    /* Voltar */
+    #fc-study-view > div:first-child > button {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        min-height: 48px !important;
+        flex: none !important;
+        box-sizing: border-box !important;
+        white-space: normal !important;
+        line-height: 1.15 !important;
+        margin: 0 !important;
+    }
+
+    /* Título do baralho — não pode mais ser espremido */
+    #fc-study-view #study-deck-title {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin: 2px 0 4px !important;
+        padding: 0 4px !important;
+        box-sizing: border-box !important;
+        text-align: center !important;
+        font-size: clamp(1.15rem, 5vw, 1.5rem) !important;
+        line-height: 1.25 !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+    }
+
+    /* Grupo REAL que contém Editar, Excluir, Embaralhar,
+       Adicionar e Ver Todas as Cartas */
+    #fc-study-view > div:first-child > div {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+        box-sizing: border-box !important;
+        overflow: visible !important;
+    }
+
+    #fc-study-view > div:first-child > div > button {
+        display: inline-flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        min-height: 46px !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 9px 8px !important;
+        box-sizing: border-box !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+        line-height: 1.15 !important;
+        font-size: .82rem !important;
+    }
+
+    /* Os cinco botões ficam todos dentro da tela.
+       O quinto (Ver Todas) ocupa a largura inteira. */
+    #fc-study-view > div:first-child > div > button:nth-child(5) {
+        grid-column: 1 / -1 !important;
+        min-height: 48px !important;
+        font-size: .86rem !important;
+    }
+
+    /* Ícones não podem deformar os botões */
+    #fc-study-view > div:first-child > div > button i {
+        flex: 0 0 auto !important;
+        margin-right: 3px !important;
+    }
+
+    /* O cartão também fica limitado à largura útil */
+    #fc-study-view .card-scene {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-top: 8px !important;
+        box-sizing: border-box !important;
+    }
+}
+
+@media (max-width: 600px) {
+    #fc-study-view > div:first-child {
+        gap: 8px !important;
+    }
+
+    #fc-study-view > div:first-child > button {
+        min-height: 46px !important;
+        font-size: .9rem !important;
+    }
+
+    #fc-study-view #study-deck-title {
+        font-size: clamp(1.05rem, 5.5vw, 1.35rem) !important;
+        padding: 0 8px !important;
+    }
+
+    #fc-study-view > div:first-child > div {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    }
+
+    #fc-study-view > div:first-child > div > button {
+        min-height: 48px !important;
+        font-size: .76rem !important;
+        padding: 8px 5px !important;
+    }
+
+    #fc-study-view > div:first-child > div > button:nth-child(5) {
+        font-size: .82rem !important;
+    }
+}
+
+@media (max-width: 380px) {
+    #fc-study-view > div:first-child > div {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    }
+
+    #fc-study-view > div:first-child > div > button {
+        font-size: .72rem !important;
+        min-height: 46px !important;
+    }
+
+    #fc-study-view > div:first-child > div > button:nth-child(5) {
+        font-size: .78rem !important;
+    }
+}
+
 </style>
 </head>
 <body>
