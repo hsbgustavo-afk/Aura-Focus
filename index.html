@@ -3027,12 +3027,16 @@ html, body {
                 <!-- BANNER DE ATRASO INTELIGENTE -->
                 <div id="delay-banner" style="display:none; background: rgba(255,23,68,0.15); border: 3px solid #ff1744; color: #ff1744; padding: 15px; border-radius: 30px; margin-bottom: 20px; width: 29%; max-width: 800px; margin-left: auto; margin-right: 999; text-align: center; font-weight: 999; align-items: center; justify-content: center; flex-wrap: wrap; gap: 15px;"></div>
 
-                <div class="pomodoro-layout">
+                
+
+<!-- NOVO BANNER DE REVISÃO SRS -->
+    <div id="srs-home-banner" style="display:none; background: rgba(255,145,0,0.15); border: 3px solid #ff9100; color: #ff9100; padding: 15px; border-radius: 30px; margin-bottom: 20px; width: 29%; max-width: 800px; margin-left: auto; margin-right: 999; text-align: center; font-weight: 999; align-items: center; justify-content: center; flex-wrap: wrap; gap: 15px; cursor: pointer;" onclick="document.querySelector('[data-target=\'srs-reviews\']').click()">
+        <i class="fas fa-bell fa-shake"></i> Você tem <span id="srs-home-count">0</span> conteúdo(s) para revisar hoje!
+    </div>
+
+<div class="pomodoro-layout">
                     <div class="pomodoro-container">
                         <button class="btn-open-panel" onclick="toggleCustomPanel()"><i class="fas fa-palette"></i></button>
-
-
-
 
 
 
@@ -3701,7 +3705,8 @@ function toggleTask(index) {
     saveDataToCloud(); 
     renderTasks(); 
     renderSmartScheduleUI(); 
-    if (typeof renderSRSReviews === 'function') renderSRSReviews(); 
+    if (typeof renderSRSReviews === 'function') renderSRSReviews();
+if (typeof renderSRSNotificationBanner === 'function') renderSRSNotificationBanner();  
     playChime('coin'); 
 }
 
@@ -3812,26 +3817,39 @@ function removePlannerSubject(index) {
 let currentCalMonth = new Date().getMonth();
 let currentCalYear = new Date().getFullYear();
 
+// Função para corrigir o fuso horário e pegar a data correta no Brasil
+function getTodayLocalDateStr() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
 function checkDelays() {
     const banner = document.getElementById('delay-banner');
     if (!banner) return;
     if (!appData.generatedScheduleMap) { banner.style.display = 'none'; return; }
 
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
     let delayedDays = 0;
 
     for (let dateStr in appData.generatedScheduleMap) {
-        let d = new Date(dateStr + "T00:00:00");
-        if (d < today) {
+        // Corrigindo a leitura da data para o fuso local
+        const [y, m, d] = dateStr.split('-');
+        const dateObj = new Date(y, m - 1, d);
+        
+        if (dateObj < today) {
             let dayData = appData.generatedScheduleMap[dateStr];
-            // Se era dia de estudo e não foi marcado como concluído retroativamente
+            // Se era dia de estudo programado e NÃO foi concluído
             if (!dayData.isRest && !dayData.isSimulated && !dayData.completed) {
                 let historyFocus = appData.stats.history[dateStr] || 0;
-                if (historyFocus < 15) { // Considera atrasado se estudou menos de 15 minutos naquele dia
+                // Se o usuário não estudou pelo menos 15 minutos naquele dia, conta como atraso
+                if (historyFocus < 15) { 
                     delayedDays++;
                 } else {
-                    dayData.completed = true; // Salva que completou para não verificar de novo
+                    dayData.completed = true; // Auto-corrige se ele estudou via Pomodoro
                 }
             }
         }
@@ -3844,7 +3862,6 @@ function checkDelays() {
         banner.style.display = 'none';
     }
 }
-
 
 
 
@@ -4383,18 +4400,44 @@ function renderSRSReviews() {
     todayList.innerHTML = '';
     upcomingList.innerHTML = '';
 
-    const now = Date.now();
     let pendingCount = 0;
 
     // 1. TÓPICOS SRS PENDENTES PARA HOJE
     appData.srsTopics.forEach((topic, index) => {
-        if (topic.nextReviewDate <= now) {
+        const now = new Date();
+        now.setHours(0,0,0,0);
+        const dueDate = new Date(topic.nextReviewDate);
+        dueDate.setHours(0,0,0,0);
+        
+        const diffTime = dueDate.getTime() - now.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+        // Se diffDays for 0 (hoje) ou menor que 0 (atrasado)
+        if (diffDays <= 0) {
             pendingCount++;
+            
+            let statusText = "";
+            let color = "";
+            
+            if (diffDays === 0) {
+                statusText = "Vence Hoje";
+                color = "#ff9100";
+            } else {
+                statusText = `Atrasado há ${Math.abs(diffDays)} dia(s)`;
+                color = "#ff1744";
+            }
+            
+            const formattedDueDate = new Date(topic.nextReviewDate).toLocaleDateString('pt-BR');
+            const formattedAddedDate = new Date(topic.addedDate || (topic.nextReviewDate - 86400000)).toLocaleDateString('pt-BR');
+
             todayList.innerHTML += `
-                <div class="srs-item-card">
+                <div class="srs-item-card" style="border-left-color: ${color};">
                     <div>
-                        <span style="font-size: 0.75rem; color: #ff9100; font-weight: 700;"><i class="fas fa-exclamation-circle"></i> Venceu Hoje (${topic.intervalDays}º dia de intervalo)</span>
+                        <span style="font-size: 0.75rem; color: ${color}; font-weight: 700;"><i class="fas fa-exclamation-circle"></i> ${statusText} (Venceu em: ${formattedDueDate})</span>
                         <h4 style="color: white; margin: 4px 0 0; font-size: 1rem;">${topic.title}</h4>
+                        <span style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-top: 4px;">
+                            Iniciado em: ${formattedAddedDate} | Intervalo Atual: ${topic.intervalDays}º dia
+                        </span>
                     </div>
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <button class="btn-save" style="width: auto; padding: 10px 16px; background: #00e676; color: #000;" onclick="completeSRSTopic(${index})"><i class="fas fa-check"></i> Revisado (+30 XP)</button>
@@ -4420,31 +4463,20 @@ function renderSRSReviews() {
         }
     });
 
-    // 2. FLASHCARDS COM CARTAS PENDENTES PARA HOJE
-    if (appData.flashcards && appData.flashcards.length > 0) {
-        appData.flashcards.forEach(deck => {
-            const dueCards = (deck.cards || []).filter(c => !c.nextReview || c.nextReview <= now).length;
-            if (dueCards > 0) {
-                pendingCount += dueCards;
-                todayList.innerHTML += `
-                    <div class="srs-item-card" style="border-left-color: ${deck.color || 'var(--primary)'};">
-                        <div>
-                            <span style="font-size: 0.75rem; color: #ff9100; font-weight: 700;"><i class="fas fa-fire"></i> Baralho com ${dueCards} cartão(ões) para hoje</span>
-                            <h4 style="color: white; margin: 4px 0 0; font-size: 1rem;">${deck.title}</h4>
-                        </div>
-                        <button class="btn-save" style="width: auto; padding: 10px 18px; background: ${deck.color || 'var(--primary)'}; color: #000;" onclick="openStudyView('${deck.id}')"><i class="fas fa-play"></i> Estudar Baralho</button>
-                    </div>
-                `;
-            }
-        });
-    }
 
+
+
+
+   
     if (pendingCount === 0) {
         todayList.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid var(--glass-border);">Parabéns! Todas as revisões de hoje estão em dia.</p>`;
     }
     if (upcomingList.innerHTML === '') {
         upcomingList.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid var(--glass-border);">Nenhuma revisão futura agendada.</p>`;
     }
+    
+    // Atualiza o banner da tela inicial
+    renderSRSNotificationBanner(pendingCount);
 }
 
 function addSRSTopic() {
@@ -4455,7 +4487,8 @@ function addSRSTopic() {
     appData.srsTopics.push({
         id: 'srs_' + Date.now(),
         title: title.trim(),
-        intervalDays: 1, // Curva de Ebbinghaus: 1º dia (24h) -> 7d -> 15d -> 30d
+        intervalDays: 1, 
+        addedDate: Date.now(), // Registra a data exata do estudo
         nextReviewDate: Date.now() + 86400000 // 1 dia em ms
     });
 
@@ -4468,13 +4501,14 @@ function completeSRSTopic(index) {
     const topic = appData.srsTopics[index];
     if (!topic) return;
 
-    let nextInterval = 7;
+    // Lógica de Repetição Espaçada corrigida: 1 dia -> 7 dias -> 30 dias
+    let nextInterval = 30;
     if (topic.intervalDays === 1) nextInterval = 7;
-    else if (topic.intervalDays === 7) nextInterval = 15;
-    else if (topic.intervalDays === 15) nextInterval = 30;
-    else nextInterval = 30;
+    else if (topic.intervalDays === 7) nextInterval = 30;
+    else nextInterval = 30; // Mantém em 30 dias a partir daqui
 
     topic.intervalDays = nextInterval;
+    topic.lastReviewDate = Date.now();
     topic.nextReviewDate = Date.now() + (nextInterval * 86400000);
 
     giveXP(30);
@@ -4483,6 +4517,24 @@ function completeSRSTopic(index) {
     renderSRSReviews();
     showToast(`Revisão concluída! Próxima revisão agendada em ${nextInterval} dias (+30 XP)`, "success");
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function deleteSRSTopic(index) {
     if (!confirm("Deseja cancelar o agendamento de revisão deste conteúdo?")) return;
@@ -4511,6 +4563,58 @@ function enableSRSNotifications() {
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+function renderSRSNotificationBanner(pendingCount = null) {
+    const banner = document.getElementById('srs-home-banner');
+    if (!banner) return;
+    
+    if (pendingCount === null) {
+        const now = Date.now();
+        pendingCount = 0;
+        if (appData.srsTopics) {
+            pendingCount += appData.srsTopics.filter(t => t.nextReviewDate <= now).length;
+        }
+
+
+            }
+    
+    if (pendingCount > 0) {
+        document.getElementById('srs-home-count').innerText = pendingCount;
+        banner.style.display = 'flex';
+    } else {
+        banner.style.display = 'none';
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function checkAndNotifyPendingSRS() {
     if (Notification.permission !== "granted") return;
 
@@ -4519,11 +4623,6 @@ function checkAndNotifyPendingSRS() {
 
     if (appData.srsTopics) {
         totalPending += appData.srsTopics.filter(t => t.nextReviewDate <= now).length;
-    }
-    if (appData.flashcards) {
-        appData.flashcards.forEach(deck => {
-            totalPending += (deck.cards || []).filter(c => !c.nextReview || c.nextReview <= now).length;
-        });
     }
 
     if (totalPending > 0) {
@@ -4646,6 +4745,7 @@ function initializeUI() {
     renderDecks();
     renderStudyCycle();
     renderSRSReviews();
+    renderSRSNotificationBanner();
     renderPlannerSubjects();
     renderSmartScheduleUI();
     renderFullCalendar();
